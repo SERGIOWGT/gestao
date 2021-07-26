@@ -1,28 +1,36 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <v-main>
+      <AppBar
+        :titulo="titulo"
+        :urlLogo="urlLogo"
+      />
+      <v-container fluid style="max-width: 600px;height: 100vh;" >
+        <Router-view/>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import AppBar from './components/AppBar';
 
 export default {
-  name: 'App',
+  name: 'App', 
+
   components: {
-    HelloWorld
+    AppBar
+  },
+
+  data(){
+    return {
+      titulo: 'Painel Saúde',
+      urlLogo: 'https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png'
+    }
   }
-}
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
+
 </style>
