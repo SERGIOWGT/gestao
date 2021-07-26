@@ -5,10 +5,10 @@
        <v-flex class="mt-0y" fill-height>
        </v-flex>
           <v-flex fill-height >
-             <v-card flat>
-              <v-card-title class="py-0 mt-2 mb-5 justify-center"><h3>Entre com sua</h3></v-card-title>
-              <v-card-text class="pa-0">
-                <v-form class="ml-1 my-1 mr-1" v-model="formularioValido">
+             <v-card elevation="6" outlined tile>
+              <v-card-title class="black white--text  justify-center"><h4>ENTRE COM AS SUAS CREDENCIAIS</h4></v-card-title>
+              <v-card-text class="pa-3">
+                <v-form class="my-2" v-model="formularioValido">
                   <v-text-field
                     v-model="email"
                     :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
@@ -53,8 +53,8 @@
                       <v-icon color="white darken-2" left>mdi-google</v-icon> Google
                     </v-btn>
                   </v-row>  
-                  <v-row class="linha-padrao justify-center my-5" >
-                    Sua primeira vez?&nbsp;<a href="#" class="ml-1" v-on:click="registraUsuario"> Clique aqui para criar seu usuário</a>
+                  <v-row class="linha-padrao justify-center px-y my-5" >
+                    Sua primeira vez?&nbsp;<a href="#" class="ml-1" v-on:click="registraUsuario"> Crie aqui seu usuário</a>
                   </v-row>
                 </v-form>
               </v-card-text>
@@ -111,7 +111,7 @@
         isLoading: false,
         senhaNaoVisivel: false,
         email: 'sergiowgt@gmail.com',
-        senha: 'Sw@654321',
+        senha: 'Dev@5630',
         mensagemErro: '',
         rotinasLogin: RotinasLogin
       }
@@ -206,5 +206,9 @@
     text-align: end;
     width: 100%;
     font-size: 0.8em;
+  }
+
+  @media(max-width: 375px) {
+    h4 {font-size: 0.9rem}
   }
 </style>

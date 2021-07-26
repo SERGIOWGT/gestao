@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-//import store from '../store.js'
+import store from '../store.js'
+import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
+import TelaAberturaView from '../views/TelaAberturaView.vue'
 import EmDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
 
 Vue.use(Router)
@@ -10,6 +12,16 @@ Vue.use(Router)
 const routes = [
     {
         path: '/',
+        name: 'telaAberturaView',
+        component: TelaAberturaView
+    },
+    {
+        path: '/login',
+        name: 'loginView',
+        component: LoginView
+    },
+    {
+        path: '/Home',
         name: 'homeView',
         component: HomeView
     },
@@ -23,7 +35,8 @@ const routes = [
 //
 const RotasApp = new Router({routes})
 
-/* RotasApp.beforeEach((to, from, next) => {
+
+RotasApp.beforeEach((to, from, next) => {
     console.log("from", from.path)
     console.log("to", to.path)
     //console.log("from.path != '/'", from.path != '/')
@@ -44,6 +57,6 @@ const RotasApp = new Router({routes})
         }
     }
     
-  }) */
+  })
 
 export default RotasApp
