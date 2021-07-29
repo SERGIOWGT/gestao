@@ -1,13 +1,6 @@
 <template>
-  <v-container fluid  pa-0 >
+  <v-container fluid  pa-0>
     <ProgressDialog :mensagem="'Aguarde um momento....'" :mostra="!sistemaChecado"/>
-<!--     <v-flex class="mt-0" fill-height v-if="sistemaChecado">
-      <v-img class="mt-0"
-          :src="urlImagemPrefeitura"
-          contain
-          height="120"
-        />
-    </v-flex> -->
     <LoginForm  
       :mostra="sistemaChecado"
       :tokenSistema="tokenSistema" 

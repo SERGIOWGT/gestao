@@ -1,22 +1,28 @@
 <template>
-  <v-dialog
-      v-model="mostra"
-      hide-overlay
-      persistent
-      width="70%"
-      :max-width="tamanhoJanela"
-  >
-    <v-card color="primary" dark>
-      <v-card-text >
-          {{mensagem}}
-          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+  <v-row v-if="mostra"
+        class="mt-5 fill-height"
+        align-content="center"
+        justify="center"
+      >
+        <v-col
+          class="text-subtitle-1 text-center"
+          cols="12"
+        >
+        {{ mensagem }}
+        </v-col>
+        <v-col cols="5">
+          <v-progress-linear
+            color="dark green accent-4"
+            indeterminate
+            rounded
+            height="7"
+          ></v-progress-linear>
+        </v-col>
+      </v-row>
 </template>
 <script>
   export default {
-    props: ['mensagem', 'tamanhoJanela', 'mostra']
+    props: ['mensagem', 'mostra']
   }
 </script>
 

@@ -2,7 +2,7 @@
   <v-container fill-height>
     <transition name="slide-fade" mode="in-out">
       <LoginComponent 
-        :tokenSistema="'F27E3934-F5C6-4A20-B978-1638005116C0'"
+        :tokenSistema="'5653C00F-BE51-47C2-B709-061FC96CFE7A'"
         @autenticado='autenticado'
         @registraUsuario='registraUsuario'
         @setaConfiguracaoSistema='setaConfiguracaoSistema'

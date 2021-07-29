@@ -1,19 +1,18 @@
 <template>
-  <v-container fill-height>
+  <v-container>
     <v-row justify="center">
       <transition name="fade">
         <v-img
           class="shrink mr-2"
           contain
           src="../assets/logoTelaAbertura.jpeg"
-          width="300"
           transition="scale-transition"
         />
       </transition>
     </v-row>
     <v-row>
       <v-row
-        class="fill-height"
+        class="mt-5 fill-height"
         align-content="center"
         justify="center"
       >

@@ -1,15 +1,16 @@
 <template>
-  <v-app>
-    <v-main>
-      <AppBar
-        :titulo="titulo"
-        :urlLogo="urlLogo"
-      />
-      <v-container fluid style="max-width: 600px;height: 100vh;" >
+<v-app>
+ <AppBar
+    v-if="$store.getters.estaLogado"
+    :titulo="titulo"
+    :urlLogo="urlLogo"
+  />
+  <v-main>
+     <v-container fill-height fluid style="max-width: 600px;" class="pa-0">
         <Router-view/>
-      </v-container>
-    </v-main>
-  </v-app>
+    </v-container>
+  </v-main>
+</v-app>
 </template>
 
 <script>
@@ -20,7 +21,7 @@ export default {
 
   components: {
     AppBar
-  },
+  }, 
 
   data(){
     return {

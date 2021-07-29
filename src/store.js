@@ -18,6 +18,10 @@ const store = new Vuex.Store({
             token: '',
             nomeUsuario: '',
             usuarioId: '',
+        },
+        infosMunicipio: {
+            id: 33221,
+            nome: 'Prefeitura Municipal de Guarará',
         }
     },
     mutations: {
@@ -57,7 +61,10 @@ const store = new Vuex.Store({
         nomeSistema: state => state.infosSistema.nome,
         plataformaId: state => state.infosSistema.plataformaId,
         nomePlataforma: state => state.infosSistema.nomePlataforma,
-        configuracaoSistema: state => state.configuracaoSistema
+        configuracaoSistema: state => state.configuracaoSistema,
+        municipioId: state => state.infosMunicipio.id,
+        nomeMunicipio: state => state.infosMunicipio.nome
+
     }
   })
   export default store

@@ -1,5 +1,5 @@
 <template>
-  <v-container fill-height class="pink">
+  <v-container fill-height>
     <transition name="fade" mode="out-in">
       <TelaAbertura :mensagem="'Rolando uma animação com o logo'" v-if="!saiTela"/>
     </transition>
@@ -19,10 +19,10 @@
       }
     },
     mounted: function() {
-      setTimeout(() =>  {
+         setTimeout(() =>  {
         this.saiTela = true;
         this.$router.push('/login'); }
-      , 3000);
+      , 3000);  
     }
   }
 </script>

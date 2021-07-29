@@ -1,8 +1,8 @@
 <template class="px-0 mx-0">
   <v-container class="pa-0 ma-0" v-if="mostra">
      <v-flex>
-      <v-layout column  >
-       <v-flex class="mt-0y" fill-height>
+      <v-layout column >
+       <v-flex class="mt-0" fill-height>
        </v-flex>
           <v-flex fill-height >
              <v-card elevation="6" outlined tile>
