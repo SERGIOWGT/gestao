@@ -22,11 +22,14 @@ const store = new Vuex.Store({
         infosMunicipio: {
             id: 33221,
             nome: 'Prefeitura Municipal de Guarará',
-        }
+        },
+        permissoes: ''
     },
     mutations: {
+        setaPermissao (state, obj) {
+            state.permissoes = obj
+        },
         setaConfiguracaoSistema (state,  obj) {
-            console.log('setaConfiguracaoSistema', obj)
             state.infosSistema.nome = obj.nomeSistema
             state.infosSistema.nomePlataforma = obj.nomePlataforma
             state.infosSistema.plataformaId = obj.plataformaId
@@ -34,7 +37,6 @@ const store = new Vuex.Store({
             state.infosSistema.urlImagem = obj.urlImagem
         }, 
         autenticado (state, obj) {
-            console.log('autenticado', obj)
             state.estaLogado = true
             state.sistemaId = obj.sistemaId
             state.infosUsuario.email = obj.email
@@ -48,7 +50,8 @@ const store = new Vuex.Store({
             state.infosUsuario.email = '',
             state.infosUsuario.token = '',
             state.infosUsuario.nomeUsuario = '',
-            state.infosUsuario.usuarioId = ''
+            state.infosUsuario.usuarioId = '',
+            state.permissoes = ''
         }
     },
     getters: {
@@ -63,8 +66,8 @@ const store = new Vuex.Store({
         nomePlataforma: state => state.infosSistema.nomePlataforma,
         configuracaoSistema: state => state.configuracaoSistema,
         municipioId: state => state.infosMunicipio.id,
-        nomeMunicipio: state => state.infosMunicipio.nome
-
+        nomeMunicipio: state => state.infosMunicipio.nome,
+        permissao: state => state.permissoes
     }
   })
   export default store

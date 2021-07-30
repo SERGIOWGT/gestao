@@ -1,6 +1,17 @@
 import { http } from './configService'
 
 export default {
+    listaPermissionamento: (token, usuarioId, sistemaId) => {
+        var _url = `v1/Usuarios/${usuarioId}/ListaPermissionamento?sistemaId=${sistemaId}`
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    }
+
+/*     
     listaSistemasPorUsuario: (usuarioId) => {
         return http.get('sistemas/PorUsuario/' + usuarioId)
     },
@@ -35,9 +46,9 @@ export default {
     },
     listaFuncionalidadesPorSistemaPorGrupoAcesso: (sistemaId, grupoAcessoId) => {
         return http.get('funcionalidades/PorSistema/' + sistemaId + '/PorGrupoAcesso/' + grupoAcessoId)
-    },
+    }, */
     // POR FUNCIONALIDADE
-    trataErroHttp: (error) => {
+/*     trataErroHttp: (error) => {
         let mensagem = '';
         if (error.response) {
             error.response.data.forEach(el => {
@@ -49,5 +60,5 @@ export default {
             mensagem = error.message;
         }
         return mensagem
-    }
+    } */
 }

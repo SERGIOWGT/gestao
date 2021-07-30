@@ -53,7 +53,7 @@
                       <v-icon color="white darken-2" left>mdi-google</v-icon> Google
                     </v-btn>
                   </v-row>  
-                  <v-row class="linha-padrao justify-center px-y my-5" >
+                  <v-row class="linha-padrao justify-center px-y my-5" v-if="permiteRegistroUsuario">
                     Sua primeira vez?&nbsp;<a href="#" class="ml-1" v-on:click="registraUsuario"> Crie aqui seu usuário</a>
                   </v-row>
                 </v-form>
@@ -111,7 +111,7 @@
         isLoading: false,
         senhaNaoVisivel: false,
         email: 'sergiowgt@gmail.com',
-        senha: 'Dev@5630',
+        senha: 'Bbm@2007',
         mensagemErro: '',
         rotinasLogin: RotinasLogin
       }

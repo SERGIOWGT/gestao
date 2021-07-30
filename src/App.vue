@@ -2,7 +2,7 @@
 <v-app>
  <AppBar
     v-if="$store.getters.estaLogado"
-    :titulo="titulo"
+    :titulo="$store.getters.nomeSistema"
     :urlLogo="urlLogo"
   />
   <v-main>
