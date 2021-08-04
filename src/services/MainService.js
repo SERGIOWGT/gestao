@@ -1,7 +1,38 @@
 import sso from './ssoService'
+import api from './apiService'
 import store from '../store'
 
 export default {
+
+    // Rotinas da Api
+    listaComorbidades: () => {
+        var _token = store.getters.apiToken;
+        return api.listaComorbidades(_token);
+    },
+    listaSintomas: () => {
+        var _token = store.getters.apiToken;
+        return api.listaSintomas(_token);
+    },
+    listaBairros: (cidadeId) => {
+        var _token = store.getters.apiToken;
+        return api.listaBairros(_token, cidadeId);
+    },
+    listaUnidadesSaude: (cidadeId) => {
+        var _token = store.getters.apiToken;
+        return api.listaUnidadesSaude(_token, cidadeId);
+    },
+    listaLogradouros: (cidadeId) => {
+        var _token = store.getters.apiToken;
+        return api.listaLogradouros(_token, cidadeId);
+    },
+    salvaPaciente: (infoPaciente) => {
+        var _token = store.getters.apiToken;
+        return api.salvaPaciente(_token, infoPaciente);
+    },
+    // Rotinas de autenticação
+    autentica: (signKey, usuarioGuid) => {
+        return api.autentica(signKey, usuarioGuid);
+    },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
@@ -41,7 +72,7 @@ export default {
             return _retorno
         }
 
-        const _array = store.getters.permissao
+        const _array = store.getters.permissionamento
         var _item = _array.find(_busca)
         return !(_item == null) 
     }

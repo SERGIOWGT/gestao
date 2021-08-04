@@ -127,7 +127,7 @@
 </template>
 <script>
     import StepBar from '../components/StepBar';
-    import BottomBar from '../components/BottomBar';
+    import BottomBar from '../components/StepBottomBar';
 
     export default {
         name: 'SuspeitaCovid',
@@ -199,7 +199,7 @@
                 this.botaoFinaliza = false;
               }
             } else {
-              this.$router.push('/');
+              this.$router.push('/home');
             }
           }, 
           cmdContinua() {

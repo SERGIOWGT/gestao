@@ -1,22 +1,22 @@
 <template>
     <v-bottom-navigation
-        color="teal"
+        color="primary"
         grow
         fixed
     >
-        <v-btn v-if="botaoVolta" @click="btnVolta()">
+        <v-btn v-if="temBotaoAnterior" @click="btnVolta()" :disabled="podeVoltar === false">
             <span>Voltar</span>
             <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <v-btn v-if="botaoCancela" @click="btnCancela()">
+        <v-btn v-if="temBotaoCancela" @click="btnCancela()" :disabled="podeCancelar===false">
             <span>Cancelar</span>
             <v-icon>mdi-cancel</v-icon>
         </v-btn>
-        <v-btn v-if="botaoContinua" @click="btnContinua()">
+        <v-btn exact v-if="temBotaoProximo" @click="btnContinua()" :disabled="podeContinuar===false">
             <span>Continuar</span>
             <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
-        <v-btn v-if="botaoFinaliza" @click="btnFinaliza()">
+        <v-btn v-if="temBotaoFinaliza" @click="btnFinaliza()" :disabled="podeFinalizar===false">
             <span>Finalizar</span>
             <v-icon>mdi-cloud-upload</v-icon>
         </v-btn>
@@ -26,10 +26,14 @@
   export default {
     name: 'ButtonBar',
     props: {
-        botaoVolta: Boolean,
-        botaoContinua:  Boolean,
-        botaoCancela: Boolean,
-        botaoFinaliza: Boolean
+        temBotaoAnterior: Boolean,
+        temBotaoProximo:  Boolean,
+        temBotaoCancela: Boolean,
+        temBotaoFinaliza: Boolean,
+        podeVoltar: Boolean,
+        podeContinuar:  Boolean,
+        podeCancelar: Boolean,
+        podeFinalizar: Boolean
     },
     data() {
         return {
@@ -40,10 +44,10 @@
     },
     methods: {
         btnVolta() {
-            this.$emit('funcaoVolta')
+            this.$emit('funcaoAnterior')
         }, 
         btnContinua() {
-            this.$emit('funcaoContinua')
+            this.$emit('funcaoProximo')
         },
         btnCancela() {
             this.$emit('funcaoCancela')

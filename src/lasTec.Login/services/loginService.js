@@ -3,14 +3,14 @@ import { http } from './configService'
 export default {
     listaConfiguracao: (sistemaId) => {
         var _url = 'login/listaConfiguracao?tokenSistema='+sistemaId;
-        console.log(_url)
         return http.get(_url);
     },
     autentica: (sistemaId, email, senha) => {
         let params = {
             'tokenSistema': sistemaId,
             'chave': email,
-            'senha': senha
+            'senha': senha,
+            'comPermissoes': true
         }
         return http.put('login/autentica', params)
     },

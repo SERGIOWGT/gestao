@@ -1,18 +1,14 @@
 <template>
   <v-layout class="pa-0 ma-0 grey lighten-5" align-content-start justify-end row fill-height>
     <v-container class="pa-0">
+      <v-row class="justify-center" v-if="mensagemErro">
+        <v-alert type="error" smaller dense outlined>
+          {{mensagemErro}}
+        </v-alert>
+      </v-row> 
+
       <v-alert
-        color="blue lighten-1 white--text"
-        flat
-        icon="mdi-account"
-        prominent
-      >
-        Olá, {{$store.getters.nomeUsuario}} <br>
-        {{$store.getters.nomeMunicipio}}
-      </v-alert>
-      
-      <v-alert
-        v-show="semAcesso"
+        v-show="mostraTela && semAcesso"
         text
         prominent
         type="error"
@@ -20,7 +16,7 @@
       >
         Você está sem permissão para acessar esse sistema. Por favor, fale com o administrador
       </v-alert>
-      <v-layout justify-center class="my-0" v-show="!semAcesso">
+      <v-layout justify-center class="my-0" v-show="mostraTela && !semAcesso">
         <v-layout justify-center class="px-5 py-2">
           <v-expansion-panels inset >
             <v-expansion-panel class="green lighten-4">
@@ -36,16 +32,16 @@
           </v-expansion-panels>
         </v-layout>
       </v-layout>
-      <v-layout justify-center class="mt-1" v-show="!semAcesso" v-for="item in funcionalidades" :key="item.id" >
+      <v-layout justify-center class="mt-1" v-show="mostraTela" v-for="item in funcionalidades" :key="item.id" >
         <v-layout justify-center class="px-5 py-2" v-show="item.ativo==true">
-          <v-expansion-panels accordion >
+          <v-expansion-panels >
             <v-expansion-panel class="white py-2">
               <v-expansion-panel-header disable-icon-rotate>    
                 <div class="d-flex align-center">
                     <v-icon :color="item.iconColor">{{item.icon}}</v-icon><span :class="'ml-2 ' + item.textColor"> {{item.text}}}</span>
                 </div>
                 <template v-slot:actions>
-                  <v-icon v-on:click="setaEtapaAtual(item.id)" color="blue">mdi-arrow-right-circle-outline</v-icon>
+                  <v-icon v-on:click="executaFuncao(item.id)" color="blue">mdi-arrow-right-circle-outline</v-icon>
                 </template>
               </v-expansion-panel-header>
             </v-expansion-panel>
@@ -53,6 +49,9 @@
         </v-layout>
       </v-layout>
     </v-container>
+    
+
+
 
    <!--  <v-bottom-navigation
         color="teal"
@@ -80,14 +79,14 @@
 </template>
 <script>
   
-  import accessControl from '../services/accessControlService'
+  import mainService from '../services/MainService'
 
   export default {
     data() {
       return {
         token: '',
-        sistemaId:0,
-        usuarioId: 0,
+        mostraTela:false,
+        mensagemErro: '',
         semAcesso: true,
         funcionalidades: [
             {
@@ -97,7 +96,7 @@
                 icon: 'mdi-alert-outline', 
                 iconColor: 'blue', 
                 ativo: false,
-                func: 'naoImplementada()', 
+                func: 'cadastraMonitoramento()', 
                 perms: [
                   {id:101, tipoId:1, acao:'I'},
                   {id:102, tipoId:1, acao:'I'},
@@ -136,44 +135,54 @@
       }
     },
     mounted() {
-        this.token = this.$store.getters.token
-        this.sistemaId = this.$store.getters.sistemaId
-        this.usuarioId= this.$store.getters.usuarioId
+        if (this.$store.getters.estaLogado) {
+          this.preparaTela()
 
-        accessControl.listaPermissionamento(this.token, this.usuarioId, this.sistemaId)
-          .then(resposta => {
-            if (resposta.status == 200) {
-              var _permissao = resposta.data;
-              accessControl.setaPermissionamento(_permissao)
-              this.montaTela()
-            } else {
-              console.log('Erro', resposta.message)
-              this.mensagemErro = resposta.message
-            }
-          })
-          .catch((response) => {
-              if (response) {
-                this.mensagemErro = "";
-                response.erros.forEach(el => {
-                  this.mensagemErro += el.mensagem;
-                });
+            console.log("PainelSaude ==> Chamada")
+            mainService.autentica("d5f52a0e-f212-11eb-a054-566fe1410274", "a313f0e9-f392-11eb-a3f4-566fe1410277")
+            .then(resposta => {
+              if (resposta.status == 200) {
+                this.$store.commit('autenticadoApi', resposta.data.token)
               } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log('Erro', response.message);
-                this.mensagemErro = response.message;
+                console.log('Erro', resposta.message)
+                this.mensagemErro = resposta.message
               }
-          })
+            })
+            .catch((response) => {
+                console.log("PainelSaude ==> VoltaErro")
+                if (response) {
+                  this.mensagemErro = "";
+                  response.erros.forEach(el => {
+                    this.mensagemErro += el.mensagem;
+                  });
+                } else {
+                  // Something happened in setting up the request that triggered an Error
+                  console.log('Erro', response.message);
+                  this.mensagemErro = response.message;
+                }
+            })
+        } else {
+          this.preparaTela()
+        }
     },
     methods: {
-      setaEtapaAtual(funcionalidadeId) {
-        alert('funcionalidade não implementada [funcionalidadeId=' + funcionalidadeId+']')
+      executaFuncao(id) {
+
+        this.mensagemErro = ''
+        switch (id) {
+          case 1:
+            this.$router.push('novaSuspeita') 
+            break
+          default:
+            this.mensagemErro = `funcionalidade não implementada [id=${id}]`
+        }
       },
-      montaTela() {
+      preparaTela() {
         for (var i=0; i < this.funcionalidades.length; ++i) {
           var _passouTodos = true
           for (var j=0; j < this.funcionalidades[i].perms.length; ++j) {
             var _item = this.funcionalidades[i].perms[j];
-            if (accessControl.temAcesso(_item.id, _item.tipoId, _item.acao) == false) {
+            if (mainService.temAcesso(_item.id, _item.tipoId, _item.acao) == false) {
               _passouTodos = false;
               break;
             }
@@ -183,6 +192,7 @@
             this.funcionalidades[i].ativo = true
           }
         }
+        this.mostraTela = true
       }
     }
   }

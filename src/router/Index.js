@@ -6,6 +6,7 @@ import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
 import TelaAberturaView from '../views/TelaAberturaView.vue'
 import EmDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
+import NovaSuspeitaView from '../views/NovaSuspeitaView.vue'
 
 Vue.use(Router)
 
@@ -29,6 +30,11 @@ const routes = [
         path: '/emDesenvolvimento',
         name: 'emDesenvolvimentoView',
         component: EmDesenvolvimentoView
+    },
+    {
+        path: '/novaSuspeita',
+        name: 'novaSuspeitaView',
+        component: NovaSuspeitaView
     }
 ]
 
@@ -37,10 +43,9 @@ const RotasApp = new Router({routes})
 
 
 RotasApp.beforeEach((to, from, next) => {
-    console.log("from", from.path)
-    console.log("to", to.path)
-    //console.log("from.path != '/'", from.path != '/')
-    //console.log("!store.getters.estaLogado", !store.getters.estaLogado)
+    //console.log("from", from.path)
+    //console.log("to", to.path)
+    console.log(`from => ${from.path}, to => ${to.path},  estaLogado => ${store.getters.estaLogado}`)
 
     if (to.path == '/')
         next()

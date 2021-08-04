@@ -15,19 +15,20 @@ const store = new Vuex.Store({
         },
         infosUsuario: {
             email: '',
-            token: '',
+            ssoToken: '',
             nomeUsuario: '',
             usuarioId: '',
+            apiToken: ''
         },
-        infosMunicipio: {
-            id: 33221,
+        infosCidade: {
+            id: 1,
             nome: 'Prefeitura Municipal de Guarará',
         },
-        permissoes: ''
+        permissionamento: ''
     },
     mutations: {
         setaPermissao (state, obj) {
-            state.permissoes = obj
+            state.permissionamento = obj
         },
         setaConfiguracaoSistema (state,  obj) {
             state.infosSistema.nome = obj.nomeSistema
@@ -36,13 +37,18 @@ const store = new Vuex.Store({
             state.infosSistema.id = obj.sistemaId
             state.infosSistema.urlImagem = obj.urlImagem
         }, 
-        autenticado (state, obj) {
+        autenticadoApi (state, token) {
+            state.infosUsuario.apiToken = token
+        },
+        autenticadoSso (state, obj) {
             state.estaLogado = true
             state.sistemaId = obj.sistemaId
             state.infosUsuario.email = obj.email
-            state.infosUsuario.token = obj.token
+            state.infosUsuario.ssoToken = obj.token
+            state.infosUsuario.apiToken = ''
             state.infosUsuario.nomeUsuario = obj.nomeUsuario
             state.infosUsuario.usuarioId = obj.usuarioId
+            state.permissionamento = obj.permissionamento
         },
         logout(state) {
             state.estaLogado = false,
@@ -57,7 +63,8 @@ const store = new Vuex.Store({
     getters: {
         estaLogado: state => state.estaLogado,
         email: state => state.infosUsuario.email,
-        token: state => state.infosUsuario.token,
+        ssoToken: state => state.infosUsuario.ssoToken,
+        apiToken: state => state.infosUsuario.apiToken,
         usuarioId: state => state.infosUsuario.usuarioId,
         nomeUsuario: state => state.infosUsuario.nomeUsuario,
         sistemaId: state => state.infosSistema.id,
@@ -65,9 +72,9 @@ const store = new Vuex.Store({
         plataformaId: state => state.infosSistema.plataformaId,
         nomePlataforma: state => state.infosSistema.nomePlataforma,
         configuracaoSistema: state => state.configuracaoSistema,
-        municipioId: state => state.infosMunicipio.id,
-        nomeMunicipio: state => state.infosMunicipio.nome,
-        permissao: state => state.permissoes
+        cidadeId: state => state.infosCidade.id,
+        nomeCidade: state => state.infosCidade.nome,
+        permissionamento: state => state.permissionamento
     }
   })
   export default store

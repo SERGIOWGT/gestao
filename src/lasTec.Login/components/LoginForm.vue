@@ -123,14 +123,14 @@
       autentica() {
         this.isLoading =true;
         this.mensagemErro = ""
-        console.log('entrei no autentica', this.tokenSistema, this.email, this.senha)
         LoginService.autentica(this.tokenSistema, this.email, this.senha)
           .then(resposta => {
             let _resposta = {
               email: this.email,
               usuarioId: resposta.data.usuarioId,
               token: resposta.data.token,
-              nomeUsuario: resposta.data.nomeUsuario
+              nomeUsuario: resposta.data.nomeUsuario,
+              permissionamento: resposta.data.permissionamento
             }
             this.$emit('autenticado', _resposta)
           })

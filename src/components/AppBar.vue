@@ -2,11 +2,11 @@
     <v-app-bar
       app
       flat
-      color="blue lighten-1"
+      color="indigo darken-2"
       dark
     >
       <div class="d-flex align-center">
-        <a href="/">
+        <a href="/Home">
         <v-img
           alt="Vuetify Logo"
           class="shrink mr-2"
@@ -18,7 +18,9 @@
         </v-img>
         </A>
       </div>
-      <v-spacer><div class="text-center"><h4>{{titulo}}</h4></div></v-spacer> 
+      <v-spacer>
+      <div class="text-center"><h4>{{titulo}}</h4></div>
+      </v-spacer> 
       <v-btn  icon v-on:click="logout()">
         <v-icon>mdi-logout</v-icon>
       </v-btn>
@@ -32,10 +34,10 @@
     },
     methods: { 
       goHome() {
-        this.$router.push('/');
+        this.$router.push('/Home');
       },
       logout() {
-          console.log()
+        this.$router.push('/Home');
         //this.$store.commit('logout')
         //this.$router.push('/')
       }

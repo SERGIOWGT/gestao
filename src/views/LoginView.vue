@@ -39,7 +39,7 @@
         this.ssoPronto = true;
       },
       autenticado(obj) {   
-        this.$store.commit('autenticado', obj)
+        this.$store.commit('autenticadoSso', obj)
         this.$router.push('/Home')
         console.log('LoginView.Autenticado')
         //var _url = 'http://localhost:58733/Default.aspx?'
