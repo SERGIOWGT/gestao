@@ -11,6 +11,10 @@
         </v-stepper-step>
         <v-divider></v-divider>
         <v-stepper-step step="3" :complete="etapa > 3">
+          Comorbidades
+        </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step step="4" :complete="etapa > 4">
           Sintomas
         </v-stepper-step>
       </v-stepper-header>
