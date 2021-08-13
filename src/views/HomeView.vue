@@ -6,6 +6,17 @@
           {{mensagemErro}}
         </v-alert>
       </v-row> 
+      <v-col class="pt-5 mt-5 text-subtitle-1 text-center" v-if="mensagemBusca != ''">
+          {{mensagemBusca}}
+      </v-col>
+      <v-col>
+        <v-progress-linear v-if="mensagemBusca != ''"
+          color="primary accent-4"
+          indeterminate
+          rounded
+          height="6"
+        ></v-progress-linear>
+      </v-col>
 
       <v-alert
         v-show="mostraTela && semAcesso"
@@ -84,90 +95,96 @@
   export default {
     data() {
       return {
+        nome: 'teste',
         token: '',
         mostraTela:false,
         mensagemErro: '',
+        mensagemBusca: '',
         semAcesso: true,
         funcionalidades: [
-            {
-                id: 1, 
-                textColor: 'blue--text', 
-                text: 'Cadastre paciente com suspeita de Covid-19', 
-                icon: 'mdi-alert-outline', 
-                iconColor: 'blue', 
-                ativo: false,
-                func: 'cadastraMonitoramento()', 
-                perms: [
-                  {id:101, tipoId:1, acao:'I'},
-                  {id:102, tipoId:1, acao:'I'},
-                  {id:103, tipoId:1, acao:'I'},
-                  {id:105, tipoId:1, acao:'I'},
-                  {id:106, tipoId:1, acao:'I'},
-                  {id:107, tipoId:1, acao:'C'}
-                ]
-            }, {   
-                id: 2, 
-                textColor: 'blue--text', 
-                text: 'Atualize aqui os sintomas de um paciente em monitoramento', 
-                icon: 'mdi-emoticon-sick', 
-                iconColor: 'blue', 
-                ativo: false,
-                func: 'naoImplementada()',
-                perms: [
-                  {id:103, tipoId:1, acao:'A'}, 
-                  {id:105, tipoId:1, acao:'A'},
-                  {id:106, tipoId:1, acao:'C'}
-                ]
-            },{   
-                id: 3, 
-                textColor: 'blue--text', 
-                text: 'Atualize as visitas na residência do paciente', 
-                icon: 'mdi-bed', 
-                iconColor: 'blue', 
-                ativo: false,
-                func: 'naoImplementada()',
-                perms: [
-                  {id:107, tipoId:1, acao:'C'}
-                ]
-            }
-
+          {
+              id: 1, 
+              textColor: 'blue--text', 
+              text: 'Cadastre paciente com suspeita de Covid-19', 
+              icon: 'mdi-alert-outline', 
+              iconColor: 'blue', 
+              ativo: false,
+              func: 'cadastraMonitoramento()', 
+              perms: [
+                {id:101, tipoId:1, acao:'I'},
+                {id:102, tipoId:1, acao:'I'},
+                {id:103, tipoId:1, acao:'I'},
+                {id:105, tipoId:1, acao:'I'},
+                {id:106, tipoId:1, acao:'I'},
+                {id:107, tipoId:1, acao:'C'}
+              ]
+          }, {   
+              id: 2, 
+              textColor: 'blue--text', 
+              text: 'Atualize aqui os sintomas de um paciente em monitoramento', 
+              icon: 'mdi-emoticon-sick', 
+              iconColor: 'blue', 
+              ativo: false,
+              func: 'naoImplementada()',
+              perms: [
+                {id:103, tipoId:1, acao:'A'}, 
+                {id:105, tipoId:1, acao:'A'},
+                {id:106, tipoId:1, acao:'C'}
+              ]
+          },{   
+              id: 3, 
+              textColor: 'blue--text', 
+              text: 'Atualize as visitas na residência do paciente', 
+              icon: 'mdi-bed', 
+              iconColor: 'blue', 
+              ativo: false,
+              func: 'naoImplementada()',
+              perms: [
+                {id:107, tipoId:1, acao:'C'}
+              ]
+          }
         ]
       }
     },
     mounted() {
-        if (this.$store.getters.estaLogado) {
-          this.preparaTela()
-
-            console.log("PainelSaude ==> Chamada")
-            mainService.autentica("d5f52a0e-f212-11eb-a054-566fe1410274", "a313f0e9-f392-11eb-a3f4-566fe1410277")
-            .then(resposta => {
-              if (resposta.status == 200) {
-                this.$store.commit('autenticadoApi', resposta.data.token)
-              } else {
-                console.log('Erro', resposta.message)
-                this.mensagemErro = resposta.message
-              }
-            })
-            .catch((response) => {
-                console.log("PainelSaude ==> VoltaErro")
-                if (response) {
-                  this.mensagemErro = "";
-                  response.erros.forEach(el => {
-                    this.mensagemErro += el.mensagem;
-                  });
-                } else {
-                  // Something happened in setting up the request that triggered an Error
-                  console.log('Erro', response.message);
-                  this.mensagemErro = response.message;
-                }
-            })
-        } else {
-          this.preparaTela()
-        }
+      this.autenticaNoPainelSaude()
     },
     methods: {
+      autenticaNoPainelSaude() {
+        this.mensagemBusca = 'Aguarda autenticação no ambiente...'
+        mainService.autentica("a313f0e9-f392-11eb-a3f4-566fe1410277")
+        .then(resposta => {
+          console.log("autenticaNoPainelSaude-then")
+          this.mensagemBusca = ''
+          if (resposta.status == 200) {
+            var _dados = resposta.data[0]
+            if ((_dados.token) && (_dados.cidadeId) && (_dados.nomeCidade)) {
+              this.$store.commit('autenticadoApi', _dados)
+              this.preparaTela()
+            } else {
+              this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32157] '
+            }
+          } else {
+            console.log('Erro', resposta.message)
+            this.mensagemErro = resposta.message
+          }
+        })
+        .catch((response) => {
+          this.mensagemBusca = ''
+            console.log("autenticaNoPainelSaude-erro")
+            if (response) {
+              this.mensagemErro = '';
+              response.erros.forEach(el => {
+                this.mensagemErro += el.mensagem;
+              });
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              console.log('Erro', response.message);
+              this.mensagemErro = response.message;
+            }
+        })
+      },      
       executaFuncao(id) {
-
         this.mensagemErro = ''
         switch (id) {
           case 1:

@@ -25,14 +25,19 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaLogradouros(_token, cidadeId);
     },
+    listaPacientes: (param) => {
+        var _token = store.getters.apiToken;
+        return api.listaPacientes(_token, param);
+    },
+    listaPaciente: (pacienteId) => {
+        var _token = store.getters.apiToken;
+        return api.listaPaciente(_token, pacienteId);
+    },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;
         return api.salvaPaciente(_token, infoPaciente);
     },
-    // Rotinas de autenticação
-    autentica: (signKey, usuarioGuid) => {
-        return api.autentica(signKey, usuarioGuid);
-    },
+   
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
@@ -75,5 +80,11 @@ export default {
         const _array = store.getters.permissionamento
         var _item = _array.find(_busca)
         return !(_item == null) 
-    }
+    },
+
+    // Rotinas de autenticação
+    autentica: (usuarioGuid) => {
+        var _signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
+        return api.autentica(_signKey, usuarioGuid);
+    },
 }

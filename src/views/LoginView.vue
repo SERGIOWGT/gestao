@@ -42,11 +42,6 @@
         this.$store.commit('autenticadoSso', obj)
         this.$router.push('/Home')
         console.log('LoginView.Autenticado')
-        //var _url = 'http://localhost:58733/Default.aspx?'
-        //var _parms = `sistemaId=${obj.sistemaId}&nomeUsuario=${obj.nomeUsuario}&emailUsuario=${obj.email}&token=${obj.token}`
-        //var _encoded = encodeURI(_url + _parms);
-        //console.log(_encoded);
-        //window.location= _encoded;
       },
       trocaSenha() {   
         this.$router.push('/trocaSenha')

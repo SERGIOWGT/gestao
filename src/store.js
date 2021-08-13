@@ -18,11 +18,12 @@ const store = new Vuex.Store({
             ssoToken: '',
             nomeUsuario: '',
             usuarioId: '',
-            apiToken: ''
+            apiToken: '',
+            cidades: []
         },
         infosCidade: {
             id: 1,
-            nome: 'Prefeitura Municipal de Guarará',
+            nome: '...',
         },
         permissionamento: ''
     },
@@ -37,8 +38,10 @@ const store = new Vuex.Store({
             state.infosSistema.id = obj.sistemaId
             state.infosSistema.urlImagem = obj.urlImagem
         }, 
-        autenticadoApi (state, token) {
-            state.infosUsuario.apiToken = token
+        autenticadoApi (state, obj) {
+            state.infosUsuario.apiToken = obj.token
+            state.infosCidade.id = obj.cidadeId
+            state.infosCidade.nome = obj.nomeCidade
         },
         autenticadoSso (state, obj) {
             state.estaLogado = true

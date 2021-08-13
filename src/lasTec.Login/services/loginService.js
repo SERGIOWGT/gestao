@@ -12,6 +12,7 @@ export default {
             'senha': senha,
             'comPermissoes': true
         }
+        console.log(params)
         return http.put('login/autentica', params)
     },
     recuperaSenha: (sistemaId, email) => {

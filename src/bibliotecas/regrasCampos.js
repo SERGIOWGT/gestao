@@ -18,7 +18,8 @@ export default {
     },
     Cpf: {
       valido() {
-        return v => /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2}$/.test(v) || 'Use o formato (xxx.xxx.xxx-xx)'  // eslint-disable-line
+        //return v => /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2}$/.test(v) || 'Use o formato (xxx.xxx.xxx-xx)'  // eslint-disable-line
+        return v => /^[0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[\-]?[0-9]{2}$/.test(v) || 'Use o formato (xxx.xxx.xxx-xx)'  // eslint-disable-line
       }
     }, 
     NumeroSus: {
@@ -32,9 +33,11 @@ export default {
     Celular: {
         valido(obrigatorio) {
             if (obrigatorio)
-                return v =>  /^[1-9]{2} (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
+                //return v =>  /^[1-9]{2} (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
+                return v =>  /^[1-9]{2}[ ]?(?:[2-8]|9[1-9])[0-9]{3}[\-]?[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
             else 
-                return v =>  !v || /^[1-9]{2} (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
+                //return v =>  !v || /^[1-9]{2} (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
+                return v =>  !v || /^[1-9]{2}[ ]?(?:[2-8]|9[1-9])[0-9]{3}[\-]?[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
         }
     }, 
     EmailRules: [
