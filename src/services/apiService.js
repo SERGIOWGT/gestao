@@ -43,6 +43,117 @@ http.interceptors.response.use(function (response) {
 })
 
 export default {
+    autentica: (signKey, usuarioGuid) => {
+        var _url = `ApiAcessos/ValidarAcesso?signkey=${signKey}&userKey=${usuarioGuid}`
+        return http.get(_url)
+    },
+
+    listaBairros: (token,cidadeId) => {
+        var _url = `bairros?cidadeId=${cidadeId}`
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaComorbidades: (token) => {
+        var _url = 'tipoComorbidades'
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaLogradouros: (token,cidadeId) => {
+        var _url = `logradouros?bairroId=${cidadeId}`
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },    
+    listaPaciente: (token, pacienteId) => {
+        var _url = `pacientes/${pacienteId}`
+
+        console.log('listaPaciente', _url);
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaPacientes: (token, param) => {
+        console.log('apiService.listaPacientes', param)
+        var _url = 'pacientes?'
+        
+        if (param.tipo == 1) {
+            var _cpf = param.cpf.toString().replace(/\.|-/gm,'')
+            //var _cartaoSUS = param.cartaoSUS.toString()
+            var _dataNascimento = param.dataNascimento.toString()
+             _dataNascimento = _dataNascimento.substring(6, 10) + '-' + _dataNascimento.substring(3, 5) + '-' + _dataNascimento.substring(0, 2) 
+            
+            _url += `cpf=${_cpf}&dataNascimento=${_dataNascimento}`
+        }
+        console.log('apiService.listaPacientes', _url);
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaPacienteSintomas: (token, pacienteId) => {
+        var _url = `pacienteSintomas/${pacienteId}`
+
+        console.log('pacienteSintomas', _url);
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaPacienteComorbidades: (token, pacienteId) => {
+        var _url = `pacienteComorbidades/${pacienteId}`
+
+        console.log('pacienteComorbidades', _url);
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaSintomas: (token) => {
+        var _url = 'tipoSintomas'
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+
+    listaUnidadesSaude: (token,cidadeId) => {
+        var _url = `unidadeSaudes?cidadeId=${cidadeId}`
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    salvaPacienteComorbidades: (token, pacienteId, comorbidades) => {
+        var _url = `pacienteComorbidades`
+        let _params = {
+            'PacienteId' : pacienteId,
+            'TipoComorbidades': comorbidades
+       }
+       console.log('apiService.salvaPacienteComorbidades', _params)
+       return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
+    },
     salvaPaciente: (token, infoPaciente) => {
         var _numeroEndereco = (infoPaciente.semNumeroEndereco ? '' : infoPaciente.numeroEndereco)
         var _cpf = infoPaciente.cpf.toString().replace(/\.|-/gm,'');
@@ -78,82 +189,14 @@ export default {
                     http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
                         : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});
     },
-    listaPacientes: (token, param) => {
-        console.log('apiService.listaPacientes', param)
-        var _url = 'pacientes?'
-        
-        if (param.tipo == 1) {
-            var _cpf = param.cpf.toString().replace(/\.|-/gm,'')
-            //var _cartaoSUS = param.cartaoSUS.toString()
-            var _dataNascimento = param.dataNascimento.toString()
-             _dataNascimento = _dataNascimento.substring(6, 10) + '-' + _dataNascimento.substring(3, 5) + '-' + _dataNascimento.substring(0, 2) 
-            
-            _url += `cpf=${_cpf}&dataNascimento=${_dataNascimento}`
-        }
-        console.log('apiService.listaPacientes', _url);
+    salvaPacienteSintomas: (token, pacienteId, sintomas) => {
+        var _url = `pacienteSintomas`
+        let _params = {
+            'PacienteId' : pacienteId,
+            'TipoSintomas': sintomas
+       }
+       console.log('apiService.salvaPacienteSintomas', _params)
+       return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
+    }
 
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaPaciente: (token, pacienteId) => {
-        var _url = `pacientes/${pacienteId}`
-
-        console.log('listaPaciente', _url);
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaComorbidades: (token) => {
-        var _url = 'tipoComorbidades'
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaSintomas: (token) => {
-        var _url = 'tipoSintomas'
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaBairros: (token,cidadeId) => {
-        var _url = `bairros?cidadeId=${cidadeId}`
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaUnidadesSaude: (token,cidadeId) => {
-        var _url = `unidadeSaudes?cidadeId=${cidadeId}`
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaLogradouros: (token,cidadeId) => {
-        var _url = `logradouros?bairroId=${cidadeId}`
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    autentica: (signKey, usuarioGuid) => {
-        var _url = `ApiAcessos/ValidarAcesso?signkey=${signKey}&userKey=${usuarioGuid}`
-        return http.get(_url)
-    },
 }

@@ -5,21 +5,13 @@ import store from '../store'
 export default {
 
     // Rotinas da Api
-    listaComorbidades: () => {
-        var _token = store.getters.apiToken;
-        return api.listaComorbidades(_token);
-    },
-    listaSintomas: () => {
-        var _token = store.getters.apiToken;
-        return api.listaSintomas(_token);
-    },
     listaBairros: (cidadeId) => {
         var _token = store.getters.apiToken;
         return api.listaBairros(_token, cidadeId);
     },
-    listaUnidadesSaude: (cidadeId) => {
+    listaComorbidades: () => {
         var _token = store.getters.apiToken;
-        return api.listaUnidadesSaude(_token, cidadeId);
+        return api.listaComorbidades(_token);
     },
     listaLogradouros: (cidadeId) => {
         var _token = store.getters.apiToken;
@@ -33,13 +25,36 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaPaciente(_token, pacienteId);
     },
+    listaPacienteSintomas: (pacienteId) => {
+        var _token = store.getters.apiToken;
+        return api.listaPacienteSintomas(_token, pacienteId);
+    },
+    listaPacienteComorbidades: (pacienteId) => {
+        var _token = store.getters.apiToken;
+        return api.listaPacienteComorbidades(_token, pacienteId);
+    },
+    listaPermissionamento: (token, usuarioId, sistemaId) => {
+        return sso.listaPermissionamento(token, usuarioId, sistemaId);
+    },
+    listaSintomas: () => {
+        var _token = store.getters.apiToken;
+        return api.listaSintomas(_token);
+    },
+    listaUnidadesSaude: (cidadeId) => {
+        var _token = store.getters.apiToken;
+        return api.listaUnidadesSaude(_token, cidadeId);
+    },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;
         return api.salvaPaciente(_token, infoPaciente);
     },
-   
-    listaPermissionamento: (token, usuarioId, sistemaId) => {
-        return sso.listaPermissionamento(token, usuarioId, sistemaId);
+    salvaPacienteComorbidades: (pacienteId, comorbidades) => {
+        var _token = store.getters.apiToken;
+        return api.salvaPacienteComorbidades(_token, pacienteId, comorbidades);
+    },
+    salvaPacienteSintomas: (pacienteId, sintomas) => {
+        var _token = store.getters.apiToken;
+        return api.salvaPacienteSintomas(_token, pacienteId, sintomas);
     },
     setaPermissionamento: (permissao) => {
         store.commit('setaPermissao', permissao)

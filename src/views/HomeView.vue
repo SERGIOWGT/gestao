@@ -49,7 +49,7 @@
             <v-expansion-panel class="white py-2">
               <v-expansion-panel-header disable-icon-rotate>    
                 <div class="d-flex align-center">
-                    <v-icon :color="item.iconColor">{{item.icon}}</v-icon><span :class="'ml-2 ' + item.textColor"> {{item.text}}}</span>
+                    <v-icon :color="item.iconColor">{{item.icon}}</v-icon><span :class="'ml-2 ' + item.textColor"> {{item.text}}</span>
                 </div>
                 <template v-slot:actions>
                   <v-icon v-on:click="executaFuncao(item.id)" color="blue">mdi-arrow-right-circle-outline</v-icon>
@@ -105,7 +105,7 @@
           {
               id: 1, 
               textColor: 'blue--text', 
-              text: 'Cadastre paciente com suspeita de Covid-19', 
+              text: 'Cadastre o cidadão com suspeita de alguma enfermidade', 
               icon: 'mdi-alert-outline', 
               iconColor: 'blue', 
               ativo: false,
@@ -121,7 +121,7 @@
           }, {   
               id: 2, 
               textColor: 'blue--text', 
-              text: 'Atualize aqui os sintomas de um paciente em monitoramento', 
+              text: 'Atualize o resultados dos exames', 
               icon: 'mdi-emoticon-sick', 
               iconColor: 'blue', 
               ativo: false,
@@ -134,7 +134,7 @@
           },{   
               id: 3, 
               textColor: 'blue--text', 
-              text: 'Atualize as visitas na residência do paciente', 
+              text: 'Atualize as visitas na residência do cidadão', 
               icon: 'mdi-bed', 
               iconColor: 'blue', 
               ativo: false,

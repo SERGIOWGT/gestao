@@ -25,9 +25,9 @@ export default {
     NumeroSus: {
       valido(obrigatorio) {
         if (obrigatorio)
-            return v =>  /^[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}$/.test(v) || 'Campo com 18 números (999 9999 9999 9999)'  // eslint-disable-line
+            return v =>  /^[0-9]{3}[ ]?[0-9]{4}[ ]?[0-9]{4}[ ]?[0-9]{4}$/.test(v) || 'Campo com 18 números (999 9999 9999 9999)'  // eslint-disable-line
         else 
-            return v =>  !v || /^[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}$/.test(v) || 'Campo com 18 números (999 9999 9999 9999)'  // eslint-disable-line
+            return v =>  !v || /^[0-9]{3}[ ]?[0-9]{4}[ ]?[0-9]{4}[ ]?[0-9]{4}$/.test(v) || 'Campo com 18 números (999 9999 9999 9999)'  // eslint-disable-line
       }
     }, 
     Celular: {

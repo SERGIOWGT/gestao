@@ -15,9 +15,16 @@ export default {
         return `${day}/${month}/${year}`
 
         //return val.toString().replace(/(\d{4})\-(\d{2})\-(\d{2})/,'$3/$2/$1'); // eslint-disable-line
+    },
+    dataYYYYMMDD(val) {
+        var mm = val.getMonth() + 1; // getMonth() is zero-based
+        var dd = val.getDate();
+      
+        return [val.getFullYear(),'-',
+                (mm>9 ? '' : '0') + mm,'-',
+                (dd>9 ? '' : '0') + dd
+               ].join('');
     }
-
-
     /*
     formatDate (date) {
         if (!date) return null
