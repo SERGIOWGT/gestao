@@ -117,7 +117,6 @@
       }
     },
     mounted: function() {
-      console.log('LoginFormx', this.formatoSenha);
     },
     methods: {
       autentica() {
@@ -142,12 +141,10 @@
                 });
               } else {
                 // Something happened in setting up the request that triggered an Error
-                console.log('Erro', response.message);
                 this.mensagemErro = response.message;
               }
           })
           .finally(this.isLoading = false) 
-        console.log('sai no autentica')
       },
       OnGoogleAuthSuccess (idToken) {
         console.log("OK", idToken)

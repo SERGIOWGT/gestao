@@ -7,6 +7,7 @@ import HomeView from '../views/HomeView.vue'
 import TelaAberturaView from '../views/TelaAberturaView.vue'
 import EmDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
 import NovaSuspeitaView from '../views/NovaSuspeitaView.vue'
+import VisitaView from '../views/VisitaView.vue'
 
 Vue.use(Router)
 
@@ -35,6 +36,11 @@ const routes = [
         path: '/novaSuspeita',
         name: 'novaSuspeitaView',
         component: NovaSuspeitaView
+    },
+    {
+        path: '/visita',
+        name: 'visitaView',
+        component: VisitaView
     }
 ]
 

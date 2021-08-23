@@ -3,7 +3,7 @@ import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
-    baseURL: 'http://apipainelsaude.azurewebsites.net/api/'
+    baseURL: 'https://apipainelsaude.azurewebsites.net/api/'
 })
 
 http.interceptors.response.use(function (response) {
@@ -44,10 +44,9 @@ http.interceptors.response.use(function (response) {
 
 export default {
     autentica: (signKey, usuarioGuid) => {
-        var _url = `ApiAcessos/ValidarAcesso?signkey=${signKey}&userKey=${usuarioGuid}`
+        var _url = `Autenticacao/Autentica?signkey=${signKey}&userKey=${usuarioGuid}`
         return http.get(_url)
     },
-
     listaBairros: (token,cidadeId) => {
         var _url = `bairros?cidadeId=${cidadeId}`
         return http.get(_url, {
@@ -59,6 +58,14 @@ export default {
     listaComorbidades: (token) => {
         var _url = 'tipoComorbidades'
 
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
+    },
+    listaMicroAreas: (token, unidadeSaudeId) => {
+        var _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
         return http.get(_url, {
             headers: {
                 'Authorization': `bearer ${token}`
@@ -135,7 +142,6 @@ export default {
             }
         })
     },
-
     listaUnidadesSaude: (token,cidadeId) => {
         var _url = `unidadeSaudes?cidadeId=${cidadeId}`
 
@@ -173,10 +179,11 @@ export default {
             'Celular' : _celular,
             'Celular2' : _celular2,
             'EMail' : infoPaciente.eMail,
-            'Sexo' : 'M',
+            'Sexo' : infoPaciente.sexo,
             'TipoEstadoSaudeId': 1,
             'UnidadeSaudeId': infoPaciente.unidadeSaude.id,
             'LogradouroId' : infoPaciente.logradouro.id,
+            'MicroAreaId' : infoPaciente.microArea.id,
             'NumeroEndereco' : _numeroEndereco,
             'ComplementoEndereco' : _complemento,
             'DescricaoEndereco' : ''
@@ -198,5 +205,4 @@ export default {
        console.log('apiService.salvaPacienteSintomas', _params)
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     }
-
 }

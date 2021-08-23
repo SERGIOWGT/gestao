@@ -58,7 +58,6 @@
       load() {
         LoginService.listaConfiguracao(this.tokenSistema)
           .then(resposta => {
-            console.log('listaConfiguracao', resposta); 
             this.sistemaId =  resposta.data.sistemaId;
             this.permiteRegistroUsuario = resposta.data.permiteRegistroUsuario;
             this.urlImagemLogin = resposta.data.urlImagemLogin;

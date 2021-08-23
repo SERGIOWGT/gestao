@@ -17,6 +17,10 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaLogradouros(_token, cidadeId);
     },
+    listaMicroAreas: (unidadeSaudeId) => {
+        var _token = store.getters.apiToken;
+        return api.listaMicroAreas(_token, unidadeSaudeId);
+    },
     listaPacientes: (param) => {
         var _token = store.getters.apiToken;
         return api.listaPacientes(_token, param);

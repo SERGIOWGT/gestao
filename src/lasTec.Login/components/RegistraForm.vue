@@ -137,7 +137,6 @@
       registraUsuario() {
         this.isLoading =true;
         this.mensagemErro = ""
-        console.log('entrei no registraUsuario')
         LoginService.registraUsuario(this.plataformaId, this.sistemaId, this.nomeCompleto, this.email, this.senha)
           .then(resposta => {
             let _resposta = {
@@ -149,7 +148,6 @@
             this.$emit('registrado', _resposta)
           })
           .catch((error) => {
-              console.log("catch", error)
               if (error.response) {
                 this.mensagemErro = "";
                 error.response.data.forEach(el => {
@@ -157,16 +155,13 @@
                 });
               } else if (error.request) {
                 // The request was made but no response was received
-                console.log(error.request);
                 this.mensagemErro = error.request;
               } else {
                 // Something happened in setting up the request that triggered an Error
-                console.log('Error', error.message);
                 this.mensagemErro = error.message;
               }
           })
           .finally(this.isLoading = false) 
-        console.log('sai no registraUsuario')
       },
       cancelar() {
         this.$emit('cancelar')

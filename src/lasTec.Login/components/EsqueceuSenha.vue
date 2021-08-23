@@ -54,7 +54,6 @@ export default {
         let ref = this;
         ref.isLoading =true;
         this.mensagemErro = ""
-        console.log('entrei no Envia')
         LoginService.recuperaSenha(this.sistemaId, this.email)
           .then(resposta => {
             console.log(resposta.data)
@@ -68,17 +67,13 @@ export default {
                 });
               } else if (error.request) {
                 // The request was made but no response was received
-                console.log(error.request);
                 this.mensagemErro = error.request;
               } else {
                 // Something happened in setting up the request that triggered an Error
-                console.log('Error', error.message);
                 this.mensagemErro = error.message;
               }
           })
           .finally(ref.isLoading = false)
-
-        console.log('sai no Envia')
       }
   }
     

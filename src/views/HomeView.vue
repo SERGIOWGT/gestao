@@ -125,7 +125,7 @@
               icon: 'mdi-emoticon-sick', 
               iconColor: 'blue', 
               ativo: false,
-              func: 'naoImplementada()',
+              func: 'cadastraMonitoramento(2)',
               perms: [
                 {id:103, tipoId:1, acao:'A'}, 
                 {id:105, tipoId:1, acao:'A'},
@@ -151,18 +151,28 @@
     },
     methods: {
       autenticaNoPainelSaude() {
-        this.mensagemBusca = 'Aguarda autenticação no ambiente...'
+        this.mensagemBusca = 'Aguarde a autenticação no ambiente...'
         mainService.autentica("a313f0e9-f392-11eb-a3f4-566fe1410277")
         .then(resposta => {
           console.log("autenticaNoPainelSaude-then")
           this.mensagemBusca = ''
           if (resposta.status == 200) {
-            var _dados = resposta.data[0]
-            if ((_dados.token) && (_dados.cidadeId) && (_dados.nomeCidade)) {
-              this.$store.commit('autenticadoApi', _dados)
-              this.preparaTela()
-            } else {
-              this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32157] '
+            let _dados = resposta.data
+            if ((_dados.token) && (_dados.cidadesAutorizadasDTO)) {
+              let _cidades = _dados.cidadesAutorizadasDTO
+              if (_cidades.length > 0) {
+                if ((_cidades[0].cidadeId) && (_cidades[0].nomeCidade)) {
+                  this.$store.commit('autenticadoApi', _dados)
+                  this.preparaTela()
+                } else {
+                  this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32156] '
+                }
+              } else {
+                this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32157] '
+              }
+            }
+            else {
+              this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32158] '
             }
           } else {
             console.log('Erro', resposta.message)
@@ -189,6 +199,9 @@
         switch (id) {
           case 1:
             this.$router.push('novaSuspeita') 
+            break
+          case 3:
+            this.$router.push('visita') 
             break
           default:
             this.mensagemErro = `funcionalidade não implementada [id=${id}]`
