@@ -8,6 +8,7 @@ import TelaAberturaView from '../views/TelaAberturaView.vue'
 import EmDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
 import NovaSuspeitaView from '../views/NovaSuspeitaView.vue'
 import VisitaView from '../views/VisitaView.vue'
+import CadastrosView from '../views/CadastrosView.vue'
 
 Vue.use(Router)
 
@@ -41,6 +42,11 @@ const routes = [
         path: '/visita',
         name: 'visitaView',
         component: VisitaView
+    },
+    {
+        path: '/cadastros',
+        name: 'cadastrosView',
+        component: CadastrosView
     }
 ]
 

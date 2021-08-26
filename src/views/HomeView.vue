@@ -6,18 +6,7 @@
           {{mensagemErro}}
         </v-alert>
       </v-row> 
-      <v-col class="pt-5 mt-5 text-subtitle-1 text-center" v-if="mensagemBusca != ''">
-          {{mensagemBusca}}
-      </v-col>
-      <v-col>
-        <v-progress-linear v-if="mensagemBusca != ''"
-          color="primary accent-4"
-          indeterminate
-          rounded
-          height="6"
-        ></v-progress-linear>
-      </v-col>
-
+      <DialogProgressBar :mostra="mensagemBusca !== ''" :mensagem="mensagemBusca"/>
       <v-alert
         v-show="mostraTela && semAcesso"
         text
@@ -91,8 +80,12 @@
 <script>
   
   import mainService from '../services/MainService'
+  import DialogProgressBar from '../components/DialogProgressBar';
 
   export default {
+    components: {
+        DialogProgressBar
+    },
     data() {
       return {
         nome: 'teste',
@@ -119,19 +112,6 @@
                 {id:107, tipoId:1, acao:'C'}
               ]
           }, {   
-              id: 2, 
-              textColor: 'blue--text', 
-              text: 'Atualize o resultados dos exames', 
-              icon: 'mdi-emoticon-sick', 
-              iconColor: 'blue', 
-              ativo: false,
-              func: 'cadastraMonitoramento(2)',
-              perms: [
-                {id:103, tipoId:1, acao:'A'}, 
-                {id:105, tipoId:1, acao:'A'},
-                {id:106, tipoId:1, acao:'C'}
-              ]
-          },{   
               id: 3, 
               textColor: 'blue--text', 
               text: 'Atualize as visitas na residência do cidadão', 
@@ -142,7 +122,21 @@
               perms: [
                 {id:107, tipoId:1, acao:'C'}
               ]
-          }
+          },
+          {   
+              id: 2, 
+              textColor: 'blue--text', 
+              text: 'Atualize os cadastros básicos do sistema', 
+              icon: 'mdi-emoticon-sick', 
+              iconColor: 'blue', 
+              ativo: false,
+              func: 'cadastraMonitoramento(2)',
+              perms: [
+                {id:103, tipoId:1, acao:'A'}, 
+                {id:105, tipoId:1, acao:'A'},
+                {id:106, tipoId:1, acao:'C'}
+              ]
+          },
         ]
       }
     },
@@ -199,6 +193,9 @@
         switch (id) {
           case 1:
             this.$router.push('novaSuspeita') 
+            break
+          case 2:
+            this.$router.push('cadastros') 
             break
           case 3:
             this.$router.push('visita') 

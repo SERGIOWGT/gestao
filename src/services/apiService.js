@@ -95,14 +95,26 @@ export default {
     listaPacientes: (token, param) => {
         console.log('apiService.listaPacientes', param)
         var _url = 'pacientes?'
-        
+
         if (param.tipo == 1) {
-            var _cpf = param.cpf.toString().replace(/\.|-/gm,'')
-            //var _cartaoSUS = param.cartaoSUS.toString()
-            var _dataNascimento = param.dataNascimento.toString()
+            let _cpf = param.cpf.toString().replace(/\.|-/gm,'')
+            let _dataNascimento = param.dataNascimento.toString()
              _dataNascimento = _dataNascimento.substring(6, 10) + '-' + _dataNascimento.substring(3, 5) + '-' + _dataNascimento.substring(0, 2) 
             
             _url += `cpf=${_cpf}&dataNascimento=${_dataNascimento}`
+        } else if (param.tipo == 2) {
+            if (param.unidadeSaudeId) 
+                _url += `unidadeSaudeId=${param.unidadeSaudeId}&`
+
+            if (param.microAreaId) 
+                _url += `microAreaId=${param.microAreaId}&`
+
+            if (param.logradouroId) 
+                _url += `logradouroId=${param.logradouroId}&`
+
+            if (param.bairroId) 
+                _url += `bairroId=${param.bairroId}&`
+
         }
         console.log('apiService.listaPacientes', _url);
 

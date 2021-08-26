@@ -10,7 +10,6 @@
       />
     </transition>
   </v-container>
-  
 </template>
 <script>
   //import AppBar from '../components/AppBar.vue'

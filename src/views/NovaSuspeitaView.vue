@@ -1,3 +1,4 @@
+<template>
   <v-container  class="pt-0 mt-0"> 
     <StepBar :etapa="etapaAtual.stepBar"/>
     <v-container fluid style="height: 100vmax;" class="pa-1">
@@ -5,6 +6,7 @@
         <p class="text-h6">{{etapaAtual.nome}}</p> 
         <v-card flat class="pa-0 mt-0">
           <v-card-text class="ma-0 pa-0">
+            <DialogProgressBar :mostra="infoDialog.mostra" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" @funcaoRetorno= 'fechaDialog'/>
             <v-form ref="form" class="mx-2" v-model="formularioValido">
               <v-row>
                 <v-col cols="12" class="px-2 pb-0 pt-0">
@@ -80,12 +82,10 @@
                       maxlength="18"
                     ></v-text-field>
                     <v-radio-group dense v-model="infoPaciente.sexo" row required>
-                      <v-col cols="6"><v-radio value="F" label="Feminino"></v-radio></v-col>
-                      <v-col cols="6"><v-radio value="M" label="Masculino"></v-radio></v-col>
+                      <v-col cols="4"><v-radio value="F" label="Feminino"></v-radio></v-col>
+                      <v-col cols="4"><v-radio value="M" label="Masculino"></v-radio></v-col>
+                      <v-col cols="4"><v-radio value="O" label="Outros"></v-radio></v-col>
                     </v-radio-group>
-<!--                     <p class="obs_campo mt-5">
-                      (*) O número do SUS é composto por 15 números separados por espaço em branco. Exemplo do número SUS: 123 4567 8900 1234
-                    </p> -->
                   </v-flex>
 <!--            DADOS CONTATOS -->                                                      
                   <v-flex v-if="etapaAtual.posicao == enumCadastro.dadosContato">
@@ -184,9 +184,57 @@
                       item-text="nome"
                       return-object
                     ></v-select>
+                    <v-row class="mt-1">
+                      <v-col cols="8"> 
+                        <v-text-field class="mt-3"
+                          dense
+                          label="Número do seu imóvel"
+                          :disabled="infoPaciente.semNumeroEndereco === true "
+                          required
+                          clearable
+                          v-model="infoPaciente.numeroEndereco"
+                          counter
+                          maxlength="10"
+                          :rules="[regras.Basicas.obrigatorio()]"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="4"> 
+                        <v-switch class="mt-0"
+                          @change="liberaSemNumero()"
+                          v-model="infoPaciente.semNumeroEndereco" 
+                          label="Sem número"
+                          color="primary"
+                          hide-details
+                        />
+                      </v-col>
+                    </v-row>
+                    <v-row class="mt-1">
+                      <v-col cols="8"> 
+                        <v-text-field class="mt-1"
+                          dense
+                          label="Complemento"
+                          :disabled="infoPaciente.semComplemento === true "
+                          required
+                          clearable
+                          v-model="infoPaciente.complemento"
+                          counter
+                          maxlength="50"
+                          :rules="[regras.Basicas.obrigatorio()]"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="4"> 
+                        <v-switch class="mt-0"
+                          @change="liberaSemComplemento()"
+                          v-model="infoPaciente.semComplemento" 
+                          label="Sem Compl."
+                          color="primary"
+                          hide-details
+                        />
+                      </v-col>
+                    </v-row>
                   </v-flex>
 <!--            ENDERECO -->                                    
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.endereco">
+<!--                   <v-flex v-if="etapaAtual.posicao == enumCadastro.endereco">
                     <p class="paragrafo1">
                       Essa informação também é muito importante para o nosso planejamento e acompanhamento domiciliar
                     </p>
@@ -227,8 +275,8 @@
                       hide-details
                     />
                   </v-flex>
-
-<!--            SALVA DADOS DOS PACIENTE --> 
+ -->
+<!--            SALVA DOS PACIENTE --> 
                   <v-flex v-if="etapaAtual.posicao == enumCadastro.salvaDadosPaciente" >
                     <p>
                       Agora que já temos todos os dados cadastrais, podemos salvar essas informações.
@@ -243,126 +291,49 @@
                     ></v-progress-linear>
                   </v-flex>
 
-<!--            PREPARA COMORBIDADES  -->               
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.inicioComorbidades" >
-                    <v-flex v-if="(infoPaciente.id == 0) || (infoPaciente.comorbidades.length == 0)">
-                      <p>
-                        Os dados cadastrais e de contato foram salvos com sucesso. Agora precisamos cadastrar as <span class="nota_texto">doenças crônicas</span>, também chamadas de <span class="nota_texto">comorbidades</span>, do cidadão. 
-                      </p>
-                      <p class="mt-4">
-                        Caso o cidadão não tenha nenhuma <span class="nota_texto">doença crônica</span> , marque a opção abaixo <span class="nota_texto">sem evidência de doenças crônicas</span>'.
-                      </p>
-
-                      <v-switch class="pt-5"
-                        v-model="infoPaciente.semComorbidade" 
-                        label="sem evidência de doenças crônicas"
-                        color="primary"
-                        hide-details
-                      />
-                    </v-flex>
-                     <v-flex v-else>
-                      <p>
-                        Os dados cadastrais e de contato foram salvos com sucesso. Agora precisamos atualizar as <span class="nota_texto">doenças crônicas</span>, também chamadas de <span class="nota_texto">comorbidades</span>, do cidadão. 
-                      </p>
-                    </v-flex>
-                  </v-flex>
-
-<!--            CADASTRA COMORBIDADES -->               
+<!--            COMORBIDADES  -->               
                   <v-flex v-if="etapaAtual.posicao == enumCadastro.comorbidades" >
                     <p>
-                      Marque as doenças crônicas que o cidadão possui. 
+                      Marque as <span class="nota_texto">doenças crônicas</span> que o cidadão possui. 
                     </p>
+                    <v-flex>
                       <v-container class = "pa-0 ma-0" v-for="(item, index) in infoPesquisa.comorbidades" :key="item.id" >
-                          <v-switch class="py-1 ma-0"  v-model="infoPesquisa.comorbidades[index].selecionado" 
-                          v-if="(index >= (infoPesquisa.numeroMaximoCheckBoxes * (etapas[etapaAtual.posicao].subEtapaAtual-1))) && (index < (infoPesquisa.numeroMaximoCheckBoxes * (etapas[etapaAtual.posicao].subEtapaAtual))) "> 
+                          <v-switch class="py-1 ma-0"  v-model="infoPesquisa.comorbidades[index].selecionado"> 
                                 <template v-slot:label  >
                                   <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
                                 </template>
                           </v-switch>
                       </v-container>
-                  </v-flex>
-
-<!--            SALVA COMORBIDADES --> 
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.salvaComorbidades" >
-                    <p v-if="infoPaciente.semComorbidade == true">
-                       Mesmo tendo informado que o cidadão não tem evidências de <span class="nota_texto">doença crônica (comorbidade)</span>, temos que salvar essa informação. 
-                    </p>
-                    <p v-else >
-                      Agora que as <span class="nota_texto">doenças crônicas (comorbidades)</span> foram informadas, precisamos salvar essas informações.
-                    </p>
-                    <p>
-                      Clique no <span class="nota_botao">botão salvar</span> logo abaixo e aguarde enquanto salvamos as informações.
-                    </p>
-                    <v-progress-linear v-if="salvandoDadosPaciente"
-                      color="primary accent-4"
-                      indeterminate
-                      rounded
-                      height="6"
-                    ></v-progress-linear>
-                  </v-flex>
-
-<!--            PREPARA SINTOMAS -->               
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.inicioSintomas" >
-                    <v-flex v-if="(infoPaciente.id == 0) || (infoPaciente.sintomas.length == 0)">
-                      <p> Agora precisamos cadastrar as seus sintomas atuais. </p>
-                      <p class="mt-4">
-                        Caso o cidadão não tenha nenhum sintoma, marque a opção abaixo <span class="nota_texto">Cidadão assintomático</span>.
-                      </p>
-                      <v-switch class="pt-5"
-                        v-model="infoPaciente.assintomatico" 
-                        label="Cidadão assintomático"
-                        color="primary"
-                        hide-details
-                      />
-                    </v-flex>
-                    <v-flex v-else>
-                      <p> Agora precisamos que os seus sintomas sejam atualizados. </p> 
                     </v-flex>
                   </v-flex>
 
-<!--            CADASTRA SINTOMAS --> 
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.sintomas" >
-                    <v-container class="pa-0 my-0" v-for="(item, index) in infoPesquisa.sintomas" :key="item.id" >
-                      <v-row class="pa-1"  v-if="(index >= (infoPesquisa.numeroMaximoCheckBoxes * (etapas[etapaAtual.posicao].subEtapaAtual-1))) && (index < (infoPesquisa.numeroMaximoCheckBoxes * (etapas[etapaAtual.posicao].subEtapaAtual))) "> 
-                        <v-col cols="10"> 
-                          <v-switch class="pa-0 mt-0"  v-model="infoPesquisa.sintomas[index].selecionado" >
-                              <template v-slot:label>
-                                <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
-                              </template>
-                            </v-switch>
-                        </v-col>
-                        <v-col cols="2">
-                          <v-text-field 
-                              type="number"
-                              label="dias"
-                              dense
-                              v-model="infoPesquisa.sintomas[index].dias"
-                              v-if="infoPesquisa.sintomas[index].selecionado == true"
-                              :rules="[regras.Basicas.obrigatorio()]"
-                            ></v-text-field> 
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-flex>
-
-<!--            SALVA SINTOMAS --> 
-                  <v-flex v-if="etapaAtual.posicao == enumCadastro.salvaSintomas" >
-                    <p v-if="infoPaciente.assintomatico == true">
-                       Mesmo tendo informado que o cidadão é <span class="nota_texto">assintomático</span>, temos que salvar essa informação. 
-                    </p>
-                    <p v-else >
-                      Agora que os <span class="nota_texto">sintomas</span> foram informadas, precisamos salvar essas informações.
-                    </p>
-                    <p>
-                      Clique no <span class="nota_botao">botão salvar</span> logo abaixo e aguarde enquanto salvamos as informações.
-                    </p>
-                    <v-progress-linear v-if="salvandoDadosPaciente"
-                      color="primary accent-4"
-                      indeterminate
-                      rounded
-                      height="6"
-                    ></v-progress-linear>
-                  </v-flex>
+<!--            SINTOMAS -->               
+                 <v-flex v-if="etapaAtual.posicao == enumCadastro.sintomas" >
+                  <p>
+                    Marque os <span class="nota_texto">sintomas</span> atuais do cidadão. 
+                  </p>
+                  <v-container class="pa-0 my-0" v-for="(item, index) in infoPesquisa.sintomas" :key="item.id" >
+                    <v-row class="pa-1"> 
+                      <v-col cols="10" class=""> 
+                        <v-switch class="pa-0 mt-0"  v-model="infoPesquisa.sintomas[index].selecionado" >
+                            <template v-slot:label>
+                              <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
+                            </template>
+                          </v-switch>
+                      </v-col>
+                      <v-col cols="2" class="">
+                        <v-text-field  class="pa-0"  @focus="$event.target.select()" 
+                            type="number"
+                            label="dias"
+                            dense
+                            v-model="infoPesquisa.sintomas[index].dias"
+                            v-show="infoPesquisa.sintomas[index].selecionado == true"
+                            :rules="[regras.Basicas.obrigatorio()]"
+                          ></v-text-field> 
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-flex>
 
 <!--            PRÓXIMO PACIENTE --> 
                   <v-flex v-if="etapaAtual.posicao == enumCadastro.proximoPaciente" >
@@ -379,22 +350,6 @@
                 </v-col>
               </v-row>
             </v-form>
-            <v-row class="justify-center" v-if="mensagemErro">
-              <v-alert class="mt-5" type="error" smaller dense outlined>
-                {{mensagemErro}}
-              </v-alert>
-            </v-row> 
-            <v-col class="pt-5 mt-5 text-subtitle-1 text-center" v-if="mensagemBusca != ''">
-                {{mensagemBusca}}
-            </v-col>
-            <v-col>
-              <v-progress-linear v-if="mensagemBusca != ''"
-                color="primary accent-4"
-                indeterminate
-                rounded
-                height="6"
-              ></v-progress-linear>
-            </v-col>
           </v-card-text>
         </v-card>
       </v-flex>
@@ -415,8 +370,7 @@
         :podeVoltar="infoBotoes.podeVoltar"
         :podeContinuar= "podeContinuar"
         :podeCancelar= "infoBotoes.podeCancelar"
-        :podeVerificar= "infoBotoes.podeVerificar"
-        :carregando="infoBotoes.carregandoDados"
+        :podeVerificar= "podeVerificar"
         @funcaoRetorno= 'cmdBotao'
     />
   </v-container>
@@ -428,11 +382,13 @@
     import regrasCampos from '../bibliotecas/regrasCampos'
     import formataValores from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
+    import DialogProgressBar from '../components/DialogProgressBar';
+    //import validate from '../bibliotecas/validaTipos'
 
     export default {
         name: 'SuspeitaCovid',
         components: {
-            StepBar, BottomBar
+            StepBar, BottomBar, DialogProgressBar
         },
         data() {
           return {
@@ -442,6 +398,12 @@
             entradaCelular: entradaText.celular,
             regras: regrasCampos,
 
+            infoDialog: {
+              tipo: 0,
+              mostra: false,
+              mensagem: ''
+            },
+
             // dados
             enumCadastro: {
               identificacaoCidadao: 0,
@@ -450,17 +412,11 @@
               dadosContato: 3,
               unidadeSaude: 4,
               bairroResidencia: 5,
-              endereco: 6,
-              salvaDadosPaciente: 7,
-              inicioComorbidades: 8,
-              comorbidades: 9,
-              salvaComorbidades: 10,
-              inicioSintomas: 11,
-              sintomas: 12,
-              salvaSintomas: 13,
-              proximoPaciente: 14
+              salvaDadosPaciente: 6,
+              comorbidades: 7,
+              sintomas: 8,
+              proximoPaciente: 9
             },
-
 
             formularioValido: false,
 
@@ -479,7 +435,6 @@
               semNumeroEndereco: null,
               complemento: null,
               semComplemento: null,
-              semComorbidade: false,
               assintomatico: true,
               unidadeSaude: {
                 id: 0,
@@ -503,10 +458,7 @@
 
             salvandoDadosPaciente: false,
             cidadeId: 1,
-
-            mensagemErro: '',
-            mensagemBusca: '',
-
+           
             infoBotoes: {
               carregandoDados: false,
 
@@ -524,21 +476,17 @@
             
             numeroEtapas: 0,
             etapaAtual: {posicao: 0, nome: '', stepBar: 0},
-            etapas: [ {stepBar: 1, nome: 'Identificação do Cidadão', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 1, nome: 'Confirma identificação do Cidadão', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 2, nome: 'Dados cadastrais', totalSubEtapas: 0, subEtapaAtual: 0},            
-                      {stepBar: 2, nome: 'Dados de Contato', totalSubEtapas: 0, subEtapaAtual: 0},          
-                      {stepBar: 2, nome: 'Unidade de saúde', totalSubEtapas: 0, subEtapaAtual: 0},          
-                      {stepBar: 2, nome: 'Onde reside o Cidadão', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 2, nome: 'Identificação da residência', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 2, nome: 'Salvando os dados do Cidadão', totalSubEtapas: 0, subEtapaAtual: 0},                      
-                      {stepBar: 3, nome: 'Como anda sua saúde?', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 3, nome: 'Doenças Crônicas', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 3, nome: 'Salvando as doenças crônicas', totalSubEtapas: 0, subEtapaAtual: 0},                      
-                      {stepBar: 4, nome: 'Quais são os sintomas atualmente?', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 4, nome: 'Sintomas atuais', totalSubEtapas: 0, subEtapaAtual: 0},
-                      {stepBar: 4, nome: 'Salvando os Sintomas Atuais', totalSubEtapas: 0, subEtapaAtual: 0}                     ,
-                      {stepBar: 5, nome: 'Fim do cadastro', totalSubEtapas: 0, subEtapaAtual: 0}                     
+            etapas: [ 
+              {stepBar: 1, nome: 'Identificação do Cidadão'},
+              {stepBar: 1, nome: 'Confirma identificação do Cidadão'},
+              {stepBar: 2, nome: 'Dados cadastrais'},            
+              {stepBar: 2, nome: 'Dados de Contato'},          
+              {stepBar: 2, nome: 'Unidade de saúde'},          
+              {stepBar: 2, nome: 'Onde reside o Cidadão'},
+              {stepBar: 2, nome: 'Salvando os dados do Cidadão'},                      
+              {stepBar: 3, nome: 'Doenças Crônicas'},
+              {stepBar: 4, nome: 'Sintomas atuais'},
+              {stepBar: 5, nome: 'Fim do cadastro'}                     
             ],
 
             infoPesquisa: {
@@ -561,7 +509,7 @@
           this.etapaAtual.posicao = -1
           this.numeroEtapas = this.etapas.length
 
-          this.novoMonitorado(false)
+          this.limpaDadosPaciente(false)
         },
         mounted() {
           console.log('mounted', 'this.infoPesquisa.listasCarregadas', this.infoPesquisa.listasCarregadas)
@@ -620,8 +568,7 @@
         methods: {
           buscaDadosIniciais() {
             console.log('buscaDadosIniciais.promise.inicio')
-            this.mensagemBusca = 'Buscando alguns dados! Aguarde...'
-            this.infoBotoes.carregandoDados = true;
+            this.mensagemBusca('Buscando alguns dados! Aguarde...')
             Promise.all([
               mainService.listaUnidadesSaude(this.cidadeId),
               mainService.listaBairros(this.cidadeId),
@@ -630,46 +577,19 @@
             ]).then(([_UnidadeSaude, _Bairro, _Sintoma, _Comorbidade]) => {
 
               console.log('buscaDadosIniciais.promise.then')
-              this.mensagemBusca = ''
-              this.infoBotoes.carregandoDados = false;
+              this.mensagemBusca('')
               if (_UnidadeSaude.status == 200)  
-                this.infoPesquisa.unidadesSaude = _UnidadeSaude.data
+                this.trataUnidadesSaude(_UnidadeSaude)
 
               if (_Bairro.status == 200)  
-                this.infoPesquisa.bairros = _Bairro.data
+                this.trataBairros(_Bairro)
              
-              if (_Sintoma.status == 200) {
-                this.infoPesquisa.sintomas = []
-                this.infoPesquisa.sintomasOriginal = []
-                for (let i=0; i < _Sintoma.data.length; ++i) {
-                  let _elemAux = {}
-                  _elemAux.id = _Sintoma.data[i].id
-                  _elemAux.nome = _Sintoma.data[i].nome
-                  _elemAux.selecionado = false
-                  _elemAux.dias = 0
-                  _elemAux.ordem = 1000+i
-                  this.infoPesquisa.sintomas.push(_elemAux)
-                  this.infoPesquisa.sintomasOriginal.push(_elemAux)
-                }
-                this.etapas[this.enumCadastro.sintomas].totalSubEtapas = Math.ceil(_Sintoma.data.length / this.infoPesquisa.numeroMaximoCheckBoxes)
-                this.etapas[this.enumCadastro.sintomas].subEtapaAtual = 1
-              }
+              if (_Sintoma.status == 200) 
+                this.trataSintomas(_Sintoma)
                
-              if (_Comorbidade.status == 200) {
-                this.infoPesquisa.comorbidades = [] 
-                this.infoPesquisa.comorbidadesOriginal = [] 
-                for (let i=0; i < _Comorbidade.data.length; ++i) {
-                  let _elemAux = {}
-                  _elemAux.id = _Comorbidade.data[i].id
-                  _elemAux.nome = _Comorbidade.data[i].nome
-                  _elemAux.selecionado = false
-                  _elemAux.ordem = 1000+i
-                  this.infoPesquisa.comorbidades.push(_elemAux)
-                  this.infoPesquisa.comorbidadesOriginal.push(_elemAux)
-                }
-                this.etapas[this.enumCadastro.comorbidades].totalSubEtapas = Math.ceil(_Comorbidade.data.length / this.infoPesquisa.numeroMaximoCheckBoxes)
-                this.etapas[this.enumCadastro.comorbidades].subEtapaAtual = 1
-              }
+              if (_Comorbidade.status == 200) 
+                this.trataComorbidades(_Comorbidade)
+              
               this.listasCarregadas = true
               this.vaPara(this.enumCadastro.identificacaoCidadao);
             });
@@ -696,90 +616,54 @@
                 this.fim()
                 break;
               case 'NP':
-                this.novoMonitorado(true)
+                this.infoPaciente.cpf = ''
+                this.infoPaciente.dataNascimento= ''
+                this.limpaDadosPaciente(true)
                 this.vaPara(this.enumCadastro.identificacaoCidadao)
                 break;
             }
           },
           cmdAnterior() {
-            console.log('cmdAnterior-inicial', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].totalSubEtapas, this.etapas[this.etapaAtual.posicao].subEtapaAtual)
+            console.log('cmdAnterior-inicial', this.etapaAtual.posicao)
 
-            if ((this.etapaAtual.posicao == this.enumCadastro.salvaComorbidades) && (this.infoPaciente.semComorbidade == true)) {
-              this.vaPara(this.enumCadastro.inicioComorbidades)
-            } else
-            if ((this.etapaAtual.posicao == this.enumCadastro.salvaSintomas) && (this.infoPaciente.assintomatico == true)) {
-              this.vaPara(this.enumCadastro.inicioSintomas)
-            }
-            else if ((this.etapaAtual.posicao == this.enumCadastro.salvaDadosPaciente) && (this.infoPaciente.mesmaResidencia == true)) {
+            if ((this.etapaAtual.posicao == this.enumCadastro.salvaDadosPaciente) && (this.infoPaciente.mesmaResidencia == true)) {
               this.vaPara(this.enumCadastro.dadosContato)
             }
             else if (this.etapaAtual.posicao == this.enumCadastro.identificacaoCidadao) {
               this.fim()
             } else if ((this.etapaAtual.posicao == this.enumCadastro.confirmaIdentificacao) || (this.etapaAtual.posicao == this.enumCadastro.dadosCadastrais)) {
               this.vaPara(this.enumCadastro.identificacaoCidadao)
-            } else {
-              if (this.etapas[this.etapaAtual.posicao].totalSubEtapas > 0) {
-                
-                // se a primeira subetapa
-                if (this.etapas[this.etapaAtual.posicao].subEtapaAtual == 1) {
-                    this.vaPara(--this.etapaAtual.posicao)
-                } else {
-                  // volta subEtapa
-                  this.etapas[this.etapaAtual.posicao].subEtapaAtual--
-                }
-              } else {
-                this.vaPara(--this.etapaAtual.posicao)
-              }
-            }
-            console.log('cmdAnterior-final', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].totalSubEtapas, this.etapas[this.etapaAtual.posicao].subEtapaAtual)
+            } 
+            else 
+              this.vaPara(--this.etapaAtual.posicao)
+
+            console.log('cmdAnterior-final', this.etapaAtual.posicao)
           }, 
           cmdCancela() {
             this.fim()
           },
           cmdProximo() {
-            console.log('cmdProximo-Inicio', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].nome, this.etapas[this.etapaAtual.posicao].totalSubEtapas, this.etapas[this.etapaAtual.posicao].subEtapaAtual, this.infoPaciente.semComorbidade)
-            if ((this.etapaAtual.posicao == this.enumCadastro.inicioComorbidades) && (this.infoPaciente.semComorbidade == true)) {
-              this.vaPara(this.enumCadastro.salvaComorbidades)
-            } 
-            else if ((this.etapaAtual.posicao == this.enumCadastro.inicioSintomas) && (this.infoPaciente.assintomatico == true)) {
-              this.vaPara(this.enumCadastro.salvaSintomas)
-            }
-            else if ((this.etapaAtual.posicao == this.enumCadastro.dadosContato) && (this.infoPaciente.mesmaResidencia == true)) {
-              this.vaPara(this.enumCadastro.salvaDadosPaciente)
-            }
-            else {
-            // tem subEtapa
-              if (this.etapas[this.etapaAtual.posicao].totalSubEtapas > 0) {
-                if (this.etapas[this.etapaAtual.posicao].subEtapaAtual < this.etapas[this.etapaAtual.posicao].totalSubEtapas)
-                  this.etapas[this.etapaAtual.posicao].subEtapaAtual++
-                else {
-                  this.vaPara(++this.etapaAtual.posicao)
-                }
-                //console.log('cmdProximo-Fim1', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].totalSubEtapas, this.etapas[this.etapaAtual.posicao].subEtapaAtual)
-                return
-              }
-              this.vaPara(++this.etapaAtual.posicao)
-            }
-            console.log('cmdProximo-Fim', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].totalSubEtapas, this.etapas[this.etapaAtual.posicao].subEtapaAtual)
+            console.log('cmdProximo-Inicio', this.etapaAtual.posicao, this.etapas[this.etapaAtual.posicao].nome)
+           this.vaPara(++this.etapaAtual.posicao)
+           console.log('cmdProximo-Fim', this.etapaAtual.posicao)
           },
           cmdSalva() {
-            console.log('cmdSalva-Inicio', this.etapaAtual.posicao)
             if (this.etapaAtual.posicao == this.enumCadastro.salvaDadosPaciente) {
-              console.log('cmdSalva', 'this.salvaPaciente()')
               this.salvaPaciente();
             }
-            else if (this.etapaAtual.posicao == this.enumCadastro.salvaComorbidades) {
-              console.log('cmdSalva', 'this.salvaComorbidades()')
-              this.salvaComorbidades();
+            else if (this.etapaAtual.posicao == this.enumCadastro.comorbidades) {
+              this.salvaPacienteComorbidades();
             }
-            else if (this.etapaAtual.posicao == this.enumCadastro.salvaSintomas) {
-              console.log('cmdSalva', 'this.salvaSintomas()')
+            else if (this.etapaAtual.posicao == this.enumCadastro.sintomas) {
               this.salvaPacienteSintomas();
             }
-            console.log('cmdSalva-fim')
           },
           cmdVerifica() {
             this.verificaPaciente()
+          },
+          configuraDialog(mensagem) {
+             this.infoDialog.mensagem = mensagem
+             this.infoDialog.mostra = (mensagem !== '')
           },
           fim() {
             this.$router.push('/home');
@@ -804,50 +688,58 @@
               item.dias = 0
               this.infoPesquisa.sintomas.push(item)
             })
-            this.etapas.forEach(function(item) {
-              item.subEtapaAtual = false
+          },
+          listaCombosPaciente() {
+            console.log('listaCombosPaciente')
+            Promise.all([
+              mainService.listaMicroAreas(this.infoPaciente.unidadeSaude.id),
+              mainService.listaLogradouros(this.infoPaciente.bairro.id)
+            ]).then(([_microAreas, _logradouros]) => {
+              console.log('listaCombosPaciente-then')
+              
+              this.vaPara(this.enumCadastro.confirmaIdentificacao)
+              if (_microAreas.status == 200) {
+                this.infoPesquisa.microAreas = _microAreas.data;
+              } else {
+                this.mensagemErro(_microAreas.message)
+              }
+              if (_logradouros.status == 200) {
+                this.infoPesquisa.logradouros = _logradouros.data;
+              } else {
+                this.mensagemErro(_logradouros.message)
+              }
+              this.vaPara(this.enumCadastro.confirmaIdentificacao)
             })
           },
-          setaInfoPaciente (pacienteId, dadosPaciente) {
-            this.infoPaciente.id = pacienteId
-            this.infoPaciente.nome = dadosPaciente.nome
-            this.infoPaciente.cartaoSUS = dadosPaciente.cartaoSUS
-            this.infoPaciente.eMail = dadosPaciente.eMail 
+          limpaDadosPaciente(mesmaResidencia) {
+              this.infoPaciente.id = 0
+              this.infoPaciente.nome = ''
+              this.infoPaciente.cartaoSUS= ''
+              this.infoPaciente.eMail= ''
+              this.infoPaciente.celular= ''
+              this.infoPaciente.celular2= ''
+              this.infoPaciente.sexo= ''
+              this.infoPaciente.semComorbidade= false
+              this.infoPaciente.assintomatico= false
+              this.infoPaciente.sintomas= []
+              this.infoPaciente.comorbidades= []
+              this.infoPaciente.mesmaResidencia = mesmaResidencia
 
-            this.infoPaciente.unidadeSaude.id = dadosPaciente.unidadeSaudeId
-
-            this.infoPaciente.semNumeroEndereco = (dadosPaciente.numeroEndereco == '') 
-            this.infoPaciente.semComplemento = (dadosPaciente.complementoEndereco == '')
-            this.infoPaciente.numeroEndereco = dadosPaciente.numeroEndereco
-            this.infoPaciente.complemento = dadosPaciente.complementoEndereco
-            this.infoPaciente.sexo = dadosPaciente.sexo
-
-            this.infoPaciente.nomeunidadeSaude = ''
-
-            this.infoPaciente.bairro.id = dadosPaciente.bairroId
-            this.infoPaciente.bairro.nome = dadosPaciente.nomeBairro
-
-            this.infoPaciente.logradouro.id = dadosPaciente.logradouroId
-            this.infoPaciente.logradouro.nome = dadosPaciente.nomeLogradouro
-
-            this.infoPaciente.microArea.id = dadosPaciente.microAreaId
-            this.infoPaciente.microArea.nome = dadosPaciente.nomeMicroArea
-
-            this.infoPaciente.dataNascimento = dadosPaciente.dataNascimento.substring(0, 10)
-
-            this.infoPaciente.celular = formataValores.celular(dadosPaciente.celular)
-            if (dadosPaciente.celular2) 
-              this.infoPaciente.celular2 = formataValores.celular(dadosPaciente.celular2)
-            else 
-              this.infoPaciente.celular2 = '' 
-                            
-            this.infoPaciente.cpf = formataValores.cpf(dadosPaciente.cpf)
-
-            // Guarda a unidade de saude selecionadea
-            this.infoPesquisa.unidadesSaude.forEach ((elemento) => {
-            if (elemento.id == this.infoPaciente.unidadeSaude.id)
-              this.infoPaciente.unidadeSaude.nome = elemento.nome
-            })
+              if (this.infoPaciente.mesmaResidencia == false) {
+                this.infoPaciente.unidadeSaude.id = 0
+                this.infoPaciente.unidadeSaude.nome = ''
+                this.infoPaciente.microArea.id = 0
+                this.infoPaciente.microArea.nome = ''
+                this.infoPaciente.bairro.id = 0
+                this.infoPaciente.bairro.nome = ''
+                this.infoPaciente.logradouro.id = 0
+                this.infoPaciente.bairro.nome = ''
+                this.infoPaciente.numeroEndereco = ''
+                this.infoPaciente.semNumeroEndereco = false
+                this.infoPaciente.complemento = ''
+                this.infoPaciente.semComplemento = false
+              }
+              this.reiniciaVetores()
           },
           listaPaciente(pacienteId) {
             console.log('listaPaciente-Entrei ==> [PacienteId', pacienteId, ']')
@@ -861,8 +753,7 @@
               if (_paciente.status == 200) {
                 this.setaInfoPaciente(pacienteId, _paciente.data[0])
               } else {
-                console.log('Erro', _paciente.message)
-                this.mensagemErro = _paciente.message
+                this.mensagemErro(_paciente.message)
               }
 
               this.infoPesquisa.comorbidades = []
@@ -910,9 +801,7 @@
                   }
                 }
               } else {
-                this.infoBotoes.carregandoDados = false
-                console.log('Erro', _paciente.message)
-                this.mensagemErro = _paciente.message
+                this.mensagemErro(_paciente.message)
                 return
               }
 
@@ -963,16 +852,47 @@
                   }
                 }
               } else {
-                this.infoBotoes.carregandoDados = false
-                console.log('Erro', _paciente.message)
-                this.mensagemErro = _paciente.message
+                this.mensagemErro(_paciente.message)
                 return
               }
               this.listaCombosPaciente()
             })
           },
-          salvaComorbidades() {
-            console.log('salvaComorbidades-Inicio')
+          mensagemErro(mensagem) {
+            this.infoDialog.tipo = 1
+            this.configuraDialog(mensagem)
+          },
+          mensagemBusca(mensagem) {
+            this.infoDialog.tipo = 0
+            this.configuraDialog(mensagem)
+          },
+          salvaPaciente() {
+            this.mensagemBusca("Salvando dados do paciente. Aguarde...")
+            mainService.salvaPaciente(this.infoPaciente).then(resposta => {
+              console.log('salvaPaciente', '.then', resposta)
+                this.mensagemBusca('')
+                if (resposta.status == 200) {
+                  this.vaPara(this.enumCadastro.comorbidades)
+                } else {
+                  this.mensagemErro(resposta.message)
+                }
+              })
+              .catch(response => {
+                console.log('salvaPaciente', '.catch((response)', response)
+                if (response) {
+                  let _mensagem = ""
+                  response.erros.forEach(el => {
+                    _mensagem += el.mensagem
+                  });
+                  this.mensagemErro(_mensagem)
+                } else {
+                  this.mensagemErro(response.message)
+                }
+              }
+            )
+          },
+          salvaPacienteComorbidades() {
+            console.log('salvaPacienteComorbidades-Inicio')
             let _comorbidades = []
             for (let i = 0;  i < this.infoPesquisa.comorbidades.length; i++) {
               if (this.infoPesquisa.comorbidades[i].selecionado) {
@@ -983,97 +903,30 @@
               }
             }
 
-            this.mensagemBusca = "Aguarde... Salvando as Comorbidades"
-            this.infoBotoes.carregandoDados = true
+            this.mensagemBusca("Salvando as Comorbidades. Aguarde...")
             mainService.salvaPacienteComorbidades(this.infoPaciente.id, _comorbidades).then(resposta => {
               console.log('salvaPacienteComorbidades', '.then', resposta)
-              this.infoBotoes.carregandoDados = false
-                this.mensagemBusca = ""
+                this.mensagemBusca('')
                 if (resposta.status == 200) {
-                  this.vaPara(this.enumCadastro.inicioSintomas)
+                  this.vaPara(this.enumCadastro.sintomas)
                 } else {
-                  console.log('Erro', resposta.message)
-                  this.mensagemErro = resposta.message
+                  this.mensagemErro(resposta.message)
                 }
               })
               .catch(response => {
-                this.infoBotoes.carregandoDados = false
                 console.log('salvaPacienteComorbidades', '.catch((response)', response)
                 if (response) {
-                  this.mensagemErro = "";
+                  let _mensagem = "";
                   response.erros.forEach(el => {
-                    this.mensagemErro += el.mensagem;
+                    _mensagem += el.mensagem;
                   });
+                  this.mensagemErro(_mensagem)
                 } else {
-                  // Something happened in setting up the request that triggered an Error
-                  console.log('Erro', response.message);
-                  this.mensagemErro = response.message;
+                  this.mensagemErro(response.message)
                 }
               }
             )
-            console.log('salvaComorbidades-Fim')
-          },
-          novoMonitorado(mesmaResidencia) {
-              this.infoPaciente.id = 0
-              this.infoPaciente.nome = ''
-              this.infoPaciente.cpf = ''
-              this.infoPaciente.dataNascimento= ''
-              this.infoPaciente.cartaoSUS= ''
-              this.infoPaciente.eMail= ''
-              this.infoPaciente.celular= ''
-              this.infoPaciente.celular2= ''
-              this.infoPaciente.sexo= ''
-              this.infoPaciente.semComorbidade= false
-              this.infoPaciente.assintomatico= false
-              this.infoPaciente.sintomas= []
-              this.infoPaciente.comorbidades= []
-              this.infoPaciente.mesmaResidencia = mesmaResidencia
-
-              if (this.infoPaciente.mesmaResidencia == false) {
-                this.infoPaciente.unidadeSaude.id = 0
-                this.infoPaciente.unidadeSaude.nome = ''
-                this.infoPaciente.microArea.id = 0
-                this.infoPaciente.microArea.nome = ''
-                this.infoPaciente.bairro.id = 0
-                this.infoPaciente.bairro.nome = ''
-                this.infoPaciente.logradouro.id = 0
-                this.infoPaciente.bairro.nome = ''
-                this.infoPaciente.numeroEndereco = ''
-                this.infoPaciente.semNumeroEndereco = false
-                this.infoPaciente.complemento = ''
-                this.infoPaciente.semComplemento = false
-              }
-              this.reiniciaVetores()
-          },
-          salvaPaciente() {
-            this.mensagemBusca = "Aguarde..."
-            this.infoBotoes.carregandoDados = true
-            mainService.salvaPaciente(this.infoPaciente).then(resposta => {
-              this.infoBotoes.carregandoDados = false
-              console.log('salvaPaciente', '.then', resposta)
-                this.mensagemBusca = ""
-                if (resposta.status == 200) {
-                  this.vaPara(this.enumCadastro.inicioComorbidades)
-                } else {
-                  console.log('Erro', resposta.message)
-                  this.mensagemErro = resposta.message
-                }
-              })
-              .catch(response => {
-                console.log('salvaPaciente', '.catch((response)', response)
-                this.infoBotoes.carregandoDados = false
-                if (response) {
-                  this.mensagemErro = "";
-                  response.erros.forEach(el => {
-                    this.mensagemErro += el.mensagem;
-                  });
-                } else {
-                  // Something happened in setting up the request that triggered an Error
-                  console.log('Erro', response.message);
-                  this.mensagemErro = response.message;
-                }
-              }
-            )
+            console.log('salvaPacienteComorbidades-Fim')
           },
           salvaPacienteSintomas() {
             console.log('salvaPacienteSintomas-Inicio')
@@ -1093,34 +946,29 @@
 
             // Não há sintomas
             if (_sintomas.lenght == 0) {
-              this.message.mensagemErro = 'Nenhum sintoma foi selecionado. [erroId=01.001.001]'
+              this.mensagemErro('Nenhum sintoma foi selecionado. [erroId=01.001.001]')
               return
             } 
-            this.mensagemBusca = "Aguarde... Salvando os Sintomas"
-            this.infoBotoes.carregandoDados = true
+            this.mensagemBusca("Aguarde... Salvando os Sintomas")
             mainService.salvaPacienteSintomas(this.infoPaciente.id, _sintomas).then(resposta => {
               console.log('salvaPacienteSintomas', '.then', resposta)
-              this.infoBotoes.carregandoDados = false
-                this.mensagemBusca = ""
+                this.mensagemBusca('')
                 if (resposta.status == 200) {
                   this.vaPara(this.enumCadastro.proximoPaciente)
                 } else {
-                  console.log('Erro', resposta.message)
-                  this.mensagemErro = resposta.message
+                  this.mensagemErro(resposta.message)
                 }
               })
               .catch(response => {
-                this.infoBotoes.carregandoDados = false
                 console.log('salvaPacienteSintomas', '.catch((response)', response)
                 if (response) {
-                  this.mensagemErro = "";
+                  let _mensagem = "";
                   response.erros.forEach(el => {
-                    this.mensagemErro += el.mensagem;
+                    _mensagem += el.mensagem;
                   });
+                  this.mensagemErro(_mensagem)
                 } else {
-                  // Something happened in setting up the request that triggered an Error
-                  console.log('Erro', response.message);
-                  this.mensagemErro = response.message;
+                  this.mensagemErro(response.message)
                 }
               }
             )
@@ -1131,66 +979,112 @@
             this.infoPaciente.logradouro.id = 0;
             this.infoPaciente.logradouro.nome = ''
 
-            this.infoBotoes.carregandoDados = true
-            mainService.listaLogradouros(this.infoPaciente.bairro.id).then(resposta => {
-              this.infoBotoes.carregandoDados = false
+            mainService.listaLogradouros(this.infoPaciente.bairro.id)
+            .then(resposta => {
               if (resposta.status == 200) {
                 this.infoPesquisa.logradouros = resposta.data;
               } else {
-                console.log('Erro', resposta.message)
-                this.mensagemErro = resposta.message
+                this.mensagemErro(resposta.message)
               }
+            })
+          },
+          setaInfoPaciente (pacienteId, dadosPaciente) {
+            this.infoPaciente.id = pacienteId
+            this.infoPaciente.nome = dadosPaciente.nome
+            this.infoPaciente.cartaoSUS = dadosPaciente.cartaoSUS
+            this.infoPaciente.eMail = dadosPaciente.eMail 
+
+            this.infoPaciente.unidadeSaude.id = dadosPaciente.unidadeSaudeId
+
+            this.infoPaciente.semNumeroEndereco = (dadosPaciente.numeroEndereco == '') 
+            this.infoPaciente.semComplemento = (dadosPaciente.complementoEndereco == '')
+            this.infoPaciente.numeroEndereco = dadosPaciente.numeroEndereco
+            this.infoPaciente.complemento = dadosPaciente.complementoEndereco
+            this.infoPaciente.sexo = dadosPaciente.sexo
+
+            this.infoPaciente.nomeunidadeSaude = ''
+
+            this.infoPaciente.bairro.id = dadosPaciente.bairroId
+            this.infoPaciente.bairro.nome = dadosPaciente.nomeBairro
+
+            this.infoPaciente.logradouro.id = dadosPaciente.logradouroId
+            this.infoPaciente.logradouro.nome = dadosPaciente.nomeLogradouro
+
+            this.infoPaciente.microArea.id = dadosPaciente.microAreaId
+            this.infoPaciente.microArea.nome = dadosPaciente.nomeMicroArea
+
+            this.infoPaciente.dataNascimento = dadosPaciente.dataNascimento.substring(0, 10)
+
+            this.infoPaciente.celular = formataValores.celular(dadosPaciente.celular)
+            if (dadosPaciente.celular2) 
+              this.infoPaciente.celular2 = formataValores.celular(dadosPaciente.celular2)
+            else 
+              this.infoPaciente.celular2 = '' 
+                            
+            this.infoPaciente.cpf = formataValores.cpf(dadosPaciente.cpf)
+
+            // Guarda a unidade de saude selecionadea
+            this.infoPesquisa.unidadesSaude.forEach ((elemento) => {
+            if (elemento.id == this.infoPaciente.unidadeSaude.id)
+              this.infoPaciente.unidadeSaude.nome = elemento.nome
             })
           },
           setaLogradouro(value) {
             this.infoPaciente.logradouro.id = value.id;
           },
-          listaCombosPaciente() {
-            console.log('listaCombosPaciente')
-            Promise.all([
-              mainService.listaMicroAreas(this.infoPaciente.unidadeSaude.id),
-              mainService.listaLogradouros(this.infoPaciente.bairro.id)
-            ]).then(([_microAreas, _logradouros]) => {
-              console.log('listaCombosPaciente-then')
-              
-              this.vaPara(this.enumCadastro.confirmaIdentificacao)
-              this.infoBotoes.carregandoDados = false
-              if (_microAreas.status == 200) {
-                this.infoPesquisa.microAreas = _microAreas.data;
-              } else {
-                console.log('Erro', _microAreas.message)
-                this.mensagemErro = _microAreas.message
-              }
-              if (_logradouros.status == 200) {
-                this.infoPesquisa.logradouros = _logradouros.data;
-              } else {
-                console.log('Erro', _logradouros.message)
-                this.mensagemErro = _logradouros.message
-              }
-              this.vaPara(this.enumCadastro.confirmaIdentificacao)
-            })
-          },
           setaUnidadeSaude(value) {
             console.log('setaUnidadeSaude.inicio')
             this.infoPaciente.unidadeSaude.id = value.id;
-            this.infoBotoes.carregandoDados = true
             this.infoPaciente.microArea.id = 0;
             this.infoPaciente.microArea.nome = ''
 
             mainService.listaMicroAreas(this.infoPaciente.unidadeSaude.id).then(resposta => {
               console.log('setaUnidadeSaude.then')
-              this.infoBotoes.carregandoDados = false
               if (resposta.status == 200) {
                 this.infoPesquisa.microAreas = resposta.data;
               } else {
-                console.log('Erro', resposta.message)
-                this.mensagemErro = resposta.message
+                this.mensagemErro(resposta.message)
               }
             })
           },
+          trataBairros (retorno) {
+            this.infoPesquisa.bairros = retorno.data
+          },
+          trataComorbidades(retorno) {
+            this.infoPesquisa.comorbidades = [] 
+            this.infoPesquisa.comorbidadesOriginal = [] 
+            for (let i=0; i < retorno.data.length; ++i) {
+              let _elemAux = {}
+              _elemAux.id = retorno.data[i].id
+              _elemAux.nome = retorno.data[i].nome
+              _elemAux.selecionado = false
+              _elemAux.ordem = 1000+i
+              this.infoPesquisa.comorbidades.push(_elemAux)
+              this.infoPesquisa.comorbidadesOriginal.push(_elemAux)
+            }
+          },
+          trataSintomas(retorno) {
+            this.infoPesquisa.sintomas = []
+            this.infoPesquisa.sintomasOriginal = []
+            for (let i=0; i < retorno.data.length; ++i) {
+              let _elemAux = {}
+              _elemAux.id = retorno.data[i].id
+              _elemAux.nome = retorno.data[i].nome
+              _elemAux.selecionado = false
+              _elemAux.dias = 0
+              _elemAux.ordem = 1000+i
+              this.infoPesquisa.sintomas.push(_elemAux)
+              this.infoPesquisa.sintomasOriginal.push(_elemAux)
+            }
+            //this.etapas[this.enumCadastro.sintomas].totalSubEtapas = Math.ceil(retorno.data.length / this.infoPesquisa.numeroMaximoCheckBoxes)
+            //this.etapas[this.enumCadastro.sintomas].subEtapaAtual = 1
+          },
+          trataUnidadesSaude(retorno) {
+            this.infoPesquisa.unidadesSaude = retorno.data
+          },
           vaPara(posicaoCadastro) {
-            this.mensagemErro = ''
-            this.mensagemBusca = ''
+            console.log('vaPara-inicio', posicaoCadastro)
+            this.mensagemErro('')
 
             this.infoBotoes.temBotaoAnterior = false
             this.infoBotoes.temBotaoProximo = false
@@ -1212,8 +1106,6 @@
               case this.enumCadastro.unidadeSaude:
               case this.enumCadastro.bairroResidencia:
               case this.enumCadastro.endereco:
-              case this.enumCadastro.comorbidades:
-              case this.enumCadastro.sintomas:
                 this.infoBotoes.podeVoltar = true
                 this.infoBotoes.temBotaoAnterior = this.infoBotoes.temBotaoProximo = true
                 break
@@ -1221,24 +1113,27 @@
                 this.infoBotoes.temBotaoFinaliza = this.infoBotoes.temBotaoNovo = true
                 break
               case this.enumCadastro.salvaDadosPaciente:
-              case this.enumCadastro.salvaComorbidades:
-              case this.enumCadastro.salvaSintomas:
                 this.infoBotoes.podeVoltar = true
-                this.infoBotoes.temBotaoAnterior = true;
-                this.infoBotoes.temBotaoSalva = true;
+                this.infoBotoes.temBotaoAnterior = true
+                this.infoBotoes.temBotaoSalva = true
                 break
 
-              case this.enumCadastro.inicioComorbidades: 
-              case this.enumCadastro.inicioSintomas: 
+              case this.enumCadastro.comorbidades:
                 this.infoBotoes.podeVoltar = false
                 this.infoBotoes.temBotaoAnterior = true
-                this.infoBotoes.temBotaoProximo = true
-                break;
+                this.infoBotoes.temBotaoSalva = true
+                break
 
+              case this.enumCadastro.sintomas:
+                this.infoBotoes.podeVoltar = true
+                this.infoBotoes.temBotaoAnterior = true
+                this.infoBotoes.temBotaoSalva = true
+                break
             } 
             this.etapaAtual.posicao = posicaoCadastro;
             this.etapaAtual.stepBar = this.etapas[this.etapaAtual.posicao].stepBar;
             this.etapaAtual.nome = this.etapas[this.etapaAtual.posicao].nome;
+            console.log('vaPara-fim', posicaoCadastro)
           },
           verificaPaciente() {
             console.log('verificaPaciente-Entrei')
@@ -1249,10 +1144,10 @@
               'cartaoSUS': this.infoPaciente.cartaoSUS,
             }
 
-            this.mensagemErro = ''
-            this.mensagemBusca = 'Consultando dados do cidadão! Aguarde...'
-            this.infoBotoes.carregandoDados = true
-            mainService.listaPacientes(_param).then(resposta => {
+            this.mensagemErro('')
+            this.mensagemBusca('Consultando dados do cidadão! Aguarde...')
+            mainService.listaPacientes(_param)
+            .then(resposta => {
               console.log('verificaPaciente-then', resposta)
               if (resposta.status == 200) {
                 var _pacientes = resposta.data;
@@ -1263,30 +1158,31 @@
                   this.infoPaciente.id = _pacientes[0].id
                   this.listaPaciente(this.infoPaciente.id)
                 } else {
-                  this.infoBotoes.carregandoDados = false
                   this.infoPaciente.id = 0
+                  this.limpaDadosPaciente(false)
                   this.vaPara(this.enumCadastro.dadosCadastrais)
                 }
               } else {
-                console.log('Erro', resposta.message)
-                this.mensagemErro = resposta.message
+                this.mensagemErro(resposta.message)
               }
             })
             .catch(response => {
-                this.infoBotoes.carregandoDados = false
                 console.log('verificaPaciente-catch', '.catch((response)', response)
                 if (response) {
-                  this.mensagemErro = "";
+                  let _mensagem = "";
                   response.erros.forEach(el => {
-                    this.mensagemErro += el.mensagem;
+                    _mensagem += el.mensagem;
                   });
+                  this.mensagemErro(_mensagem)
                 } else {
-                  // Something happened in setting up the request that triggered an Error
-                  console.log('Erro', response.message);
-                  this.mensagemErro = response.message;
+                  this.mensagemErro(response.message)
                 }
               }
             )
+          },
+          fechaDialog() {
+            this.infoDialog.mostra = false
+            this.infoDialog.mensagem = ''
           },
         }
     }
@@ -1328,6 +1224,9 @@
     .v-combobox-field {
      font-size: 2.2em;
     }
+  }
+  .right-input input {
+    text-align: right
   }
 </style>
 

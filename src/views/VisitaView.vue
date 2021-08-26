@@ -1,240 +1,118 @@
 <template>
     <v-container class="pt-0 mt-0"> 
         <v-container fluid style="height: 100vmax;" class="pa-1 grey lighten-5">
+            <DialogProgressBar :mostra="infoDialog.mostra" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" @funcaoRetorno= 'fechaDialog'/>
+
             <!-- INICIO -->
             <v-card flat class="pa-0 mt-0">
-                <v-row justify="center"><h4>Selecione os cidadãos em visitação</h4></v-row>
-                <v-card-text class="mt-4 ma-0 pa-0">
-                    <v-expansion-panels class="mt-5">
+                <v-card-text class="ma-0 pa-0">
+                    <v-expansion-panels class="mt-0" v-model="painelAberto">
                         <v-expansion-panel>
                         <v-expansion-panel-header>
-                            <template v-slot:default="{ open }">
                             <v-row no-gutters>
-                                <v-col cols="4">
-                                Nome do Cidadão
+                                <v-col cols="12">
+                                <b>Informe dados cadastrais para pesquisa</b>
                                 </v-col>
                                 <v-col
-                                cols="8"
+                                cols="1"
                                 class="text--secondary"
                                 >
                                 <v-fade-transition leave-absolute>
                                     <span
-                                    v-if="open"
                                     key="0"
                                     >
-                                    Informe o nome do cidadão
-                                    </span>
-                                    <span
-                                    v-else
-                                    key="1"
-                                    >
-                                    {{ trip.name }}
                                     </span>
                                 </v-fade-transition>
                                 </v-col>
                             </v-row>
-                            </template>
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                             <v-text-field
-                            v-model="trip.name"
-                            placeholder="Nome do Cidadão"
+                                v-model="infoPesquisa.nomePaciente"
+                                placeholder="Nome do Cidadão"
+                                clearable
                             ></v-text-field>
-                        </v-expansion-panel-content>
-                        </v-expansion-panel>
-
-                        <v-expansion-panel>
-                        <v-expansion-panel-header v-slot="{ open }">
-                            <v-row no-gutters>
-                            <v-col cols="4">
-                                Endereço
-                            </v-col>
-                            <v-col
-                                cols="8"
-                                class="text--secondary"
-                            >
-                                <v-fade-transition leave-absolute>
-                                <span
-                                    v-if="open"
-                                    key="0"
-                                >
-                                    Select trip destination
-                                </span>
-                                <span
-                                    v-else
-                                    key="1"
-                                >
-                                    {{ trip.location }}
-                                </span>
-                                </v-fade-transition>
-                            </v-col>
-                            </v-row>
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-row no-gutters>
-                            <v-spacer></v-spacer>
-                            <v-col cols="5">
-                                <v-select
-                                v-model="trip.location"
-                                :items="locations"
-                                chips
-                                flat
-                                solo
-                                ></v-select>
-                            </v-col>
-
-                            <v-divider
-                                vertical
-                                class="mx-4"
-                            ></v-divider>
-
-                            <v-col cols="3">
-                                Select your destination of choice
-                                <br>
-                            </v-col>
-                            </v-row>
+                            <v-select @input="setaUnidadeSaude"
+                                required
+                                dense
+                                label="Unidade de Saúde"
+                                :items="infoPesquisa.unidadesSaude"
+                                v-model="infoPesquisa.unidadeSaudeId"
+                                item-value="id"
+                                item-text="nome"
+                                clearable
+                            ></v-select> 
+                            <v-select @input="setaMicroArea"
+                                dense
+                                label="Micro Área"
+                                :disabled="infoPesquisa.unidadeSaudeId === 0 || infoPesquisa.microAreas.length === 0 "
+                                v-model="infoPesquisa.microAreaId"
+                                :items="infoPesquisa.microAreas"
+                                item-value="id"
+                                item-text="nome"
+                                clearable
+                            ></v-select>
+                            <v-select @input="setaBairro"
+                                required
+                                dense
+                                v-model="infoPesquisa.bairroId"
+                                label="Bairro"
+                                :items="infoPesquisa.bairros"
+                                item-value="id"
+                                item-text="nome"
+                                clearable
+                            ></v-select> 
+                            <v-select @input="setaLogradouro"
+                                dense
+                                label="Nome da rua"
+                                :disabled="infoPesquisa.bairroId === 0 || infoPesquisa.bairros.length === 0 "
+                                v-model="infoPesquisa.logradouroId"
+                                :items="infoPesquisa.logradouros"
+                                item-value="id"
+                                item-text="nome"
+                                clearable
+                            ></v-select>
                             <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                text
-                                color="secondary"
-                            >
-                                Cancel
-                            </v-btn>
-                            <v-btn
-                                text
-                                color="primary"
-                            >
-                                Pesquisar
-                            </v-btn>
+                                <v-spacer></v-spacer>
+                                <v-btn text color="secondary" @click="fechaPainel()"> Cancela </v-btn>
+                                <v-btn text color="primary" @click="listaPacientes()"> Pesquisa </v-btn>
                             </v-card-actions>
-                        </v-expansion-panel-content>
-                        </v-expansion-panel>
-
-                        <v-expansion-panel>
-                        <v-expansion-panel-header v-slot="{ open }">
-                            <v-row no-gutters>
-                            <v-col cols="6">
-                                Datas Inicial e Final de xxxxx
-                            </v-col>
-                            <v-col
-                                cols="6"
-                                class="text--secondary"
-                            >
-                                <v-fade-transition leave-absolute>
-                                <span v-if="open">Qual periodo de?</span>
-                                <v-row
-                                    v-else
-                                    no-gutters
-                                    style="width: 100%"
-                                >
-                                    <v-col cols="6">
-                                    Data Inicial: {{ trip.start || 'Not set' }}
-                                    </v-col>
-                                    <v-col cols="6">
-                                    Data Final: {{ trip.end || 'Not set' }}
-                                    </v-col>
-                                </v-row>
-                                </v-fade-transition>
-                            </v-col>
-                            </v-row>
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-row
-                            justify="space-around"
-                            no-gutters
-                            >
-                            <v-col cols="3">
-                                <v-menu
-                                ref="startMenu"
-                                :close-on-content-click="false"
-                                :return-value.sync="trip.start"
-                                offset-y
-                                min-width="290px"
-                                >
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-text-field
-                                    v-model="trip.start"
-                                    label="Data Inicial"
-                                    prepend-icon="mdi-calendar"
-                                    readonly
-                                    v-bind="attrs"
-                                    v-on="on"
-                                    ></v-text-field>
-                                </template>
-                                <v-date-picker
-                                    v-model="date"
-                                    no-title
-                                    scrollable
-                                >
-                                    <v-spacer></v-spacer>
-                                    <v-btn
-                                    text
-                                    color="primary"
-                                    @click="$refs.startMenu.isActive = false"
-                                    >
-                                    Cancel
-                                    </v-btn>
-                                    <v-btn
-                                    text
-                                    color="primary"
-                                    @click="$refs.startMenu.save(date)"
-                                    >
-                                    OK
-                                    </v-btn>
-                                </v-date-picker>
-                                </v-menu>
-                            </v-col>
-
-                            <v-col cols="3">
-                                <v-menu
-                                ref="endMenu"
-                                :close-on-content-click="false"
-                                :return-value.sync="trip.end"
-                                offset-y
-                                min-width="290px"
-                                >
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-text-field
-                                    v-model="trip.end"
-                                    label="End date"
-                                    prepend-icon="mdi-calendar"
-                                    readonly
-                                    v-bind="attrs"
-                                    v-on="on"
-                                    ></v-text-field>
-                                </template>
-                                <v-date-picker
-                                    v-model="date"
-                                    no-title
-                                    scrollable
-                                >
-                                    <v-spacer></v-spacer>
-                                    <v-btn
-                                    text
-                                    color="primary"
-                                    @click="$refs.endMenu.isActive = false"
-                                    >
-                                    Cancel
-                                    </v-btn>
-                                    <v-btn
-                                    text
-                                    color="primary"
-                                    @click="$refs.endMenu.save(date)"
-                                    >
-                                    OK
-                                    </v-btn>
-                                </v-date-picker>
-                                </v-menu>
-                            </v-col>
-                            </v-row>
                         </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-expansion-panels>
                 </v-card-text>
             </v-card>
+            <v-card flat class="pt-0 mt-5" tile v-if="telaPronta" >
+            <v-list three-line>
+                <v-subheader class="justify-center px-0">
+                    <v-col cols="11" class="px-0"><b>{{tituloLista}}</b></v-col>                    
+                </v-subheader>
+                <v-divider></v-divider>
+                <v-list-item-group v-model="itemSelecionadoGrid" color="primary" >
+                    <v-flex v-for="(item) in lista" :key="item.id">
+                    <v-list-item >
+                        <v-list-item-avatar>
+                            <v-img :src="'https://cdn.vuetifyjs.com/images/lists/1.jpg'"></v-img>
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                            <v-list-item-title v-html="item.nome"></v-list-item-title>
+                            <v-list-item-subtitle v-html="item.nome"></v-list-item-subtitle>
+                            <v-list-item-subtitle>Endereço</v-list-item-subtitle>
+                            <v-list-item-subtitle>Micro Area - Unidade de Saúde</v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-btn icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
+                    </v-list-item>
+                    <v-divider></v-divider>
+                    </v-flex>
+                </v-list-item-group>
+            </v-list>
+        </v-card>
 
-<v-list three-line>
+    <!-- <v-list three-line>
+        <v-subheader class="justify-center">
+            <v-col cols="12"><b>{{tituloLista}}</b></v-col>                    
+        </v-subheader>
+
       <template v-for="(item, index) in items">
         <v-subheader
           v-if="item.header"
@@ -262,7 +140,7 @@
           </v-list-item-content>
         </v-list-item>
       </template>
-    </v-list>
+    </v-list> -->
 
             <!-- Dfim -->
         </v-container>
@@ -274,71 +152,166 @@
     </v-layout> -->
 </template>
 <script>
+    import mainService from '../services/MainService'
+    import DialogProgressBar from '../components/DialogProgressBar'
+
     export default {
-        name: 'SuspeitaCovid',
         components: {
+            DialogProgressBar
         },
         data() {
           return {
-                date: null,
-                trip: {
-                    name: '',
-                    location: null,
-                    start: null,
-                    end: null,
-                },
-                locations: ['Australia', 'Barbados', 'Chile', 'Denmark', 'Ecuador', 'France'],
-                items: [
-        { header: 'Today' },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-          title: 'Brunch this weekend?',
-          subtitle: `<span class="text--primary">Ali Connors</span> &mdash; I'll be in your neighborhood doing errands this weekend. Do you want to hang out?`,
+            telaPronta: false,
+            cidadeId: 1,
+            itemSelecionadoGrid: 0,
+            painelAberto: true,
+            infoPesquisa: {
+                nomePaciente: '',
+                bairroId: 0,
+                logradouroId: 0,
+                unidadeSaudeId: 0,
+                microAreaId: 0,
+                bairros: [],
+                logradouros: [],
+                unidadesSaude: [],
+                microAreas: []
+            },
+            infoDialog: {
+                tipo: 0,
+                mostra: false,
+                mensagem: ''
+            },
+            lista: []
+          }
         },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-          title: 'Summer BBQ <span class="grey--text text--lighten-1">4</span>',
-          subtitle: `<span class="text--primary">to Alex, Scott, Jennifer</span> &mdash; Wish I could come, but I'm out of town this weekend.`,
+        mounted() {
+            this.buscaDadosIniciais()
         },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-          title: 'Oui oui',
-          subtitle: '<span class="text--primary">Sandra Adams</span> &mdash; Do you have Paris recommendations? Have you ever been?',
+        computed: {
+            tituloLista: function() {
+               let _numeroRegistros = this.lista.length
+               let _retorno = (_numeroRegistros == 0) ? 'Não há cidadãos para essa pesquisa' : ` Lista de cidadãos (${_numeroRegistros}) `
+               return _retorno
+            },
         },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
-          title: 'Birthday gift',
-          subtitle: '<span class="text--primary">Trevor Hansen</span> &mdash; Have any ideas about what we should get Heidi for her birthday?',
-        },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/5.jpg',
-          title: 'Recipe to try',
-          subtitle: '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.',
-        },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/5.jpg',
-          title: 'Recipe to try',
-          subtitle: '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.',
-        },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/5.jpg',
-          title: 'Recipe to try',
-          subtitle: '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.',
-        },
-        { divider: true, inset: true },
-        {
-          avatar: 'https://cdn.vuetifyjs.com/images/lists/5.jpg',
-          title: 'Recipe to try',
-          subtitle: '<span class="text--primary">Britta Holt</span> &mdash; We should eat this: Grate, Squash, Corn, and tomatillo Tacos.',
-        },
-      ],
-            }
+        methods: {
+            buscaDadosIniciais() {
+                console.log('buscaDadosIniciais.promise.inicio')
+                this.mensagemBusca('Buscando alguns dados! Aguarde...')
+                Promise.all([
+                    mainService.listaUnidadesSaude(this.cidadeId),
+                    mainService.listaBairros(this.cidadeId),
+                ]).then(([_unidadeSaude, _bairro]) => {
+
+                    console.log('buscaDadosIniciais.promise.then')
+                    console.log(_unidadeSaude, _bairro)
+                    this.mensagemBusca('')
+                    if (_unidadeSaude.status == 200)  
+                        this.infoPesquisa.unidadesSaude = _unidadeSaude.data
+
+                    if (_bairro.status == 200)  
+                        this.infoPesquisa.bairros = _bairro.data
+                });
+                console.log('buscaDadosIniciais.promise.fim')
+            },
+            fechaPainel () {
+              this.painelAberto = false
+            },
+            configuraDialog(mensagem) {
+                this.infoDialog.mensagem = mensagem
+                this.infoDialog.mostra = (mensagem !== '')
+            },
+            fechaDialog() {
+                this.infoDialog.mostra = false
+                this.infoDialog.mensagem = ''
+            },
+            mensagemErro(mensagem) {
+                this.infoDialog.tipo = 1
+                this.configuraDialog(mensagem)
+            },
+            mensagemBusca(mensagem) {
+                this.infoDialog.tipo = 0
+                this.configuraDialog(mensagem)
+            },
+            listaPacientes() {
+                console.log('listaPacientes-Entrei')
+                let _param = {
+                    'tipo': 2,
+                    'unidadeSaudeId': this.infoPesquisa.unidadeSaudeId,
+                    'microAreaId': this.infoPesquisa.microAreaId,
+                    'bairroId': this.infoPesquisa.bairroId,
+                    'logradouroId': this.infoPesquisa.logradouroId,
+                }
+                this.mensagemBusca('Consultando dados do cidadão! Aguarde...')
+                mainService.listaPacientes(_param)
+                .then(_resposta => {
+                    console.log('listaPacientes-then', _resposta)
+                    this.mensagemBusca('')
+                    if (_resposta.status == 200) {
+                        this.lista = _resposta.data
+                        this.telaPronta = true
+                        this.fechaPainel()
+                    } else {
+                        this.mensagemErro(_resposta.message)
+                    }
+                })
+                .catch(response => {
+                    console.log('listaPacientes-catch', '.catch((response)', response)
+                    if (response) {
+                        let _mensagem = "";
+                        response.erros.forEach(el => {
+                            _mensagem += el.mensagem;
+                        });
+                    this.mensagemErro(_mensagem)
+                    } else {
+                        this.mensagemErro(response.message)
+                    }
+                })
+            },
+            setaLogradouro(id) {
+                this.infoPesquisa.logradouroId = id;
+            },
+            setaMicroArea(id) {
+                this.infoPesquisa.microAreaId = id;
+            },
+            setaBairro(id) {
+                if (id == null) {
+                    this.infoPesquisa.bairroId = 0
+                    this.infoPesquisa.logradouros = []
+                } else {
+                    this.mensagemBusca('Buscando Micro Áreas... Aguarde')
+                    this.infoPesquisa.bairroId = id;
+                    mainService.listaLogradouros(this.infoPesquisa.bairroId)
+                    .then(resposta => {
+                        this.mensagemBusca('')
+                        if (resposta.status == 200) {
+                            this.infoPesquisa.logradouros = resposta.data;
+                        } else {
+                            this.mensagemErro(resposta.message)
+                        }
+                    })
+                }
+            },
+            setaUnidadeSaude(id) {
+                console.log('setaUnidadeSaude.inicio', id)
+                if (id == null) {
+                    this.infoPesquisa.unidadeSaudeId = 0
+                    this.infoPesquisa.microAreas = []
+                } else {
+                    this.infoPesquisa.unidadeSaudeId = id;
+                    this.mensagemBusca('Buscando Micro Áreas... Aguarde')
+                    mainService.listaMicroAreas(this.infoPesquisa.unidadeSaudeId)
+                    .then(resposta => {
+                        console.log('setaUnidadeSaude.then')
+                        this.mensagemBusca('')
+                        if (resposta.status == 200) {
+                            this.infoPesquisa.microAreas = resposta.data;
+                        } else {
+                            this.mensagemErro(resposta.message)
+                        }
+                    })
+                }
+            },
         }
     }
 </script>
