@@ -6,17 +6,9 @@
       dark
     >
       <div class="d-flex align-center">
-        <a href="/Home">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          :src="urlLogo"
-          transition="scale-transition"
-          width="40"
-        >
-        </v-img>
-        </A>
+        <v-btn  icon v-on:click="goHome()">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
       </div>
       <v-spacer>
       <div class="text-center"><h4>{{titulo}}</h4></div>
@@ -27,6 +19,8 @@
     </v-app-bar>
 </template>
 <script>
+  import store from '../store'
+
   export default {
     name: 'AppBar',
     props: {
@@ -44,12 +38,11 @@
     },
     methods: { 
       goHome() {
-        this.$router.push('/Home');
+        this.$router.push('/Home').catch(()=>{})
       },
       logout() {
-        this.$router.push('/Home');
-        //this.$store.commit('logout')
-        //this.$router.push('/')
+        store.commit('logout')
+        this.$router.push('/login')
       }
     }
   }

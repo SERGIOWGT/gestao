@@ -3,7 +3,8 @@ import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
-    baseURL: 'https://lastecweb01.azurewebsites.net/api/'
+    //baseURL: 'https://lastecweb01.azurewebsites.net/api/'
+    baseURL: 'http://sso.painelsaude.com.br/api/'
 })
 
 http.interceptors.response.use(function (response) {

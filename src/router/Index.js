@@ -2,13 +2,15 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import store from '../store.js'
-import LoginView from '../views/LoginView.vue'
-import HomeView from '../views/HomeView.vue'
-import TelaAberturaView from '../views/TelaAberturaView.vue'
-import EmDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
-import NovaSuspeitaView from '../views/NovaSuspeitaView.vue'
-import VisitaView from '../views/VisitaView.vue'
-import CadastrosView from '../views/CadastrosView.vue'
+import loginView from '../views/LoginView.vue'
+import homeView from '../views/HomeView.vue'
+import telaAberturaView from '../views/TelaAberturaView.vue'
+import emDesenvolvimentoView from '../views/EmDesenvolvimentoView.vue'
+import novaSuspeitaView from '../views/NovaSuspeitaView.vue'
+import novaSuspeitaView2 from '../views/NovaSuspeitaView2.vue'
+import visitaView from '../views/VisitaView.vue'
+import cadastrosView from '../views/CadastrosView.vue'
+import identificacaoCidadaoView from '../views/IdentificacaoCidadaoView.vue'
 
 Vue.use(Router)
 
@@ -16,37 +18,47 @@ const routes = [
     {
         path: '/',
         name: 'telaAberturaView',
-        component: TelaAberturaView
+        component: telaAberturaView
     },
     {
         path: '/login',
         name: 'loginView',
-        component: LoginView
+        component: loginView
     },
     {
         path: '/Home',
         name: 'homeView',
-        component: HomeView
+        component: homeView
     },
     {
         path: '/emDesenvolvimento',
         name: 'emDesenvolvimentoView',
-        component: EmDesenvolvimentoView
+        component: emDesenvolvimentoView
     },
     {
         path: '/novaSuspeita',
         name: 'novaSuspeitaView',
-        component: NovaSuspeitaView
+        component: novaSuspeitaView
+    },
+    {
+        path: '/novaSuspeita2',
+        name: 'novaSuspeitaView2',
+        component: novaSuspeitaView2
+    },
+    {
+        path: '/identificacaoCidadao',
+        name: 'identificacaoCidadao',
+        component: identificacaoCidadaoView
     },
     {
         path: '/visita',
         name: 'visitaView',
-        component: VisitaView
+        component: visitaView
     },
     {
         path: '/cadastros',
         name: 'cadastrosView',
-        component: CadastrosView
+        component: cadastrosView
     }
 ]
 

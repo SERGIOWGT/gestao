@@ -16,7 +16,7 @@
             <span>Continuar</span>
             <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
-        <v-btn v-if="temBotaoSalva" @click="btnFuncao('SV')"  >
+        <v-btn v-if="temBotaoSalva" @click="btnFuncao('SV')"  :disabled="podeSalvar===false"   >
             <span>Salvar</span>
             <v-icon>mdi-cloud-upload</v-icon>
         </v-btn>
@@ -48,7 +48,8 @@
         podeVoltar: Boolean,
         podeContinuar:  Boolean,
         podeCancelar: Boolean,
-        podeVerificar: Boolean
+        podeVerificar: Boolean,
+        podeSalvar: Boolean
     },
     data() {
         return {

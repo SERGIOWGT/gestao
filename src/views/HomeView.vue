@@ -1,12 +1,7 @@
 <template>
   <v-layout class="pa-0 ma-0 grey lighten-5" align-content-start justify-end row fill-height>
     <v-container class="pa-0">
-      <v-row class="justify-center" v-if="mensagemErro">
-        <v-alert type="error" smaller dense outlined>
-          {{mensagemErro}}
-        </v-alert>
-      </v-row> 
-      <DialogProgressBar :mostra="mensagemBusca !== ''" :mensagem="mensagemBusca"/>
+      <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" @funcaoRetorno='fechaDialog()'/>
       <v-alert
         v-show="mostraTela && semAcesso"
         text
@@ -80,19 +75,24 @@
 <script>
   
   import mainService from '../services/MainService'
-  import DialogProgressBar from '../components/DialogProgressBar';
+  import BasicDialog from '../components/BasicDialog';
+  import store from '../store'
 
   export default {
     components: {
-        DialogProgressBar
+        BasicDialog
     },
     data() {
       return {
-        nome: 'teste',
+        // Dados
+
+        infoDialog: {
+          tipo: 0,
+          mensagem: ''
+        },
+
         token: '',
         mostraTela:false,
-        mensagemErro: '',
-        mensagemBusca: '',
         semAcesso: true,
         funcionalidades: [
           {
@@ -103,6 +103,22 @@
               iconColor: 'blue', 
               ativo: false,
               func: 'cadastraMonitoramento()', 
+              perms: [
+                {id:101, tipoId:1, acao:'I'},
+                {id:102, tipoId:1, acao:'I'},
+                {id:103, tipoId:1, acao:'I'},
+                {id:105, tipoId:1, acao:'I'},
+                {id:106, tipoId:1, acao:'I'},
+                {id:107, tipoId:1, acao:'C'}
+              ]
+          }, {
+              id: 2, 
+              textColor: 'blue--text', 
+              text: 'Cadastre o cidadão Exemplo 2', 
+              icon: 'mdi-alert-outline', 
+              iconColor: 'blue', 
+              ativo: false,
+              func: 'cadastraMonitoramento2()', 
               perms: [
                 {id:101, tipoId:1, acao:'I'},
                 {id:102, tipoId:1, acao:'I'},
@@ -124,7 +140,7 @@
               ]
           },
           {   
-              id: 2, 
+              id: 4, 
               textColor: 'blue--text', 
               text: 'Atualize os cadastros básicos do sistema', 
               icon: 'mdi-emoticon-sick', 
@@ -140,52 +156,71 @@
         ]
       }
     },
+    created() {
+      if (!store.getters.autenticadoApi) 
+        this.autenticaNoPainelSaude()
+       else 
+        this.preparaTela()
+    },
     mounted() {
-      this.autenticaNoPainelSaude()
+      
+    },        
+    computed: {
+      mensagemBusca: {
+          get: function() { return this.infoDialog.mensagem},
+          set: function(mensagem) {
+            this.infoDialog.tipo = 0
+            this.infoDialog.mensagem = mensagem
+          }
+      },
+      mensagemErro: {
+          get: function() { return this.infoDialog.mensagem},
+          set: function(mensagem) {
+            this.infoDialog.tipo = 1
+            this.infoDialog.mensagem = mensagem
+          }
+      }
     },
     methods: {
-      autenticaNoPainelSaude() {
+      fechaDialog() {
+        this.infoDialog.mensagem = ''
+      },
+      async autenticaNoPainelSaude() {
         this.mensagemBusca = 'Aguarde a autenticação no ambiente...'
-        mainService.autentica("a313f0e9-f392-11eb-a3f4-566fe1410277")
-        .then(resposta => {
-          console.log("autenticaNoPainelSaude-then")
-          this.mensagemBusca = ''
-          if (resposta.status == 200) {
-            let _dados = resposta.data
-            if ((_dados.token) && (_dados.cidadesAutorizadasDTO)) {
-              let _cidades = _dados.cidadesAutorizadasDTO
-              if (_cidades.length > 0) {
-                if ((_cidades[0].cidadeId) && (_cidades[0].nomeCidade)) {
-                  this.$store.commit('autenticadoApi', _dados)
-                  this.preparaTela()
-                } else {
-                  this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32156] '
+        await mainService.autentica("a313f0e9-f392-11eb-a3f4-566fe1410277")
+          .then(resposta => {
+              console.log("await autenticaNoPainelSaude-then")
+              this.mensagemBusca = ''
+              if (resposta.status == 200) {
+                let _dados = resposta.data
+                if ((_dados.token) && (_dados.cidadesAutorizadasDTO)) {
+                  let _cidades = _dados.cidadesAutorizadasDTO
+                  if (_cidades.length > 0) {
+                    if ((_cidades[0].cidadeId) && (_cidades[0].nomeCidade)) {
+                      let _param = {}
+                      _param.token = _dados.token
+                      _param.cidadeId = _cidades[0].cidadeId
+                      _param.nomeCidade = _cidades[0].nomeCidade
+                      this.$store.commit('autenticadoApi', _param)
+                      this.preparaTela()
+                    } else {
+                      this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32156] '
+                    }
+                  } else {
+                    this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32157] '
+                  }
+                }
+                else {
+                  this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32158] '
                 }
               } else {
-                this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32157] '
+                console.log('Erro', resposta.message)
+                this.mensagemErro = resposta.message
               }
-            }
-            else {
-              this.mensagemErro = 'Erro na autenticacao da Api. [ErroId=32158] '
-            }
-          } else {
-            console.log('Erro', resposta.message)
-            this.mensagemErro = resposta.message
-          }
         })
         .catch((response) => {
-          this.mensagemBusca = ''
-            console.log("autenticaNoPainelSaude-erro")
-            if (response) {
-              this.mensagemErro = '';
-              response.erros.forEach(el => {
-                this.mensagemErro += el.mensagem;
-              });
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              console.log('Erro', response.message);
-              this.mensagemErro = response.message;
-            }
+          console.log("await autenticaNoPainelSaude-catch")
+          this.mensagemErro =  mainService.catchPadrao(response)
         })
       },      
       executaFuncao(id) {
@@ -195,10 +230,13 @@
             this.$router.push('novaSuspeita') 
             break
           case 2:
-            this.$router.push('cadastros') 
+            this.$router.push('identificacaoCidadao') 
             break
           case 3:
             this.$router.push('visita') 
+            break
+          case 4:
+            this.$router.push('cadastros') 
             break
           default:
             this.mensagemErro = `funcionalidade não implementada [id=${id}]`
@@ -224,3 +262,10 @@
     }
   }
 </script>
+<style scoped>
+ 
+  .xxx {
+    height: 50px;
+  }
+</style>
+

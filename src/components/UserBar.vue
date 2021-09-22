@@ -1,10 +1,10 @@
 <template>
     <v-container class="pa-0">
-     <v-alert
+     <v-alert 
+        class="mt-0 mb-2"
         color="blue lighten-1 white--text"
         flat
         icon="mdi-account"
-        prominent
       >
         Olá, {{$store.getters.nomeUsuario}} <br>
         {{$store.getters.nomeCidade}}

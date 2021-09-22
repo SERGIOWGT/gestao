@@ -27,7 +27,7 @@
           <v-btn
               color="primary"
               text
-              @click="fechaDialog"
+              @click="callBackBotaoOk()"
           >
            Ok
           </v-btn>
@@ -38,9 +38,13 @@
 </template>
 <script>
   export default {
-    props: ['mostra', 'tipo', 'mensagem'],
+    props: {
+      mostra: Boolean,
+      tipo: Number, 
+      mensagem: String
+    },
     methods: {
-      fechaDialog() {
+      callBackBotaoOk() {
         this.$emit('funcaoRetorno')
       }
     }

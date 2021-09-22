@@ -77,7 +77,8 @@ const store = new Vuex.Store({
         configuracaoSistema: state => state.configuracaoSistema,
         cidadeId: state => state.infosCidade.id,
         nomeCidade: state => state.infosCidade.nome,
-        permissionamento: state => state.permissionamento
+        permissionamento: state => state.permissionamento,
+        autenticadoApi: state => state.infosUsuario.apiToken != ''
     }
   })
   export default store
