@@ -1,20 +1,16 @@
 <template>
   <v-container  class="pt-0 mt-0"> 
     <v-container fluid style="height: 100vmax;" class="pa-1">
-      <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem"/> 
       <v-flex >
         <IdentificacaoCidadao 
             v-if="etapaAtual == enumEtapa.emPesquisa"
-            @cbMensagemErro= 'mensagemErro'
-            @cbMensagemBusca= 'mensagemBusca'
             @cbNovoCidadao= 'novoCidadao'
             @cbEditaCidadao='editaCidadao'
         /> 
         <CadastraCidadao 
             v-if="etapaAtual == enumEtapa.emCadastro"
             :pacienteId='pacienteId'
-            @cbMensagemErro= 'mensagemErro'
-            @cbMensagemBusca= 'mensagemBusca'
+            @cbNovoCadastro='novoCidadao'
             @cbFimCadastro='fimCadastro'
         />
       </v-flex>
@@ -22,14 +18,13 @@
   </v-container>
 </template>
 <script>
-    import BasicDialog from '../components/BasicDialog';
     import IdentificacaoCidadao from '../components/CidadaoIdentifica';
     import CadastraCidadao from '../components/CidadaoCadastra';
     import store from '../store'
     
     export default {
         name: 'identificacaoCidadao',
-        components: {BasicDialog, IdentificacaoCidadao, CadastraCidadao},
+        components: {IdentificacaoCidadao, CadastraCidadao},
         data() {
           return {
 
@@ -49,33 +44,18 @@
           }
         },
         created() {
-            this.cidadeId = store.getters.cidadeId
-        },
-        computed: {
+          this.cidadeId = store.getters.cidadeId
         },
         methods: {
           novoCidadao() {
-            console.log('novoCidadao-View')
             this.pacienteId = 0
             this.etapaAtual = this.enumEtapa.emCadastro
           },
           editaCidadao(id) {
-            console.log('editaCidadao-View', id, this.enumEtapa.emCadastro)
             this.etapaAtual = this.enumEtapa.emCadastro
             this.pacienteId = id
           },
-          mensagemBusca(msg) {
-            console.log('mensagemBusca-View', msg)
-            this.infoDialog.tipo = 0
-            this.infoDialog.mensagem = msg
-          },
-          mensagemErro(msg) {
-            console.log('mensagemErro-View', msg)
-            this.infoDialog.tipo = 1
-            this.infoDialog.mensagem = msg
-          },
           fimCadastro() {
-            console.log('fimCadastro')
             this.etapaAtual = this.enumEtapa.emPesquisa
           }
         }

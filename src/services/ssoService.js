@@ -52,8 +52,20 @@ export default {
                 'Authorization': `bearer ${token}`
             }
         })
-    }
-
+    },
+    listaConfiguracao: (sistemaId) => {
+        var _url = 'login/listaConfiguracao?tokenSistema='+sistemaId;
+        return http.get(_url);
+    },
+    autentica: (sistemaId, email, senha) => {
+        const params = {
+            'tokenSistema': sistemaId,
+            'chave': email,
+            'senha': senha,
+            'comPermissoes': true
+        }
+        return http.put('login/autentica', params)
+    },
 /*     
     listaSistemasPorUsuario: (usuarioId) => {
         return http.get('sistemas/PorUsuario/' + usuarioId)

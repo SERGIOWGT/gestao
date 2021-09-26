@@ -1,0 +1,79 @@
+<template>
+<v-container>
+  <v-row>
+    <v-col v-for="(item, index) in members"
+                :key="index" class="mt-2 mb-2" color="grey lighten-3" flat cols="12" sm="4">
+        <v-hover v-slot="{ hover }">
+          <v-card :elevation="hover ? 10 : 0" :class="{ 'on-hover': hover }" >
+            <v-img :src="require('../assets/' + item.image)" height="300px"></v-img>
+            <v-card-title class="justify-center">{{item.name}}</v-card-title>
+            <v-card-subtitle class="pa-1">{{item.position}}</v-card-subtitle>
+            <v-card-subtitle class="pa-1">{{item.major}}</v-card-subtitle>
+            <div class="d-flex align-center">
+              <v-icon :class="item.flag"></v-icon><span class="ml-2 green--text">{{item.country}}</span>
+            </div>
+          </v-card>
+        </v-hover>
+    </v-col>
+  </v-row>
+</v-container>
+</template>
+<script>
+export default {
+props: {
+msg: String
+},
+data: () => ({
+  members: [
+    { image: 'logo.png', name: 'Maria Emilia', position: 'President', major: '3rd Year Computer Science',  flag: 'ec', country: 'Ecuador'},
+    { image: 'Ariana.png', name: 'Arianna', position: 'VP Social Events', major: '3rd Chem. Engineering', flag: 'hr', country: 'Honduras'},
+    { image: 'emilia_vp_finance.png',
+    name: 'Emilia',
+    position: 'VP Finance',
+    major: '2nd Year Medical Sciences',
+    flag: 'ec',
+    country: 'Ecuador'},
+    { image: 'Juliana.png',
+    name: 'Juliana',
+    position: 'VP Media & Marketing',
+    major: '3rd Year Neuroscience',
+    flag: 'br',
+    country: 'Brazil'},
+    { image: 'Natalia_VP_Social_events.png',
+    name: 'Natalia',
+    position: 'VP Social Events',
+    major: '3rd Year Journalism',
+    flag: 'ec',
+    country: 'Ecuador'},
+    { image: 'Amelia.png',
+    name: 'Amelia',
+    position: 'Tech Representative',
+    major: '2nd Year MACS',
+    flag: 'mx',
+    country: 'Mexico'},
+    { image: 'Luis_Eng_Rep.png',
+    name: 'Luis',
+    position: 'Engineering Representative',
+    major: '4th Year Mech. Engineering',
+    flag: 'mx',
+    country: 'Mexico'},
+  ],
+}),
+}
+</script>
+<style scoped>
+.v-icon.ec {
+height: 32px;
+width:  32px;
+background-image: url(https://purecatamphetamine.github.io/country-flag-icons/3x2/MX.svg);
+background-size: contain;
+background-repeat: no-repeat;
+}
+.v-icon.hr {
+height: 32px;
+width:  32px;
+background-image: url(https://purecatamphetamine.github.io/country-flag-icons/3x2/MX.svg);
+background-size: contain;
+background-repeat: no-repeat;
+}
+</style> 

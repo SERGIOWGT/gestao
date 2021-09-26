@@ -29,7 +29,7 @@
             <v-icon>mdi-account-off</v-icon>
         </v-btn>
         <v-btn v-if="temBotaoNovo" @click="btnFuncao('NP')">
-            <span>Novo Monitorado</span>
+            <span>Novo Cidadão</span>
             <v-icon>mdi-account-plus</v-icon>
         </v-btn>
     </v-bottom-navigation>

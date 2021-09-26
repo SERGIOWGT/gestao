@@ -2,8 +2,8 @@
     <v-container class="pa-0">
      <v-alert 
         class="mt-0 mb-2"
-        color="blue lighten-1 white--text"
-        flat
+        color="blue darken-1"
+        flat dark 
         icon="mdi-account"
       >
         Olá, {{$store.getters.nomeUsuario}} <br>

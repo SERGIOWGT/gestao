@@ -1,4 +1,4 @@
-export default {
+export const rotinasCadastraPaciente = {
     stringToDate(_date,_format,_delimiter)
     {
         var formatLowerCase=_format.toLowerCase();
@@ -15,6 +15,18 @@ export default {
     ordenaComorbidades(todasComorbidades, ComorbidadesCidadao){
         console.log('ordenaComorbidades(todasComorbidades, ComorbidadesCidadao)-I')
      
+        let retorno=[]
+        if (ComorbidadesCidadao == null) {
+            todasComorbidades.forEach((linha ) => {
+                const item = {
+                    id: linha.id, 
+                    nome: linha.nome,
+                    selecionado: false
+                }
+                retorno.push(item)
+            })
+            return retorno
+        }
         let aux =[]
         ComorbidadesCidadao.forEach(linha => {
             const index = todasComorbidades.findIndex( el => el.id === linha.id );
@@ -25,7 +37,7 @@ export default {
         });
         aux.sort((a, b) => {return a - b;});
 
-        let retorno=[]
+        
         aux.forEach((linha) => {
             const item = {
                 id: todasComorbidades[linha].id, 
@@ -51,6 +63,20 @@ export default {
     ordenaSintomas(todosSintomas, sintomasCidadao){
         console.log('ordenaSintomas(todosSintomas, sintomasCidadao)-I')
 
+        let retorno=[]
+        if (sintomasCidadao == null) {
+            todosSintomas.forEach((linha) => {
+                const item = {
+                    id: linha.id, 
+                    nome: linha.nome,
+                    dias: 0,
+                    selecionado: false
+                }
+                retorno.push(item)
+            })
+            return retorno
+        }
+
         let aux =[]
         sintomasCidadao.forEach(linha => {
             const index = todosSintomas.findIndex( el => el.id === linha.id );
@@ -61,7 +87,7 @@ export default {
         });
         aux.sort((a, b) => {return a - b;});
 
-        let retorno=[]
+
         const dataHoje = new Date()
         aux.forEach((linha, index) => {
             const dataSintoma = this.stringToDate(sintomasCidadao[index].dataInicio, 'yyyy-MM-dd', '-')
@@ -88,7 +114,17 @@ export default {
         console.log('ordenaSintomas(todosSintomas, sintomasCidadao)-F')
         return retorno
     },
-    
-
-    
 }
+
+export const rotinasBasicDialog = {
+    mensagemBusca(infoDialog, msg) {
+        infoDialog.tipo = 0
+        infoDialog.mensagem = msg
+    },
+    mensagemErro(infoDialog, msg ) {
+        console.log(msg)
+        infoDialog.tipo = 1
+        infoDialog.mensagem = msg
+    },
+}
+

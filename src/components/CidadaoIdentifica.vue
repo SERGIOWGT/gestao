@@ -1,6 +1,6 @@
 <template>
     <v-flex>
-<!-- AREA PESQUISA           -->
+        <BasicDialog :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" /> 
         <v-expansion-panels focusable class="mt-0" v-model="areaPesquisaAberta">
             <v-expansion-panel>
             <v-expansion-panel-header>
@@ -73,13 +73,13 @@
                 </v-row>
                 <v-card-actions>
                     <v-spacer></v-spacer>
+                    <v-btn text color="green" @click="novo()"> Novo Cidadão </v-btn>
                     <v-btn text color="secondary" @click="fechaPainel()"> Fecha </v-btn>
-                    <v-btn text color="primary" :disabled="!pesquisaLiberada || isLoadingGrid" @click="listaPesquisa(1)"> Pesquisa </v-btn>
+                    <v-btn text color="primary" :disabled="!pesquisaLiberada || isLoadingGrid" @click="listaPesquisa()"> Pesquisa </v-btn>
                 </v-card-actions>
             </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
-<!-- AREA GRID         -->
         <v-card flat class="pt-0 mt-5" tile v-if="pesquisaPronta" >
             <v-list three-line>
                 <v-subheader class="justify-center px-0">
@@ -97,10 +97,11 @@
                     <v-list-item >
                         <v-list-item-content>
                             <v-list-item-title v-html="item.nome"></v-list-item-title>
-                            <v-list-item-subtitle v-html="celulaLinha1(item.dataNascimento, item.cpf)"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="celulaLinha2(item.cartaoSUS)"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="'Nome da Mãe'"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
+                            <v-list-item-subtitle v-html="item.nomeMae"></v-list-item-subtitle>
+                            <v-list-item-subtitle v-html="linha(2, item.dataNascimento)"></v-list-item-subtitle>
+                            <v-list-item-subtitle v-html="linha(3, item.cartaoSUS)"></v-list-item-subtitle>
+                            <v-list-item-subtitle v-html="linha(4, item.cpf)"></v-list-item-subtitle>
+                             <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
                         </v-list-item-content>
                         <v-btn icon color="primary" @click="edita(item.id)"><v-icon>mdi-dots-vertical</v-icon></v-btn>
                     </v-list-item>
@@ -117,16 +118,25 @@
     import entradaText from '../bibliotecas/entradaText'
     import rotinas from '../rotinasProjeto/salvaPacienteSintomas'
     import store from '../store'
+    import BasicDialog from '../components/BasicDialog';
+    import {rotinasBasicDialog} from '../rotinasProjeto/rotinasProjeto'
 
   export default {
     props: {
       mostra: Boolean,
     },
+    components: {BasicDialog},
     data() {
           return {
             // funcoes
             entradaCpf: entradaText.cpf,
             regras: regrasCampos,
+
+            // dados
+            infoDialog: {
+              tipo: 0,
+              mensagem: ''
+            },
 
             areaPesquisaAberta: 0,
             pesquisaPronta: false,
@@ -175,20 +185,23 @@
                 this.$emit('cbNovoCidadao')
             },
             edita(id) {
+                this.infoPaciente.id = id
                 this.$emit('cbEditaCidadao', id)
             },
             refresh() {
                 alert('refresh')
             },
-            celulaLinha1(dataNascimento, cpf){
-                const _dataNascimento = (dataNascimento == '') ? '' : dataNascimento.replace(/(\d{4})\-(\d{2})\-(\d{2})/, '$3-$2-$1') // eslint-disable-line
-                const _cpf = (cpf == '') ? '' : cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') // eslint-disable-line
-               
-                return `<b>Nasc.:</b><span class="nota_botao">${_dataNascimento}</span> <b>CPF:</b><span class="nota_botao">${_cpf}</span> `
-            },
-            celulaLinha2(numeroSus){
-                const _numeroSus = this.isEmpty(numeroSus) ? '' : numeroSus.replace(/(\d{4})(\d{4})(\d{4})(\d{3})/, '$1 $2 $3 $4') // eslint-disable-line 
-                return `<b>Cartão SUS:</b><span class="nota_botao">${_numeroSus}</span>`
+            linha(tipo, value){
+                if (tipo == 2) {
+                    const _dataNascimento = this.isEmpty(value) ? '' : value.replace(/(\d{4})\-(\d{2})\-(\d{2})/, '$3-$2-$1') // eslint-disable-line
+                    return `<b>Nascimento:</b><span class="nota_botao">&nbsp;${_dataNascimento}</span></span> `
+                } else if (tipo == 3) {
+                    const _numeroSus = this.isEmpty(value) ? '' : value.replace(/(\d{4})(\d{4})(\d{4})(\d{3})/, '$1 $2 $3 $4') // eslint-disable-line 
+                    return `<b>Cartão SUS:</b><span class="nota_botao">&nbsp;${_numeroSus}</span>`
+                } else if (tipo == 4) {
+                    const _cpf = this.isEmpty(value) ? '' : value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') // eslint-disable-line
+                    return `<b>CPF:</b><span class="nota_botao">&nbsp;${_cpf}</span> `
+                }
             },
             isEmpty(value) {
                 return (value == null || value === '');
@@ -203,49 +216,58 @@
                 else 
                     this.pacientes = []
             },
-            async listaPesquisa(tipoPesquisa) {
-                let _param = {}
-
-                _param.tipo = tipoPesquisa
-                _param.cidadeId = this.cidadeId
-                if (this.infoPaciente.id == 0) {
-                    _param.numeroSus = (this.infoPaciente.numeroSus == null) ? '' : this.infoPaciente.numeroSus
-                    _param.cpf = (this.infoPaciente.cpf == null) ? '' : this.infoPaciente.cpf.replace(/\.|\-/g, '') // eslint-disable-line
-                    _param.dataNascimento = (this.infoPaciente.dataNascimento == null) ? '' : this.infoPaciente.dataNascimento.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1') // eslint-disable-line
-                    _param.celular = (this.infoPaciente.celular == null) ? '' : this.infoPaciente.celular
-                } else {
-                    _param.id = this.infoPaciente.id
-                    _param.numeroSus = ''
-                    _param.cpf = ''
-                    _param.dataNascimento = ''
-                    _param.celular = ''
-                }
+            async listaById(pacienteId) {
+                
+                this.isLoadingGrid = true
+                rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Consultando dados do cidadão! Aguarde...')
+                await mainService.listaPaciente(pacienteId)
+                .then((resp) => {
+                    this.isLoadingGrid = false
+                     rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+                    if (resp.status == 200) {
+                        this.resultadoPesquisa = resp.data
+                        this.pesquisaPronta = true
+                        this.fechaPainel()
+                    } else {
+                        rotinasBasicDialog.mensagemErro(this.infoDialog, resp.message)
+                    }
+                })
+                .catch((resp) => {
+                    this.isLoadingGrid = false; rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(resp))
+                })
+            },
+            async listaByParams() {
+                let param = {}
+                param.cidadeId = this.cidadeId
+                param.tipo = 1
+                param.numeroSus = (this.infoPaciente.numeroSus == null) ? '' : this.infoPaciente.numeroSus
+                param.cpf = (this.infoPaciente.cpf == null) ? '' : this.infoPaciente.cpf.replace(/\.|\-/g, '') // eslint-disable-line
+                param.dataNascimento = (this.infoPaciente.dataNascimento == null) ? '' : this.infoPaciente.dataNascimento.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1') // eslint-disable-line
+                param.celular = (this.infoPaciente.celular == null) ? '' : this.infoPaciente.celular
 
                 this.isLoadingGrid = true
-                this.mensagemBusca('Consultando dados do cidadão! Aguarde...')
-                await mainService.listaPacientes(_param)
-                    .then(resp => {
-                        this.isLoadingGrid = false
-                        console.log('listaPacientes-then', resp)
-                        this.mensagemBusca('')
-                        if (resp.status == 200) {
-                            this.resultadoPesquisa = resp.data
-                            this.pesquisaPronta = true
-                            this.fechaPainel()
-                        } else {
-                            this.mensagemErro(resp.message)
-                        }
-                    })
-                    .catch((resp) => {
-                        this.isLoadingGrid = false
-                        this.mensagemErro( mainService.catchPadrao(resp))
-                    })
+                rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Consultando dados do cidadão! Aguarde...')
+                await mainService.listaPacientes(param)
+                .then((resp) => {
+                    this.isLoadingGrid = false
+                    rotinasBasicDialog.mensagemBusca(this.infoDialog,'')
+                    if (resp.status == 200) {
+                        this.resultadoPesquisa = resp.data
+                        this.pesquisaPronta = true
+                        this.fechaPainel()
+                    } else {
+                        rotinasBasicDialog.mensagemErro(this.infoDialog, resp.message)
+                    }
+                })
+                .catch((resp) => {
+                    this.isLoadingGrid = false; rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(resp))
+                })
             },
-            mensagemBusca (msg) {
-                this.$emit('cbMensagemBusca', msg)
-            },
-            mensagemErro (msg) {
-                this.$emit('cbMensagemErro', msg)
+            listaPesquisa() {
+                if (this.infoPaciente.id == 0)
+                    this.listaByParams()
+                else 
+                    this.listaById(this.infoPaciente.id)
             }
         }
     }

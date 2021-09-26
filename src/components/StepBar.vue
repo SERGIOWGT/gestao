@@ -24,4 +24,4 @@
       }
     }
   }
-</script>npm run serve
+</script>

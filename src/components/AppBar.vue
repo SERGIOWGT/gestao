@@ -2,7 +2,7 @@
     <v-app-bar
       app
       flat
-      color="indigo darken-2"
+      color="blue darken-3"
       dark
     >
       <div class="d-flex align-center">

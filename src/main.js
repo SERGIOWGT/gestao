@@ -7,6 +7,9 @@ import VueMask  from 'v-mask';
 import GoogleSignInButton from 'vue-google-signin-button-directive'
 import {TheMask} from 'vue-the-mask'
 
+import CountryFlag from 'vue-country-flag'
+Vue.component('country-flag', CountryFlag)
+
 Vue.use(VueMask);
 Vue.use(TheMask);
 Vue.config.productionTip = false

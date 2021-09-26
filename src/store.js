@@ -19,6 +19,7 @@ const store = new Vuex.Store({
             nomeUsuario: '',
             usuarioId: '',
             apiToken: '',
+            autenticado: false,
             cidades: []
         },
         infosCidade: {
@@ -39,6 +40,7 @@ const store = new Vuex.Store({
             state.infosSistema.urlImagem = obj.urlImagem
         }, 
         autenticadoApi (state, obj) {
+            state.infosUsuario.autenticado = obj.autenticado
             state.infosUsuario.apiToken = obj.token
             state.infosCidade.id = obj.cidadeId
             state.infosCidade.nome = obj.nomeCidade
@@ -65,6 +67,7 @@ const store = new Vuex.Store({
     },
     getters: {
         estaLogado: state => state.estaLogado,
+        estaAutenticadoApi: state => state.infosUsuario.autenticado,
         email: state => state.infosUsuario.email,
         ssoToken: state => state.infosUsuario.ssoToken,
         apiToken: state => state.infosUsuario.apiToken,

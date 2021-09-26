@@ -71,9 +71,9 @@ RotasApp.beforeEach((to, from, next) => {
     //console.log("to", to.path)
     console.log(`from => ${from.path}, to => ${to.path},  estaLogado => ${store.getters.estaLogado}`)
 
-    if (to.path == '/')
+/*     if (to.path == '/')
         next()
-    else {
+    else { */
         if (!store.getters.estaLogado) {
             if ((to.path == '/trocaSenha') || (to.path=='/registraUsuario')) {
                 next()
@@ -84,7 +84,7 @@ RotasApp.beforeEach((to, from, next) => {
         } else {
             next()
         }
-    }
+/*     } */
     
   })
 

@@ -28,6 +28,11 @@
 </script>
 <style scoped>
 
+ .container {
+    background-color: #915FF5 !important;
+    color: #915FF5;
+  }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

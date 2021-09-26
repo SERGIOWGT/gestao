@@ -1,7 +1,7 @@
 <template>
 <v-app>
  <AppBar
-    v-if="$store.getters.estaLogado"
+    v-if="$store.getters.estaAutenticadoApi"
     :titulo="$store.getters.nomeSistema"
     :urlLogo="urlLogo"
   />
@@ -9,9 +9,14 @@
   <v-main>
      <v-container fill-height fluid style="max-width: 600px;" class="pa-0">
        <UserBar
-        v-if="$store.getters.estaLogado"
+        v-if="$store.getters.estaAutenticadoApi"
        />
+       <transition appear
+        name="slide"
+        mode="out-in"
+      >
        <Router-view/>
+       </transition>
     </v-container>
   </v-main>
 </v-app>
@@ -38,5 +43,17 @@ export default {
 </script>
 
 <style scoped>
-
+  .slide-leave-active{
+    transition: 0s;
+  }
+  .slide-enter-active {
+    transition: 0.3s;
+  }
+  .slide-enter {
+    transform: translate(100%, 0);
+  }
+  .slide-leave-to {
+    transform: translate(-100%, 0);
+  }
+  
 </style>

@@ -1,7 +1,7 @@
 <template>
  <div class="text-center">
     <v-dialog
-        v-model="mostra"
+        v-model="visible"
         hide-overlay
         persistent
         width="400"
@@ -21,16 +21,16 @@
       <v-flex v-if="tipo == 1">
         <v-card class="card1">
           <v-card-text class="pt-2">
-          <p class="pa-2"><span class="texto1">Erro:{{mensagem}}</span></p>
+          <p class="pa-2"><span class="texto1">{{mensagem}}</span></p>
           <v-divider></v-divider>
           </v-card-text>
-          <v-btn
-              color="primary"
-              text
-              @click="callBackBotaoOk()"
-          >
-           Ok
-          </v-btn>
+            <v-card-actions class="justify-end">
+              <v-btn
+                color="primary"
+                text
+                @click="fecha()"
+              >Fecha</v-btn>
+            </v-card-actions>
         </v-card>
       </v-flex>
     </v-dialog>
@@ -39,13 +39,23 @@
 <script>
   export default {
     props: {
-      mostra: Boolean,
       tipo: Number, 
       mensagem: String
     },
+    data() {
+      return {
+        visible: false
+      }
+    },
+    watch: {
+      mensagem: function(val) {
+        this.visible  = !(val == '')
+        console.log('mensagem: function(val)', val), this.visible;
+      }
+    },
     methods: {
-      callBackBotaoOk() {
-        this.$emit('funcaoRetorno')
+      fecha() {
+        this.visible = false
       }
     }
   }

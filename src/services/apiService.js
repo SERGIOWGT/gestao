@@ -120,7 +120,14 @@ export default {
         //console.log('apiService.listaPacientes', param)
         let _url = ''
 
+        let _listaFiltrosIdDTO = {}
+        _listaFiltrosIdDTO.Sintomas = []
+        _listaFiltrosIdDTO.Comorbidades = []
+
         switch (param.tipo) {
+            case 0:
+                _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&id=${param.id}`
+                break
             case 1:
                 _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&cpf=${param.cpf}&dataNascimento=${param.dataNascimento}`
                 break
@@ -146,12 +153,14 @@ export default {
                 _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&id=${param.pacienteId}`
                 break
         }
-        //console.log('apiService.listaPacientes', _url);
+        console.log('apiService.listaPacientes', _url);
 
-        return http.get(_url, {
+        return http.get(_url, 
+            {
             headers: {
                 'Authorization': `bearer ${token}`
-            }
+            }, 
+            
         })
     },
     listaPacienteSintomas: (token, pacienteId) => {
@@ -223,6 +232,7 @@ export default {
         let _params = {
             'Id' : infoPaciente.id,
             'Nome' : infoPaciente.nome,
+            'NomeMae' : infoPaciente.nomeMae,
             'DataNascimento' : _dataNascimento,
             'CPF': _cpf,
             'CartaoSUS': infoPaciente.cartaoSUS,
