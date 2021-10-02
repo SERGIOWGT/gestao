@@ -30,7 +30,7 @@ export default {
       valido(obrigatorio) {
         //return v => /^[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2}$/.test(v) || 'Use o formato (xxx.xxx.xxx-xx)'  // eslint-disable-line
         if (obrigatorio)
-          return v => /^[0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[\-]?[0-9]{2}$/.test(v) || 'Campo com 18 números (999 9999 9999 9999)'  // eslint-disable-line
+          return v => /^[0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[\-]?[0-9]{2}$/.test(v) || 'Cpf é obrigatório'  // eslint-disable-line
         else
           return v => !v || /^[0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[\-]?[0-9]{2}$/.test(v) || 'Cpf inválido'  // eslint-disable-line
       }

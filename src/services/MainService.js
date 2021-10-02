@@ -21,48 +21,52 @@ export default {
         var _token = store.getters.apiToken;
         return api.excluiLogradouro(_token, id);
     },
-    async listaBairros (cidadeId) {
+    listaBairros (cidadeId, id) {
         const _token = store.getters.apiToken;
-        return await api.listaBairros(_token, cidadeId);
+        return api.listaBairros(_token, cidadeId, id);
     },
-    async listaComorbidades() {
+    listaComorbidades() {
         const _token = store.getters.apiToken;
-        return await  api.listaComorbidades(_token);
+        return api.listaComorbidades(_token);
     },
-    async listaLogradouros (cidadeId) {
+    listaLogradouros (bairroId, id) {
         var _token = store.getters.apiToken;
-        return await api.listaLogradouros(_token, cidadeId);
+        return api.listaLogradouros(_token, bairroId, id);
     },
-    async listaMicroAreas (unidadeSaudeId) {
+    listaMicroAreas (unidadeSaudeId, id) {
         const _token = store.getters.apiToken;
-        return await api.listaMicroAreas(_token, unidadeSaudeId);
+        return api.listaMicroAreas(_token, unidadeSaudeId, id);
     },
-    async listaPacientes (param) {
+    listaPaciente (pacienteId) {
         var _token = store.getters.apiToken;
-        return await api.listaPacientes(_token, param);
+        return api.listaPaciente(_token, pacienteId);
     },
-    async listaPaciente (pacienteId) {
+    listaPacienteComorbidades (pacienteId) {
         var _token = store.getters.apiToken;
-        return await api.listaPaciente(_token, pacienteId);
+        return api.listaPacienteComorbidades(_token, pacienteId);
     },
-    async listaPacienteSintomas (pacienteId) {
+    listaPacienteSintomas (pacienteId) {
         var _token = store.getters.apiToken;
-        return await api.listaPacienteSintomas(_token, pacienteId);
+        return api.listaPacienteSintomas(_token, pacienteId);
     },
-    async listaPacienteComorbidades (pacienteId) {
+    listaPacientes (param) {
         var _token = store.getters.apiToken;
-        return await api.listaPacienteComorbidades(_token, pacienteId);
+        return api.listaPacientes(_token, param);
+    },
+    listaPacientesCompleta (param) {
+        var _token = store.getters.apiToken;
+        return api.listaPacientesCompleta(_token, param);
     },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
-    async listaSintomas () {
+    listaSintomas () {
         var _token = store.getters.apiToken;
-        return await api.listaSintomas(_token);
+        return api.listaSintomas(_token);
     },
-    async listaUnidadesSaude (cidadeId, parteNome) {
+    listaUnidadesSaude (cidadeId, id, parteNome) {
         var _token = store.getters.apiToken;
-        return await api.listaUnidadesSaude(_token, cidadeId, parteNome);
+        return api.listaUnidadesSaude(_token, cidadeId, id, parteNome);
     },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;

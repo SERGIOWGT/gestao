@@ -1,5 +1,5 @@
 import formataValores from '../bibliotecas/formataValores'
-import mainService from '../services/MainService'
+import mainService from '../services/mainService'
 export default {
     data() {
     },
@@ -39,14 +39,7 @@ export default {
             .catch(response => {mainService.catchPadrao(response)}) 
     },
     async listaPacientePorNome(cidadeId, parteNome) {
-
-        //console.log('async listaPacientePorNome - I')
-        const param = {
-            'tipo': 3,
-            'cidadeId': cidadeId,
-            'nome': parteNome
-        }
-        const retorno = await mainService.listaPacientes(param)
+        const retorno = await mainService.listaPacientesPorNome(cidadeId, parteNome)
         return retorno
     }
 }

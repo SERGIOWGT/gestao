@@ -1,11 +1,15 @@
 <template>
   <v-container fill-height>
-      <v-container>
+      <v-container >
         <BasicDialog :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" /> 
-        <v-row class="justify-center pt-0 pb-15">
-            <span class="texto text-h1">LOGO</span>
+        <v-row class="justify-center pt-0 pb-15 px-3">
+            <v-img
+              class="shrink mr-2"
+              contain
+              src="../assets/logoTelaAbertura.jpeg"
+            />
          </v-row>
-        <v-form class="my-2" v-model="formularioValido" >
+        <v-form class="my-2 px-2 " v-model="formularioValido" >
           <v-text-field 
             v-model="email"
             :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
@@ -27,35 +31,25 @@
             @click:append="senhaNaoVisivel = !senhaNaoVisivel"
           />
           <v-row class="justify-center pt-5 mt-5" >
-              <v-btn :disabled="isLoading" class="primary botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
+              <v-btn :disabled="isLoading" class="white--text teal lighten-2 botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
           </v-row>
           <v-row dense class="justify-center pt-8" >
-              <v-btn depressed text><span class="texto text-caption">Esqueceu sua senha?&nbsp; Clique aqui</span></v-btn>
+              <v-btn text :disabled="isLoading"><span class="teal--text text--lighten-2 text-caption">Esqueceu sua senha?&nbsp; Clique aqui</span></v-btn>
           </v-row>
           <v-row class="justify-center pt-3" v-if="permiteRegistroUsuario">
-            <v-btn text><span class="texto text-caption"> Sua primeira vez?&nbsp; Crie aqui seu usuário</span></v-btn>
+            <v-btn text :disabled="isLoading"><span class="texto text-caption"> Sua primeira vez?&nbsp; Crie aqui seu usuário</span></v-btn>
           </v-row>
         </v-form>
       </v-container>
-
-      <!-- <LoginComponent 
-        :tokenSistema="'ebe4c237-f13d-11eb-a054-566fe1410274'"
-        @autenticado='autenticado'
-        @registraUsuario='registraUsuario'
-        @setaConfiguracaoSistema='setaConfiguracaoSistema'
-        @trocaSenha='trocaSenha'
-      /> -->
   </v-container>
 </template>
 <script>
-  //import AppBar from '../components/AppBar.vue'
-  //import LoginComponent from  '../lasTec.Login/components/LoginComponent'
-  //import TelaAbertura from '../components/TelaAbertura.vue'
   import RotinasLogin from '../lasTec.Login/bibliotecas/rotinasLogin'
   import sso from '../services/ssoService'
-  import mainService from '../services/MainService'
+  import mainService from '../services/mainService'
   import BasicDialog from '../components/BasicDialog';
   import {rotinasBasicDialog} from '../rotinasProjeto/rotinasProjeto'
+  import store from '../store'
 
   export default {inject: {
       theme: {
@@ -107,7 +101,6 @@
       registraUsuario() {
         this.$router.push('/registraUsuario')
       },
-     
       async consultaSso() {
         await sso.listaConfiguracao(this.tokenSistema)
         .then (resposta =>  {
@@ -136,24 +129,45 @@
       },
 
       async autenticaApi() {
-        console.log('abc'); 
-        rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Configurando o ambiente! Aguarde')
-        await mainService.autentica("a313f0e9-f392-11eb-a3f4-566fe1410277")
+        rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Algumas informações estão sendo carregadas! Aguarde')
+        const usuarioGuid = store.getters.usuarioGuid
+        await mainService.autentica(usuarioGuid)
         .then((resposta)=> {
           rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
           this.isLoading = false
 
           if (resposta.status == 200) {
-            let _dados = resposta.data
+            const _dados = resposta.data
             if ((_dados.token) && (_dados.cidadesAutorizadasDTO)) {
               let _cidades = _dados.cidadesAutorizadasDTO
               if (_cidades.length > 0) {
                 if ((_cidades[0].cidadeId) && (_cidades[0].nomeCidade)) {
-                  let _param = {}
-                  _param.token = _dados.token
-                  _param.cidadeId = _cidades[0].cidadeId
-                  _param.nomeCidade = _cidades[0].nomeCidade
-                  _param.autenticado = true
+                  const _param = {
+                    token: _dados.token,
+                    cidadeId: _cidades[0].cidadeId,
+                    nomeCidade: _cidades[0].nomeCidade,
+                    autenticado: true,
+                    unidadeSaudeId: _cidades[0].unidadeSaudeId,
+                    nomeUnidadeSaude: _cidades[0].nomeUnidadeSaude,
+                    microAreaId: _cidades[0].microAreaId,
+                    nomeMicroArea: _cidades[0].nomeMicroArea,
+                    bairroId: _cidades[0].bairroId,
+                    nomeBairro: _cidades[0].nomeBairro,
+                    logradouroId: _cidades[0].logradouroId,
+                    nomeLogradouro: _cidades[0].nomeLogradouro,
+
+
+                    //unidadeSaudeId: 2,
+                    //nomeUnidadeSaude:'TANCREDO NEVES - PSF VIVER BEM',
+                    //microAreaId: 7,
+                    //nomeMicroArea: '07 - TATIANE CONCEICAO DO NASCIMENTO',
+                    //bairroId: 8,
+                    //nomeBairro: 'CHACARA',
+                    //logradouroId: 53,
+                    //nomeLogradouro: 'SÂO JOAO',
+                  }
+                  console.log('autenticadoApi', _param)
+
                   this.$store.commit('autenticadoApi', _param)
                 } else {
                   rotinasBasicDialog.mensagemErro(this.infoDialog, 'Erro na autenticacao da Api. [ErroId=32156] ')
@@ -169,7 +183,6 @@
               return;
             }
           } else {
-            console.log('Erro', resposta.message)
             rotinasBasicDialog.mensagemErro(this.infoDialog, resposta.message)
             return;
           }
@@ -186,26 +199,26 @@
         rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Autenticando usuário! Aguarde...')
         await sso.autentica(this.tokenSistema, this.email, this.senha)
         .then (resposta => {
+          this.isLoading =false;
           const param = {
             email: this.email,
             usuarioId: resposta.data.usuarioId,
             token: resposta.data.token,
             nomeUsuario: resposta.data.nomeUsuario,
-            permissionamento: resposta.data.permissionamento
+            permissionamento: resposta.data.permissionamento,
+            usuarioGuid: resposta.data.usuarioGuid
           }
           this.$store.commit('autenticadoSso', param)
           this.autenticaApi()
         })
-        .catch (err => {rotinasBasicDialog.mensagemErro(this.infoDialog, 'Autenticando usuário: ' + mainService.catchPadrao(err))});
+        .catch (err => {this.isLoading =false; rotinasBasicDialog.mensagemErro(this.infoDialog, 'Autenticando usuário: ' + mainService.catchPadrao(err))});
       }
     }
   }
 </script>
 <style scoped>
  
-  .texto {
-    color: #304FFE /* indigo accent-4 */
-  }
+  
   .container {
     background-color:#FFFFFF !important; /* light-blue darken-1*/
   }
@@ -213,5 +226,10 @@
   .botao-arredondado{
       width: 90%;
       border-radius:10px!important;
+  } 
+  .arredondado{
+      width: 90%;
+      border-bottom-left-radius: 50px 50px; 
+      border-bottom-right-radius: 50px 50px;
   } 
 </style>

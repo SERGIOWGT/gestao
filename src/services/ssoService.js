@@ -64,6 +64,7 @@ export default {
             'senha': senha,
             'comPermissoes': true
         }
+        console.log('login/autentica', params)
         return http.put('login/autentica', params)
     },
 /*     

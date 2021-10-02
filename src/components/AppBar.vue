@@ -2,7 +2,7 @@
     <v-app-bar
       app
       flat
-      color="blue darken-3"
+      color="teal darken-4"
       dark
     >
       <div class="d-flex align-center">
@@ -42,6 +42,7 @@
       },
       logout() {
         store.commit('logout')
+        console.log('logout()', store.getters.estaLogado)
         this.$router.push('/login')
       }
     }

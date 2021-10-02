@@ -389,7 +389,7 @@
 </template>
 <script>
     import BottomBar from '../components/StepBottomBar'
-    import mainService from '../services/MainService'
+    import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
     import formataValores from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
@@ -589,7 +589,7 @@
             console.log('buscaDadosIniciais.promise.inicio')
             this.mensagemBusca='Buscando alguns dados! Aguarde...'
             Promise.all([
-              mainService.listaUnidadesSaude(store.getters.cidadeId),
+              mainService.listaUnidadesSaude(0, store.getters.cidadeId),
               mainService.listaBairros(store.getters.cidadeId),
               mainService.listaSintomas(),
               mainService.listaComorbidades()   

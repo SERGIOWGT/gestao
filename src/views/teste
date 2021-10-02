@@ -77,3 +77,72 @@ background-size: contain;
 background-repeat: no-repeat;
 }
 </style> 
+
+
+
+<template>
+<v-container>
+    <v-row v-for="(item, index) in members" :key="index" class="mt-2 mb-2">
+        <p> {{item.name}} </p>
+        <v-row>
+          <v-col v-for="(item2, index2) in item.socials" :key="index2" class="mt-2 mb-2">
+            {{item2.icon}}
+          </v-col>
+        </v-row>
+    </v-row>
+</v-container>
+</template>
+<script>
+export default {
+props: {
+msg: String
+},
+data: () => ({
+  members: [
+    { image: 'Maria_Emilia_President.png',
+        name: 'Maria Emilia',
+        position: 'President',
+        major: '3rd Year Computer Science',
+        flag: 'ec',
+        country: 'Ecuador',
+        socials: [
+          {icon: 'mdi-facebook',
+          link: '!'},
+          {icon: 'mdi-instagram',
+          link: '5'}
+        ]
+        
+        },
+        { image: 'Ariana.png',
+        name: 'Arianna',
+        position: 'VP Social Events',
+        major: '3rd Chem. Engineering',
+        flag: 'hn',
+        country: 'Honduras',
+        socials: [
+          {icon: 'mdi-facebook',
+          link: '!'},
+          {icon: 'mdi-instagram',
+          link: '5'}
+        ]
+    }
+  ],
+}),
+}
+</script>
+<style scoped>
+.v-icon.ec {
+height: 32px;
+width:  32px;
+background-image: url(https://purecatamphetamine.github.io/country-flag-icons/3x2/MX.svg);
+background-size: contain;
+background-repeat: no-repeat;
+}
+.v-icon.hr {
+height: 32px;
+width:  32px;
+background-image: url(https://purecatamphetamine.github.io/country-flag-icons/3x2/MX.svg);
+background-size: contain;
+background-repeat: no-repeat;
+}
+</style> 

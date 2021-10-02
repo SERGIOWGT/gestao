@@ -2,276 +2,281 @@
   <v-container  class="pa-1 mt-0"> 
     <v-container fluid style="height: 100vmax;" class="pa-0">
       <BasicDialog :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" /> 
-      <v-flex>
-        <v-card flat class="pa-3 mt-1">
-          <v-card-text class="ma-0 pa-0">
-            <v-row>
-              <v-col cols="12" class="px-0 py-0 pt-0">
-                <v-flex class="py-0 my-0" v-if="etapaCadastro == enumEtapaCadastro.dadosCidadao">
-                  <v-card-title class="py-1 primary white--text  justify-center"><h6>CADASTRO DE CIDADÃOS</h6></v-card-title>
-                  <v-expansion-panels focused class="pt-0 mt-0">
-                    <v-expansion-panel >
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.dadosCadastrais)">{{iconePainel(enumPaineis.dadosCadastrais)}}</v-icon><span class="ml-2 "> <b>Informe aqui os dados cadastrais</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2" >
-                          <v-form ref="form1" v-model="painelValido[enumPaineis.dadosCadastrais]">
-                              <v-text-field 
-                                  dense required clearable
-                                  label="Nome Completo*"
-                                  v-model="infoPaciente.nome"
-                                  :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(10), regras.Basicas.max(100)]"
-                                  counter
-                                  maxlength="100"
-                              ></v-text-field>
-                              <v-text-field 
-                                  dense required clearable
-                                  label="Nome da Mãe*"
-                                  v-model="infoPaciente.nomeMae"
-                                  :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(10), regras.Basicas.max(100)]"
-                                  counter
-                                  maxlength="100"
-                              ></v-text-field>
-                              <v-text-field 
-                                  dense required clearable
-                                  label="Data de Nascimento*"
-                                  v-model="infoPaciente.dataNascimento"
-                                  v-mask="'##/##/####'"
-                                  :rules="[regras.Data.valida(true)]"
-                              ></v-text-field>
-                              <v-text-field 
-                                  dense required clearable
-                                  label="CPF"
-                                  v-model="infoPaciente.cpf"
-                                  v-mask="'###.###.###-##'" 
-                                  :rules="[regras.Cpf.valido(true)]"
-                              ></v-text-field>
-                              <small>Sexo*</small>
-                              <v-radio-group  class="py-0 my-0" dense v-model="infoPaciente.sexo" row :rules="[regras.Basicas.obrigatorio()]">
-                                  <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="F" label="Femin."></v-radio></v-col>
-                                  <v-col cols="4" class="py-1 my-1"><v-radio value="M" label="Mascul."></v-radio></v-col>
-                                  <v-col cols="3" class="py-1 my-1"><v-radio value="O" label="Outros"></v-radio></v-col>
-                              </v-radio-group>
-                              <small>*campo obrigatório</small>
-                          </v-form>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.dadosContato)">{{iconePainel(enumPaineis.dadosContato)}}</v-icon><span class="ml-2 "> <b>Informe aqui os dados para contato</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2">
-                          <v-form ref="form2" v-model="painelValido[enumPaineis.dadosContato]">
-                          <v-text-field 
-                              dense required clearable
-                              label="Email*"
-                              v-model="infoPaciente.eMail"
-                              counter
-                              maxlength="100"
-                              :rules="[regras.Basicas.obrigatorio()]"
-                            ></v-text-field>
-                            <v-text-field class="mt-4" @keypress="entradaCelular($event)"
-                              dense required clearable
-                              label="Celular*"
-                              v-model="infoPaciente.celular"
-                              :rules="[regras.Celular.valido(true)]"
-                              maxlength="13"
-                            ></v-text-field>
-                            <v-text-field class="mt-4" @keypress="entradaCelular($event)"
-                              dense required clearable
-                              label="Celular 2"
-                              v-model="infoPaciente.celular2"
-                              :rules="[regras.Celular.valido(false)]"
-                              maxlength="13"
-                            ></v-text-field>
-                            <small>*campo obrigatório</small>
-                          </v-form>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.endereco)">{{iconePainel(enumPaineis.endereco)}}</v-icon><span class="ml-2 "> <b>Informe aqui o endereço</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2">
-                        <v-form ref="form3" v-model="painelValido[enumPaineis.endereco]">
-                          <v-autocomplete  @input="setaBairro"
-                            dense hide-no-data
-                            label="Bairro*"
-                            v-model="infoPaciente.bairro"
-                            :items="infoPesquisa.allBairros"
-                            item-value="id"
-                            item-text="nome"
-                            return-object
-                            :rules="[required]"
-                          ></v-autocomplete> 
-                          <v-autocomplete
-                            dense hide-no-data
-                            label="Nome da rua*"
-                            :disabled="infoPaciente.bairro.id === 0 || infoPesquisa.allBairros.length === 0 "
-                            v-model="infoPaciente.logradouro"
-                            :items="infoPesquisa.logradouros"
-                            item-value="id"
-                            item-text="nome"
-                            return-object
-                            :rules="[required]"
-                          ></v-autocomplete>
-                          <v-row class="mt-1">
-                            <v-col cols="8"> 
-                                <v-text-field class="mt-3"
-                                  dense required clearable
-                                  label="Número do sua residência*"
-                                  :disabled="infoPaciente.semNumeroEndereco === true "
-                                  v-model="infoPaciente.numeroEndereco"
-                                  counter
-                                  maxlength="10"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="4"> 
-                                <v-switch class="mt-0"
-                                @change="liberaSemNumero()"
-                                v-model="infoPaciente.semNumeroEndereco" 
-                                label="Sem número"
-                                color="primary"
-                                hide-details
-                                />
-                            </v-col>
-                          </v-row>
-                          <v-row class="mt-1">
-                            <v-col cols="8"> 
-                              <v-text-field class="mt-1"
-                                dense
-                                label="Complemento*"
-                                :disabled="infoPaciente.semComplemento === true "
-                                required
-                                clearable
-                                v-model="infoPaciente.complemento"
-                                counter
-                                maxlength="50"
-                              ></v-text-field>
-                            </v-col>
-                            <v-col cols="4"> 
-                              <v-switch class="mt-0"
-                                @change="liberaSemComplemento()"
-                                v-model="infoPaciente.semComplemento" 
-                                label="Sem Compl."
-                                color="primary"
-                                hide-details
-                              />
-                            </v-col>
-                          </v-row>
-                          <small class="pt-2">*campo obrigatório</small>
-                        </v-form>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.unidadeSaude)">{{iconePainel(enumPaineis.unidadeSaude)}}</v-icon><span class="ml-2 "> <b>Informe a Unidade de Saúde</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2">
-                          <v-form ref="form4" v-model="painelValido[enumPaineis.unidadeSaude]">
-                              <v-text-field 
-                                  dense persistent-hint clearable
-                                  label="Número do Sus"
-                                  v-mask="'### #### #### ####'"
-                                  v-model="infoPaciente.cartaoSUS"
-                                  maxlength="18"
-                              ></v-text-field>
-                              <v-autocomplete @input="setaUnidadeSaude"
-                                  dense hide-no-data
-                                  label="Unidade de Saúde*"
-                                  :items="infoPesquisa.allUnidadesSaude"
-                                  v-model="infoPaciente.unidadeSaude"
-                                  item-value="id"
-                                  item-text="nome"
-                                  return-object
-                                  :rules="[required]"
-                              ></v-autocomplete> 
-                              <v-autocomplete 
-                                  dense hide-no-data
-                                  label="Micro Área*"
-                                  :disabled="infoPaciente.unidadeSaude.id === 0 || infoPesquisa.allUnidadesSaude.length === 0 "
-                                  v-model="infoPaciente.microArea"
-                                  :items="infoPesquisa.microAreas"
-                                  item-value="id"
-                                  item-text="nome"
-                                  return-object
-                                  :rules="[required]"
-                              ></v-autocomplete>
-                              <small>*campo obrigatório</small>
-                          </v-form>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.comorbidades)">{{iconePainel(enumPaineis.comorbidades)}}</v-icon><span class="ml-2 "> <b>Comorbidades</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2">
-                          <v-flex>
-                              <v-container class = "pa-0 ma-0" v-for="(item, index) in infoPesquisa.comorbidadesTela" :key="item.id" >
-                                  <v-switch class="py-1 ma-0"  v-model="infoPesquisa.comorbidadesTela[index].selecionado"> 
-                                          <template v-slot:label  >
-                                          <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
-                                          </template>
-                                  </v-switch>
-                              </v-container>
-                          </v-flex>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel class="px-0">
-                      <v-expansion-panel-header>
-                          <div class="d-flex align-center">
-                              <v-icon :color="corIconePainel(enumPaineis.sintomas)">{{iconePainel(enumPaineis.sintomas)}}</v-icon><span class="ml-2 "> <b>Sintomas</b></span>
-                          </div>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content class="pt-2 ">
-                              <v-container class="pa-0 ma-0" v-for="(item, index) in infoPesquisa.sintomasTela" :key="item.id" >
-                                  <v-row class="pa-0"> 
-                                    <v-col cols="9" class="pa-0"> 
-                                        <v-switch class=""  v-model="infoPesquisa.sintomasTela[index].selecionado" >
-                                            <template v-slot:label>
-                                            <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
-                                            </template>
-                                        </v-switch>
-                                    </v-col>
-                                    <v-col cols="3" class="">
-                                        <v-text-field  class="pa-0"  @focus="$event.target.select()" 
-                                            dense hide-details
-                                            type="number"
-                                            label="dias"
-                                            v-model="infoPesquisa.sintomasTela[index].dias"
-                                            v-show="infoPesquisa.sintomasTela[index].selecionado == true"
-                                            min=0
-                                        ></v-text-field> 
-                                    </v-col>
-                                  </v-row>
-                              </v-container>
-                              <p>.</p>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </v-flex>  
-                <v-flex v-if="etapaCadastro == enumEtapaCadastro.proximoCidadao" >
-                  <p>
-                    Os dados do cidadão foram salvos com sucesso!!!! 
-                  </p>
-                  <p>
-                    Caso ainda tenha mais alguém para cadastrar, clique no <span class="nota_botao">botão Novo Cidadão</span> logo abaixo. 
-                  </p>
+      <div style="text-align:center"><h4 class="teal--text ">{{tituloTela}}</h4></div>
+      <v-flex class="py-0 my-0 pt-2" v-if="etapaCadastro == enumEtapaCadastro.dadosCidadao">
+        <v-expansion-panels focused class="pt-0 mt-0">
+          <v-expansion-panel :disabled="this.infoPesquisa.listasCarregadas == false" >
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2" >
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.dadosCadastrais)">{{iconePainel(enumPaineis.dadosCadastrais)}}</v-icon><span class="ml-2 "> <b>{{textoPanel}} aqui os dados cadastrais</b></span>
+                </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content class="pt-2" >
+                <v-form ref="form1" v-model="painelValido[enumPaineis.dadosCadastrais]">
+                    <v-text-field 
+                        dense required clearable
+                        label="Nome Completo*"
+                        v-model="infoPaciente.nome"
+                        :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(5), regras.Basicas.max(100)]"
+                        counter
+                        maxlength="100"
+                    ></v-text-field>
+                    <v-text-field 
+                        dense required clearable
+                        label="Nome da Mãe*"
+                        v-model="infoPaciente.nomeMae"
+                        :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(5), regras.Basicas.max(100)]"
+                        counter
+                        maxlength="100"
+                    ></v-text-field>
+                    <v-text-field 
+                        dense required clearable
+                        label="Data de Nascimento*"
+                        v-model="infoPaciente.dataNascimento"
+                        v-mask="'##/##/####'"
+                        :rules="[regras.Data.valida(true)]"
+                    ></v-text-field>
+                    <v-text-field 
+                        dense required clearable
+                        label="CPF"
+                        v-model="infoPaciente.cpf"
+                        v-mask="'###.###.###-##'" 
+                        :rules="[regras.Cpf.valido(true)]"
+                    ></v-text-field>
+                    <v-text-field 
+                        dense required clearable
+                        label="RG"
+                        v-model="infoPaciente.RG"
+                        counter
+                        maxlength="30"
+                    ></v-text-field>
+                    <small>Sexo*</small>
+                    <v-radio-group  class="py-0 my-0" dense v-model="infoPaciente.sexo" row :rules="[regras.Basicas.obrigatorio()]">
+                        <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="F" label="Femin."></v-radio></v-col>
+                        <v-col cols="4" class="py-1 my-1"><v-radio value="M" label="Masc."></v-radio></v-col>
+                        <v-col cols="3" class="py-1 my-1"><v-radio value="O" label="Outros"></v-radio></v-col>
+                    </v-radio-group>
+                    <small>*campo obrigatório</small>
+                </v-form>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel class="mt-2">
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.dadosContato)">{{iconePainel(enumPaineis.dadosContato)}}</v-icon><span class="ml-2 "> <b>{{textoPanel}} aqui os dados para contato</b></span>
+                </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content class="pt-2">
+                <v-form ref="form2" v-model="painelValido[enumPaineis.dadosContato]">
+                <v-text-field 
+                    dense required clearable
+                    label="Email"
+                    v-model="infoPaciente.eMail"
+                    counter
+                    maxlength="100"
+                  ></v-text-field>
+                  <v-text-field class="mt-4" @keypress="entradaCelular($event)"
+                    dense required clearable
+                    label="Celular"
+                    v-model="infoPaciente.celular"
+                    :rules="[regras.Celular.valido(false)]"
+                    maxlength="13"
+                  ></v-text-field>
+                  <v-text-field class="mt-4" @keypress="entradaCelular($event)"
+                    dense required clearable
+                    label="Celular 2"
+                    v-model="infoPaciente.celular2"
+                    :rules="[regras.Celular.valido(false)]"
+                    maxlength="13"
+                  ></v-text-field>
+                  <v-text-field class="mt-4" @keypress="entradaCelular($event)"
+                    dense required clearable
+                    label="Telefone Contato"
+                    v-model="infoPaciente.telefoneContato"
+                    :rules="[regras.Celular.valido(false)]"
+                    maxlength="13"
+                  ></v-text-field>
+                </v-form>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel class="mt-2">
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2" >
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.endereco)">{{iconePainel(enumPaineis.endereco)}}</v-icon><span class="ml-2 "> <b>{{textoPanel}} aqui o endereço</b></span>
+                </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content class="pt-2">
+              <v-form ref="form3" v-model="painelValido[enumPaineis.endereco]">
+                <v-autocomplete  @input="setaBairro"
+                  dense hide-no-data
+                  label="Bairro*"
+                  v-model="infoPaciente.bairro"
+                  :items="infoPesquisa.allBairros"
+                  item-value="id"
+                  item-text="nome"
+                  return-object
+                  :rules="[required]"
+                ></v-autocomplete> 
+                <v-autocomplete
+                  dense hide-no-data
+                  label="Nome da rua*"
+                  :disabled="infoPaciente.bairro.id === 0 || infoPesquisa.allBairros.length === 0 "
+                  v-model="infoPaciente.logradouro"
+                  :items="infoPesquisa.logradouros"
+                  item-value="id"
+                  item-text="nome"
+                  return-object
+                  :rules="[required]"
+                ></v-autocomplete>
+                <v-row class="mt-1">
+                  <v-col cols="8"> 
+                      <v-text-field class="mt-3"
+                        dense required clearable
+                        label="Número do sua residência*"
+                        :disabled="infoPaciente.semNumeroEndereco === true "
+                        v-model="infoPaciente.numeroEndereco"
+                        counter
+                        maxlength="10"
+                      ></v-text-field>
+                  </v-col>
+                  <v-col cols="4"> 
+                      <v-switch class="mt-0"
+                      @change="liberaSemNumero()"
+                      v-model="infoPaciente.semNumeroEndereco" 
+                      label="Sem número"
+                      color="primary"
+                      hide-details
+                      />
+                  </v-col>
+                </v-row>
+                <v-row class="mt-1">
+                  <v-col cols="8"> 
+                    <v-text-field class="mt-1"
+                      dense
+                      label="Complemento*"
+                      :disabled="infoPaciente.semComplemento === true "
+                      required
+                      clearable
+                      v-model="infoPaciente.complemento"
+                      counter
+                      maxlength="50"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4"> 
+                    <v-switch class="mt-0"
+                      @change="liberaSemComplemento()"
+                      v-model="infoPaciente.semComplemento" 
+                      label="Sem Compl."
+                      color="primary"
+                      hide-details
+                    />
+                  </v-col>
+                </v-row>
+                <small class="pt-2">*campo obrigatório</small>
+              </v-form>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel class="mt-2">
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.unidadeSaude)">{{iconePainel(enumPaineis.unidadeSaude)}}</v-icon><span class="ml-2 "> <b>{{textoPanel}} aqui a Unidade de Saúde</b></span>
+                </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content class="pt-2">
+                <v-form ref="form4" v-model="painelValido[enumPaineis.unidadeSaude]">
+                    <v-text-field 
+                        dense persistent-hint clearable
+                        label="Número do Sus"
+                        v-mask="'### #### #### ####'"
+                        v-model="infoPaciente.cartaoSUS"
+                        maxlength="18"
+                    ></v-text-field>
+                    <v-autocomplete @input="setaUnidadeSaude"
+                        dense hide-no-data
+                        label="Unidade de Saúde*"
+                        :items="infoPesquisa.allUnidadesSaude"
+                        v-model="infoPaciente.unidadeSaude"
+                        item-value="id"
+                        item-text="nome"
+                        return-object
+                        :rules="[required]"
+                    ></v-autocomplete> 
+                    <v-autocomplete 
+                        dense hide-no-data
+                        label="Micro Área*"
+                        :disabled="infoPaciente.unidadeSaude.id === 0 || infoPesquisa.allUnidadesSaude.length === 0 "
+                        v-model="infoPaciente.microArea"
+                        :items="infoPesquisa.microAreas"
+                        item-value="id"
+                        item-text="nome"
+                        return-object
+                        :rules="[required]"
+                    ></v-autocomplete>
+                    <small>*campo obrigatório</small>
+                </v-form>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel class="mt-2"> 
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.comorbidades)">{{iconePainel(enumPaineis.comorbidades)}}</v-icon><span class="ml-2 "> <b>Comorbidades</b></span>
+                </div>
+            </v-expansion-panel-header >
+            <v-expansion-panel-content class="pt-2">
+                <v-flex class= "justify-center pa-0 ma-0" v-for="(item, index) in infoPesquisa.comorbidadesTela" :key="item.id" >
+                  <v-checkbox  class="py-0" v-model="infoPesquisa.comorbidadesTela[index].selecionado" :label="item.nome"></v-checkbox>
+                  <v-divider></v-divider>
+                  <!-- 
+                    <v-switch class="py-1 ma-0"  v-model="infoPesquisa.comorbidadesTela[index].selecionado"> 
+                            <template v-slot:label  >
+                            <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
+                            </template>
+                    </v-switch> -->
                 </v-flex>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel class="mt-2">
+            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">
+                <div class="d-flex align-center">
+                    <v-icon :color="corIconePainel(enumPaineis.sintomas)">{{iconePainel(enumPaineis.sintomas)}}</v-icon><span class="ml-2 "> <b>Sintomas</b></span>
+                </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content class="pt-2">
+                <v-flex class="px-0 pt-0 pb-5" v-for="(item, index) in infoPesquisa.sintomasTela" :key="item.id" >
+                  <v-row class="pa-1"> 
+                    <v-col cols="9" class="pa-0"> 
+                        <v-checkbox  class="py-0" v-model="infoPesquisa.sintomasTela[index].selecionado" :label="item.nome"></v-checkbox>
+<!--                               <v-switch class=""  v-model="infoPesquisa.sintomasTela[index].selecionado" >
+                            <template v-slot:label>
+                            <span v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
+                            </template>
+                        </v-switch> -->
+                    </v-col>
+                    <v-col cols="3">
+                        <v-text-field  class="py-0"  @focus="$event.target.select()" 
+                            dense hide-details
+                            type="number"
+                            label="dias"
+                            v-model="infoPesquisa.sintomasTela[index].dias"
+                            v-show="infoPesquisa.sintomasTela[index].selecionado == true"
+                            min=0
+                        ></v-text-field> 
+                    </v-col>
+                  </v-row>
+                  <v-divider></v-divider>
+                </v-flex>
+                <p>.</p>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-flex>  
+      <v-flex v-if="etapaCadastro == enumEtapaCadastro.proximoCidadao" >
+        <p>
+          Os dados do cidadão foram salvos com sucesso!!!! 
+        </p>
+        <p>
+          Caso ainda tenha mais alguém para cadastrar, clique no <span class="nota_botao">botão Novo Cidadão</span> logo abaixo. 
+        </p>
       </v-flex>
     </v-container>
     <BottomBar 
@@ -293,7 +298,7 @@
 </template>
 <script>
     import BottomBar from '../components/StepBottomBar'
-    import mainService from '../services/MainService'
+    import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
     import formataValores from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
@@ -337,6 +342,7 @@
             },
             painelValido: [false, false, false, false, false, false],
             cidadeId: 0,
+            unidadeSaudeId: 0,
             panel: [1, 1, 1, 1],
             teste2: 0,
 
@@ -345,11 +351,13 @@
               nome: '',
               nomeMae: '',
               cpf: '',
+              RG: '',
               dataNascimento: '',
               cartaoSUS: '',              
               eMail: '',
               celular: '',
               celular2: '',
+              telefoneContato: '',
               sexo: '',
               numeroEndereco: null,
               semNumeroEndereco: null,
@@ -410,13 +418,12 @@
               tipo: 0,
               mensagem: ''
             },
-
-            
           }
         },
         created() {
           console.log('CidadaoCadastra-create-I', this.pacienteId)          
           this.cidadeId = store.getters.cidadeId
+          this.unidadeSaudeId = store.getters.unidadeSaudeId
           this.infoPesquisa.listasCarregadas = false
           console.log('CidadaoCadastra-create-F')          
         },
@@ -449,6 +456,12 @@
           podeSalvar() {
             return this.painelValido[0] && this.painelValido[1] && this.painelValido[2] && this.painelValido[3];
           },
+          tituloTela() {
+            return (this.infoPaciente.id == 0) ? 'NOVO CIDADÃO' : 'ALTERAÇÃO DE DADOS DO CIDADÃO'
+          },
+          textoPanel() {
+            return (this.infoPaciente.id == 0) ? 'Informe' : 'Altere'
+          }
         },
         methods: {
           fimCadastro () {
@@ -472,16 +485,12 @@
 
             rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Buscando sintomas! Aguarde...')
             await mainService.listaSintomas()
-            .then (resp => {
-              this.infoPesquisa.allSintomas = resp.status == 200 ? resp.data : []
-            })
-            .catch (err => {
-              rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err)); 
-            });
+            .then (resp => {this.infoPesquisa.allSintomas = resp.status == 200 ? resp.data : []})
+            .catch (err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err))});
             
             rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Buscando unidades de saude! Aguarde...')
             console.log('buscaDadosIniciais.US-I')
-            await mainService.listaUnidadesSaude(this.cidadeId, '')
+            await mainService.listaUnidadesSaude(this.unidadeSaudeId, this.cidadeId, '')
             .then (resp => {this.infoPesquisa.allUnidadesSaude = resp.status == 200 ? resp.data : []})
             .catch (err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err)); });
 
@@ -490,7 +499,6 @@
             .then (resp => {this.infoPesquisa.allBairros = resp.status == 200 ? resp.data : []})
             .catch (err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err)); });
                         
-
             rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Buscando comorbidades! Aguarde...')
             await mainService.listaComorbidades()
             .then (resp => {this.infoPesquisa.allComorbidades = resp.status == 200 ? resp.data : []})
@@ -505,7 +513,6 @@
               .then(resp => {
                 if (resp.status == 200) {
                   const dadosPaciente = resp.data[0]
-                  console.log(dadosPaciente)
                   this.setaInfoPaciente (dadosPaciente)
                 }
               })
@@ -552,6 +559,13 @@
                 .catch(err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err)); });
                 console.log('buscaDadosIniciais.listaMicroAreas-F')
               }
+
+
+/*               this.painelValido[this.enumPaineis.dadosCadastrais] = true;
+              this.painelValido[this.enumPaineis.dadosContato] = true;
+              this.painelValido[this.enumPaineis.endereco] = true;
+              this.painelValido[this.enumPaineis.unidadeSaude] = true;
+ */
               console.log('this.infoPesquisa.sintomasTela', this.infoPesquisa.sintomasTela)
             } else {
               this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.infoPesquisa.allComorbidades, null)
@@ -566,10 +580,12 @@
           limpaDadosPaciente() {
             console.log('limpaDadosPaciente-I')
             this.infoPaciente.nome = ''
+            this.infoPaciente.RG = ''
             this.infoPaciente.cartaoSUS= ''
             this.infoPaciente.eMail= ''
             this.infoPaciente.celular= ''
             this.infoPaciente.celular2= ''
+            this.infoPaciente.telefoneContato= ''
             this.infoPaciente.sexo= ''
             this.infoPaciente.semComorbidade= false
             this.infoPaciente.assintomatico= false
@@ -659,7 +675,7 @@
               console.log('.then(resp =>', resp)
               if (resp.status == 200) {
                 if (this.infoPaciente.id == 0) {
-                  this.infoPaciente.id = resp.data
+                  this.infoPaciente.id = resp.data.id
                 }
               } else {
                   rotinasCadastraPaciente.mensagemErro(this.infoDialog, resp.message)
@@ -668,6 +684,7 @@
             })
             .catch(err => {
               erro = true
+              console.log('err', err)
               rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err))
             });
 
@@ -715,10 +732,12 @@
               .catch(err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err))});
             }
             
-            this.etapaCadastro = this.enumEtapaCadastro.proximoCidadao
-            this.vaPara(this.etapaCadastro)
-            
-            rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+            if (!erro) {
+              this.etapaCadastro = this.enumEtapaCadastro.proximoCidadao
+              this.vaPara(this.etapaCadastro)
+              
+              rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+            }
             console.log('salva-Fim')
           },
           liberaSemNumero() {
@@ -746,6 +765,7 @@
           },
           setaInfoPaciente (dadosPaciente) {
             this.infoPaciente.id = dadosPaciente.id
+            this.infoPaciente.RG = dadosPaciente.rg
             this.infoPaciente.nome = dadosPaciente.nome
             this.infoPaciente.nomeMae = dadosPaciente.nomeMae
             this.infoPaciente.cartaoSUS = dadosPaciente.cartaoSUS
@@ -774,12 +794,10 @@
             const _dataNascimento = dadosPaciente.dataNascimento.substring(0, 10)
             this.infoPaciente.dataNascimento = _dataNascimento.substring(8, 10) + '/' + _dataNascimento.substring(5, 7) + '/' + _dataNascimento.substring(0, 4)
 
-            this.infoPaciente.celular = formataValores.celular(dadosPaciente.celular)
-            if (dadosPaciente.celular2) 
-              this.infoPaciente.celular2 = formataValores.celular(dadosPaciente.celular2)
-            else 
-              this.infoPaciente.celular2 = '' 
-                            
+            this.infoPaciente.telefoneContato = (dadosPaciente.telefoneContato) ? formataValores.celular(dadosPaciente.telefoneContato) : ''
+            this.infoPaciente.celular = (dadosPaciente.celular) ? formataValores.celular(dadosPaciente.celular) : '' 
+            this.infoPaciente.celular2 = (dadosPaciente.celular2) ? formataValores.celular(dadosPaciente.celular2) : '' 
+              
             this.infoPaciente.cpf = formataValores.cpf(dadosPaciente.cpf)
 
             // Guarda a unidade de saude selecionadea
@@ -893,6 +911,10 @@
     padding-top: 4px;
     margin-top: 8px
   }
- 
-</style>
+  .v-expansion-panel__header {
+    background-color: aqua;
+  }
 
+  
+
+</style>

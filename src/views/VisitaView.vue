@@ -4,14 +4,15 @@
             <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem"/> 
             <!-- INICIO -->
             <v-flex v-if="emPesquisa==true">
-                <v-card flat class="pa-0 mt-0">
+                <div style="text-align:center"><h4 class="teal--text ">CONSULTA PARA CADASTRO DE VISITA</h4></div>
+                <v-card flat class="pa-0 mt-2">
                     <v-card-text class="ma-0 pa-0">
                         <v-expansion-panels class="mt-0" v-on:change="painelPorNome" v-model="painel[enumTipoPesquisa.porNome].aberto" >
                             <v-expansion-panel>
-                            <v-expansion-panel-header>
+                            <v-expansion-panel-header class="blue-grey lighten-5 teal--text">
                                 <v-row no-gutters>
                                     <v-col cols="12">
-                                    <b>Pesquisa por nome</b>
+                                    PESQUISA POR NOME
                                     </v-col>
                                     <v-col
                                     cols="1"
@@ -27,7 +28,7 @@
                                 </v-row>
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
-                                <v-autocomplete
+                                <v-autocomplete class="pb-0 pt-4"
                                     dense
                                     placeholder="Nome do Cidadão"
                                     clearable
@@ -41,18 +42,18 @@
                                 ></v-autocomplete>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn text color="secondary" @click="fechaPainel(enumTipoPesquisa.porNome)"> Fecha </v-btn>
-                                    <v-btn text color="primary" @click="listaPesquisa(enumTipoPesquisa.porNome)"> Pesquisa </v-btn>
+                                    <v-btn text small color="secondary" @click="fechaPainel(enumTipoPesquisa.porNome)"> Oculta </v-btn>
+                                    <v-btn text small color="primary" :disabled="!pesquisaPorNomeLiberada || isLoadingGrid" @click="listaPesquisa(enumTipoPesquisa.porNome)"> Confirma </v-btn>
                                 </v-card-actions>
                             </v-expansion-panel-content>
                             </v-expansion-panel>
                         </v-expansion-panels>
                         <v-expansion-panels class="mt-2" v-on:change="painelPorLocalidade" v-model="painel[enumTipoPesquisa.porLocalidade].aberto">
                             <v-expansion-panel>
-                            <v-expansion-panel-header>
+                            <v-expansion-panel-header  class="blue-grey lighten-5 teal--text">
                                 <v-row no-gutters>
                                     <v-col cols="12">
-                                    <b>Pesquisa por localidade</b>
+                                    PESQUISA POR LOCALIDADE E SINTOMAS
                                     </v-col>
                                     <v-col
                                     cols="1"
@@ -68,48 +69,89 @@
                                 </v-row>
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
-                                <v-autocomplete @input="setaUnidadeSaude"
-                                    dense
-                                    clearable
-                                    hide-no-data
-                                    label="Unidade de Saúde"
-                                    item-value="id"
-                                    item-text="nome"
-                                    :items="infoPesquisa.unidadesSaude"
-                                ></v-autocomplete> 
-                                <v-autocomplete @input="setaMicroArea"
-                                    dense
-                                    clearable
-                                    hide-no-data
-                                    label="Micro Área"
-                                    :disabled="infoPesquisa.unidadeSaudeId === 0 || infoPesquisa.microAreas.length === 0 "
-                                    :items="infoPesquisa.microAreas"
-                                    item-value="id"
-                                    item-text="nome"
-                                ></v-autocomplete>
-                                <v-autocomplete @input="setaBairro"
-                                    dense
-                                    clearable
-                                    hide-no-data
-                                    label="Bairro"
-                                    :items="infoPesquisa.bairros"
-                                    item-value="id"
-                                    item-text="nome"
-                                ></v-autocomplete> 
-                                <v-autocomplete @input="setaLogradouro"
-                                    dense
-                                    clearable
-                                    hide-no-data
-                                    label="Nome da rua"
-                                    :disabled="infoPesquisa.bairroId === 0 || infoPesquisa.bairros.length === 0 "
-                                    :items="infoPesquisa.logradouros"
-                                    item-value="id"
-                                    item-text="nome"
-                                ></v-autocomplete>
+                                <v-flex v-if="this.unidadeSaudePadrao.id == 0" >
+                                    <v-autocomplete @input="setaUnidadeSaude" class="pb-0 pt-4"
+                                        dense
+                                        clearable
+                                        hide-no-data
+                                        label="Unidade de Saúde"
+                                        item-value="id"
+                                        item-text="nome"
+                                        :items="infoPesquisa.unidadesSaude"
+                                    ></v-autocomplete> 
+                                </v-flex>
+                                <v-flex v-else>
+                                    <v-text-field class="pb-0 pt-4"
+                                        dense disabled
+                                        label="Unidade de saúde"
+                                        v-model="unidadeSaudePadrao.nome"
+                                    ></v-text-field>
+                                </v-flex>
+                                
+                                <v-flex v-if="this.microAreaPadrao.id == 0" >
+                                    <v-autocomplete @input="setaMicroArea"
+                                        dense
+                                        clearable
+                                        hide-no-data
+                                        label="Micro Área"
+                                        :disabled="infoPesquisa.unidadeSaudeId === 0 || infoPesquisa.microAreas.length === 0 "
+                                        :items="infoPesquisa.microAreas"
+                                        item-value="id"
+                                        item-text="nome"
+                                    ></v-autocomplete>
+                                </v-flex>
+                                <v-flex v-else>
+                                    <v-text-field class="pb-0 pt-2"
+                                        dense disabled
+                                        label="Micro Àrea"
+                                        v-model="microAreaPadrao.nome"
+                                    ></v-text-field>
+                                </v-flex>
+
+                                <v-flex v-if="this.bairroPadrao.id == 0" >
+                                    <v-autocomplete @input="setaBairro"
+                                        dense
+                                        clearable
+                                        hide-no-data
+                                        label="Bairro"
+                                        :items="infoPesquisa.bairros"
+                                        item-value="id"
+                                        item-text="nome"
+                                    ></v-autocomplete> 
+                                </v-flex>
+                                <v-flex v-else>
+                                    <v-text-field class="pb-0 pt-2"
+                                        dense disabled
+                                        label="Bairro"
+                                        v-model="bairroPadrao.nome"
+                                    ></v-text-field>
+                                </v-flex>
+                                
+                                <v-flex v-if="this.logradouroPadrao.id == 0" >
+                                    <!-- :disabled="infoPesquisa.bairroId === 0 || infoPesquisa.bairros.length === 0 " -->
+                                    <v-autocomplete @input="setaLogradouro"
+                                        dense
+                                        clearable
+                                        hide-no-data
+                                        label="Nome da rua"
+                                        :disabled="infoPesquisa.bairroId === 0  "
+                                        :items="infoPesquisa.logradouros"
+                                        item-value="id"
+                                        item-text="nome"
+                                    ></v-autocomplete>
+                                </v-flex>
+                                <v-flex v-else>
+                                    <v-text-field class="pb-0 pt-2"
+                                        dense disabled
+                                        label="Logradouro"
+                                        v-model="logradouroPadrao.nome"
+                                    ></v-text-field>
+                                </v-flex>
+
                                 <v-combobox
-                                    v-model="model"
+                                    v-model="infoPesquisa.sintomas"
                                     :items="infoCidadao.todosSintomas"
-                                    :search-input.sync="search2"
+                                    :search-input.sync="syncSintoma"
                                     hide-selected
                                     label="Escolha até 5 sintomas"
                                     item-value="id"
@@ -129,10 +171,33 @@
                                         </v-list-item>
                                     </template>
                                 </v-combobox>
+                                <v-combobox
+                                    v-model="infoPesquisa.comorbidades"
+                                    :items="infoCidadao.todasComorbidades"
+                                    :search-input.sync="syncComorbidade"
+                                    hide-selected
+                                    label="Escolha até 5 Comorbidades"
+                                    item-value="id"
+                                    item-text="nome"
+                                    multiple
+                                    persistent-hint
+                                    small-chips
+                                    clearable
+                                >
+                                    <template v-slot:no-data>
+                                        <v-list-item>
+                                        <v-list-item-content>
+                                            <v-list-item-title>
+                                            Não há resultados para "<strong>{{ search }}</strong>". 
+                                            </v-list-item-title>
+                                        </v-list-item-content>
+                                        </v-list-item>
+                                    </template>
+                                </v-combobox>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn text color="secondary" @click="fechaPainel(enumTipoPesquisa.porLocalidade)"> Fecha </v-btn>
-                                    <v-btn text color="primary" @click="listaPesquisa(enumTipoPesquisa.porLocalidade)"> Pesquisa </v-btn>
+                                    <v-btn text color="secondary" @click="fechaPainel(enumTipoPesquisa.porLocalidade)"> Oculta </v-btn>
+                                    <v-btn text color="primary" :disabled="isLoadingGrid" @click="listaPesquisa(enumTipoPesquisa.porLocalidade)"> Confirma </v-btn>
                                 </v-card-actions>
                             </v-expansion-panel-content>
                             </v-expansion-panel>
@@ -141,68 +206,108 @@
                 </v-card>
                 <v-card flat class="pt-0 mt-5" tile v-if="telaPronta" >
                     <v-list three-line>
-                        <v-subheader class="justify-center px-0">
-                            <v-col cols="11" class="px-0"><b>{{tituloLista}}</b></v-col>                    
+                        <v-subheader class="justify-center px-1">
+                            <v-col class="px-0"><b>{{tituloLista}}</b></v-col>                    
                         </v-subheader>
                         <v-divider></v-divider>
                         <v-list-item-group v-model="pacienteIdSelecionado" color="primary" >
-                            <v-flex v-for="(item) in listaReduzida" :key="item.id">
-                            <v-list-item >
-                                <v-list-item-content>
-                                    <v-list-item-title v-html="item.nome"></v-list-item-title>
-                                    <v-list-item-subtitle v-html="enderecoCidadaoConcatena(item.nomeLogradouro, item.numeroEndereco, item.complementoEndereco)"></v-list-item-subtitle>
-                                    <v-list-item-subtitle  v-html="item.nomeMicroArea"></v-list-item-subtitle>
-                                    <v-list-item-subtitle  v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
-                                </v-list-item-content>
-                                <v-btn icon color="primary" @click="alteraSintoma(item.id)"><v-icon>mdi-dots-vertical</v-icon></v-btn>
-                            </v-list-item>
-                            <v-divider></v-divider>
+                            <v-flex v-for="(item) in infoPesquisa.lista" :key="item.id">
+                                <v-list-item >
+                                    <v-list-item-content>
+                                        <v-list-item-title v-html="item.nome"></v-list-item-title>
+                                        <v-list-item-subtitle v-html="enderecoCidadaoConcatena(item.nomeLogradouro, item.numeroEndereco, item.complementoEndereco)"></v-list-item-subtitle>
+                                        <v-list-item-subtitle  v-html="item.nomeMicroArea"></v-list-item-subtitle>
+                                        <v-list-item-subtitle  v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
+                                    </v-list-item-content>
+                                    <v-btn icon color="primary" @click="alteraSintoma(item.id)"><v-icon>mdi-thermometer-plus</v-icon></v-btn>
+                                </v-list-item>
+                                <v-divider></v-divider>
                             </v-flex>
                         </v-list-item-group>
                     </v-list>
                 </v-card>
             </v-flex>
             <v-flex v-else>         
-                <v-layout justify-center class="pa-0 ma-0">
-                    <v-subheader><b>Paciente em visitação</b></v-subheader>
-                </v-layout>
-                <v-divider></v-divider>
-                <v-list-item >
-                    <v-list-item-content>
-                        <v-list-item-title class="text-wrap" v-html="infoCidadao.nome"></v-list-item-title>
-                        <v-list-item-subtitle class="text-wrap" v-html="enderecoCidadaoConcatena(infoCidadao.nomeLogradouro, infoCidadao.numeroEndereco, infoCidadao.complementoEndereco)"></v-list-item-subtitle>
-                        <v-list-item-subtitle  v-html="infoCidadao.nomeMicroArea"></v-list-item-subtitle>
-                        <v-list-item-subtitle  v-html="infoCidadao.nomeEstadoSaude"></v-list-item-subtitle>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-layout justify-center class="pa-0 ma-0">
-                    <v-subheader><b>Marque os sintomas atuais do cidadão</b></v-subheader>
-                </v-layout>
-                <v-divider></v-divider>
+                <div style="text-align:center"><h4 class="teal--text ">CADASTRO DE VISITA</h4></div>
+                <v-expansion-panels focused class="pt-0 mt-2">
+                    <v-expansion-panel>
+                        <v-expansion-panel-header  class="blue-grey lighten-5 teal--text">
+                            <v-row no-gutters>
+                                <v-col cols="12">
+                                <b>{{infoCidadao.nome}}</b>
+                                </v-col>
+                                <v-col
+                                cols="1"
+                                class="text--secondary"
+                                >
+                                <v-fade-transition leave-absolute>
+                                    <span
+                                    key="0"
+                                    >
+                                    </span>
+                                </v-fade-transition>
+                                </v-col>
+                            </v-row>
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-text-field 
+                                disabled hide-details
+                                label="Endereço"
+                                v-model="enderecoAtual"
+                            >{{enderecoCidadaoConcatena(infoCidadao.nomeLogradouro, infoCidadao.numeroEndereco, infoCidadao.complementoEndereco)}}</v-text-field >
+                            <v-text-field 
+                                disabled hide-details
+                                label="Micro Área"
+                                v-model="infoCidadao.nomeMicroArea"
+                            ></v-text-field>
+                            <v-text-field 
+                                disabled hide-details
+                                label="Estado de Saúde"
+                                v-model="infoCidadao.nomeEstadoSaude"
+                            ></v-text-field>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn small text color="secondary" > Oculta </v-btn>
+                            </v-card-actions>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <br>
+                    <v-divider></v-divider>
+                    <v-expansion-panel class="mt-2">
+                        <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Consulte aqui as Comorbidades</v-expansion-panel-header >
+                        <v-expansion-panel-content >
+                            <v-flex class="px-0 pt-2" v-for="(item) in infoCidadao.comorbidades" :key="item.id" >
+                                <v-chip> {{item.nome}} </v-chip>
+                            </v-flex>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel class="mt-2">
+                        <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Informe aqui os Sintomas</v-expansion-panel-header>
+                        <v-expansion-panel-content class="pt-2">
+                            <v-flex class="px-0 pt-0 pb-5" v-for="(item, index) in infoPesquisa.sintomasTela" :key="item.id" >
+                            <v-row class="pa-1"> 
+                                <v-col cols="9" class="pa-0"> 
+                                    <v-checkbox  class="py-0" v-model="infoPesquisa.sintomasTela[index].selecionado" :label="item.nome"></v-checkbox>
+                                </v-col>
+                                <v-col cols="3">
+                                    <v-text-field  class="py-0"  @focus="$event.target.select()" 
+                                        dense hide-details
+                                        type="number"
+                                        label="dias"
+                                        v-model="infoPesquisa.sintomasTela[index].dias"
+                                        v-show="infoPesquisa.sintomasTela[index].selecionado == true"
+                                        min=0
+                                    ></v-text-field> 
+                                </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            </v-flex>
+                            <p>.</p>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-expansion-panels>
                 <v-flex class="pt-5">
-                  <v-container class="pa-0 my-0" v-for="(item, index) in infoCidadao.sintomasTela" :key="item.id" >
-                    <v-row class="pa-1"> 
-                      <v-col cols="10" class="py-1"> 
-                        <v-switch class="pa-0 mt-0"  v-model="infoCidadao.sintomasTela[index].selecionado" >
-                            <template v-slot:label >
-                              <span  v-bind:class="(item.id == -1)?'input__label':''">{{item.nome}}</span>
-                            </template>
-                          </v-switch>
-                      </v-col>
-                      <v-col cols="2" class="">
-                        <v-text-field  class="pa-0"  @focus="$event.target.select()" 
-                            type="number"
-                            label="dias"
-                            dense
-                            v-model="infoCidadao.sintomasTela[index].dias"
-                            v-show="infoCidadao.sintomasTela[index].selecionado == true"
-                            :rules="[regras.Basicas.obrigatorio()]"
-                          ></v-text-field> 
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                  <br><br><br><br>
                   <BottomBar 
                         :temBotaoAnterior="true"
                         :temBotaoProximo= "false"
@@ -223,10 +328,9 @@
     </v-container>
 </template>
 <script>
-    import mainService from '../services/MainService'
+    import mainService from '../services/mainService'
     import BasicDialog from '../components/BasicDialog'
     import store from '../store'
-    import rotinasProjeto from '../rotinasProjeto/rotinasProjeto'
     import regrasCampos from '../bibliotecas/regrasCampos'
     import BottomBar from '../components/StepBottomBar'
     import Pacientes from '../rotinasProjeto/salvaPacienteSintomas'
@@ -245,7 +349,12 @@
             },
             painel: [{aberto: false, desabilitado: false}, {aberto: false, desabilitado: false}],
 
-            cidadeId: 0,
+            cidadePadrao: null,
+            unidadeSaudePadrao: null,
+            mnicroAreaPadrao: null,
+            bairroPadrao: null,
+            logradouroPadrao: null,
+
             emPesquisa: true,
             telaPronta: false,
             pacienteIdSelecionado: 0,
@@ -261,7 +370,9 @@
                 logradouros: [],
                 unidadesSaude: [],
                 microAreas: [],
-                lista: []
+                lista: [],
+                sintomas: [],
+                comorbidades: []
             },
             infoDialog: {
                 tipo: 0,
@@ -277,16 +388,29 @@
                 nomeEstadoSaude: '',
                 sintomasAtuais: [],
                 todosSintomas: [],
-                sintomasTela:[]
+                todasComorbidades: [],
+                sintomasTela:[],
+                comorbidades:[]
             },
-                entries: [],
-                isLoading: false,
-                model: [],
-                search2: null,
+            entries: [],
+            isLoading: false,
+            isLoadingGrid: false,
+            model: [],
+            syncSintoma: null,
+            syncComorbidade: null,
           }
         },
         created() {
-            this.cidadeId = store.getters.cidadeId
+            this.cidadePadrao = store.getters.cidadePadrao
+            this.unidadeSaudePadrao = store.getters.unidadeSaudePadrao
+            this.microAreaPadrao = store.getters.microAreaPadrao
+            this.bairroPadrao = store.getters.bairroPadrao
+            this.logradouroPadrao = store.getters.logradouroPadrao
+
+            this.infoPesquisa.unidadeSaudeId = this.unidadeSaudePadrao.id
+            this.infoPesquisa.microAreaId = this.microAreaPadrao.id
+            this.infoPesquisa.bairroId = this.bairroPadrao.id
+            this.infoPesquisa.logradouroId = this.logradouroPadrao.id
         },
         mounted() {
             this.buscaDadosIniciais()
@@ -299,8 +423,17 @@
             },
         },
         computed: {
-            listaReduzida () {
-                return ((this.infoPesquisa.lista.length > 30) ? this.infoPesquisa.lista.slice(0, 30) : this.infoPesquisa.lista)
+            enderecoAtual:  {
+                get: function() { 
+                    let _retorno = this.infoCidadao.nomeLogradouro + (this.infoCidadao.numeroEndereco ? ', ' + this.infoCidadao.numeroEndereco : '')
+                    _retorno += (this.infoCidadao.complementoEndereco ? ' - ' + this.infoCidadao.complementoEndereco : '')
+                    return _retorno
+                },
+                set: function() {
+                }
+            },
+            pesquisaPorNomeLiberada () {
+                return (this.infoPesquisa.pacienteId != 0) 
             },
             mensagemBusca: {
                 get: function() { return this.infoDialog.mensagem},
@@ -322,59 +455,67 @@
                 },
                 set (searchInput) {
                     if ((searchInput) && (searchInput.length >= 3)) {
-                        this.listaPacientes2(searchInput)
+                        this.listaPacientePorNome(this.cidadePadrao.id, searchInput)
                     } else 
                         this.entries = []
                 }
             },
             tituloLista: function() {
-                let _numeroRegistros = this.infoPesquisa.lista.length
-                let _retorno = (_numeroRegistros == 0) ? 'Não há cidadãos para essa pesquisa' : ` Lista de cidadãos (${_numeroRegistros}) `
-                return _retorno
+                const _numeroRegistros = this.infoPesquisa.lista.length
+                return (_numeroRegistros == 0) ? 'Não há cidadãos para essa pesquisa' : (_numeroRegistros == 1) ? ` Um cidadão retornado na pesquisa  ` : ` ${_numeroRegistros} cidadãos retornados`
             },
         },       
         methods: {
-            alteraSintoma: function (id) {
+            async alteraSintoma(id) {
                 this.pacienteIdSelecionado = id
+                await this.listaPaciente(this.pacienteIdSelecionado)
                 this.emPesquisa = !this.emPesquisa
-                this.listaPaciente(this.pacienteIdSelecionado)
             },
             async buscaDadosIniciais() {
-                console.log('buscaDadosIniciais.promise.inicio')
                 this.mensagemBusca = 'Buscando sintomas! Aguarde...'
                 await mainService.listaSintomas()
-                .then (resp => {
-                    if (resp.status == 200)  
-                        this.infoCidadao.todosSintomas = resp.data
-                })
-                .catch (resp => {
-                    this.mensagemErro =  mainService.catchPadrao(resp)
-                    return
-                });
+                .then (resp => {this.infoCidadao.todosSintomas = (resp.status == 200) ? resp.data : []})
+                .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
 
-                this.mensagemBusca = 'Buscando unidades de saude! Aguarde...'
-                await mainService.listaUnidadesSaude(this.cidadeId, '')
-                .then (resp => {
-                    if (resp.status == 200)  
-                        this.infoPesquisa.unidadesSaude = resp.data
-                    console.log(resp.data)
-                })
-                .catch (resp => {
-                    this.mensagemErro =  mainService.catchPadrao(resp)
-                    return;
-                });
-                this.mensagemBusca = 'Buscando bairros! Aguarde...'
-                await mainService.listaBairros(this.cidadeId)
+                this.mensagemBusca = 'Buscando Comorbidades! Aguarde...'
+                await mainService.listaComorbidades()
+                .then (resp => {this.infoCidadao.todasComorbidades = (resp.status == 200) ? resp.data : []})
+                .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
+
+                if (this.unidadeSaudePadrao.id == 0) {
+                    this.mensagemBusca = 'Buscando unidades de saude! Aguarde...'
+                    await mainService.listaUnidadesSaude(this.cidadePadrao.id, '')
+                    .then (resp => {this.infoPesquisa.unidadesSaude = (resp.status == 200) ? resp.data : []})
+                    .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});                
+                } else {
+                    if (this.microAreaPadrao.id == 0) {
+                        this.mensagemBusca = 'Buscando Micro Áreas... Aguarde'
+                        await mainService.listaMicroAreas(this.unidadeSaudePadrao.id)
+                        .then(resp => {this.infoPesquisa.microAreas = (resp.status == 200) ? resp.data : []})
+                        .catch((err) => {this.mensagemErro =  mainService.catchPadrao(err)})
+                    }
+                }
+                if (this.bairroPadrao.id == 0) {
+                    this.mensagemBusca = 'Buscando bairros! Aguarde...'
+                    await mainService.listaBairros(this.cidadePadrao.id)
                     .then (resp => {
-                        if (resp.status == 200) 
-                            this.infoPesquisa.bairros = resp.data
+                        this.infoPesquisa.bairros = (resp.status == 200) ? resp.data : []
                     })
-                    .catch (resp => {
-                        this.mensagemErro =  mainService.catchPadrao(resp)
-                        return;
-                    });
-                this.mensagemBusca = ''
-                console.log('buscaDadosIniciais.promise.fim')
+                    .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
+                } else {
+                    if (this.logradouroPadrao.id == 0) {
+                        this.mensagemBusca = 'Buscando Logradouros... Aguarde'
+                        await mainService.listaLogradouros(this.bairroPadrao.id)
+                        .then(resp => {
+                            this.infoPesquisa.logradouros = (resp.status == 200) ? resp.data : []
+                        })
+                        .catch((err) => {this.mensagemErro =  mainService.catchPadrao(err)})
+                    }
+                }
+                if (this.mensagemBusca != '')
+                    this.mensagemBusca = ''
+
+
             },
             painelPorNome (val) {
                 this.painel[this.enumTipoPesquisa.porLocalidade].aberto = (val !=  null) ? false : true
@@ -382,20 +523,16 @@
             painelPorLocalidade (val) {
                 this.painel[this.enumTipoPesquisa.porNome].aberto = (val !=  null) ? false : true
             },
-            async listaPacientes2(searchInput) {
-                const _param = {
-                    'tipo': 3,
-                    'cidadeId': this.cidadeId,
-                    'nome': searchInput
-                }
+            async listaPacientePorNome(cidadeId, parteNome) {
+                const param = {cidadeId: cidadeId, nome: parteNome}
+                const resp = await mainService.listaPacientes(param)
                 this.isLoading = true
-                const _resposta = await mainService.listaPacientes(_param)
-                this.isLoading = false
-                console.log('listaPacientes-then', _resposta)
-                if (_resposta.status == 200) 
-                    this.entries = _resposta.data
+                if (resp.status == 200) 
+                    this.entries = resp.data
                 else 
                     this.entries = []
+                this.isLoading = false
+                
             },
             cmdBotao: function (value) {
                 console.log('cmdBotao-inicio', value)
@@ -413,23 +550,33 @@
                 console.log('fechaPainel (tipoPesquisa)', tipoPesquisa)
                 this.painel[tipoPesquisa].aberto = false
             },
-            listaPesquisa(tipoPesquisa) {
-                let _param = {}
+            async listaPesquisa(tipoPesquisa) {
+                let _param = {cidadeId: this.cidadePadrao.id}
 
                 if (tipoPesquisa == this.enumTipoPesquisa.porNome) {
-                    _param.tipo = 4
-                    _param.cidadeId = this.cidadeId
-                    _param.pacienteId= this.infoPesquisa.pacienteId
+                    _param.id= this.infoPesquisa.pacienteId
                 } else {
-                    _param.tipo = 2
-                    _param.cidadeId = this.cidadeId
                     _param.unidadeSaudeId= this.infoPesquisa.unidadeSaudeId
                     _param.microAreaId= this.infoPesquisa.microAreaId
                     _param.bairroId= this.infoPesquisa.bairroId
                     _param.logradouroId= this.infoPesquisa.logradouroId
+                    _param.sintomas = []
+                    _param.comorbidades = []
+                    _param.doencas = []
+
+                    this.infoPesquisa.sintomas.forEach((linha) => {
+                        _param.sintomas.push(linha.id)
+                    })
+
+                    this.infoPesquisa.comorbidades.forEach((linha) => {
+                        _param.comorbidades.push(linha.id)
+                    })
+
+                    console.log(_param)
                 }
+                this.isLoadingGrid = true
                 this.mensagemBusca = 'Consultando dados do cidadão! Aguarde...'
-                mainService.listaPacientes(_param)
+                await mainService.listaPacientesCompleta(_param)
                 .then(_resposta => {
                     console.log('listaPacientes-then', _resposta)
                     this.mensagemBusca = ''
@@ -444,15 +591,12 @@
                 .catch((response) => {
                     this.mensagemErro =  mainService.catchPadrao(response)
                 })
+                this.isLoadingGrid = false
             },
-            listaPaciente(pacienteId) {
-                this.mensagemBusca = 'Buscando informações do cidadão..'
-                Promise.all([
-                    mainService.listaPaciente(pacienteId),
-                    mainService.listaPacienteSintomas(pacienteId),
-                ])
-                .then(([_paciente, _pacienteSintomas]) => {
-                    console.log('listaPaciente.then.inicio', Date.now())
+            async listaPaciente(pacienteId) {
+                this.mensagemBusca = 'Buscando informações do cidadão. Aguarde...'
+                await mainService.listaPaciente(pacienteId)
+                .then((_paciente) => {
                     this.mensagemBusca = ''
                     if (_paciente.status == 200) {
                         this.infoCidadao.nome = _paciente.data[0].nome
@@ -465,18 +609,24 @@
                     else {
                         this.mensagemErro=_paciente.message  
                     }
+                })
+                .catch((response) => {this.mensagemErro =  mainService.catchPadrao(response)})
 
-                    if (_pacienteSintomas.status == 200) {
-                        this.infoCidadao.sintomasTela = rotinasProjeto.ordenaSintomas(this.infoCidadao.todosSintomas, _pacienteSintomas.data)
-                    } else {
-                        this.mensagemErro=_paciente.message
-                        return
-                    }
-                    console.log('listaPaciente.then.fim', Date.now())
+                this.mensagemBusca = 'Buscando comorbidades do cidadão. Aguarde...'
+                await mainService.listaPacienteComorbidades(pacienteId)
+                .then((resp) => {
+                    this.mensagemBusca = ''
+                    this.infoCidadao.comorbidades = resp.status == 200 ? resp.data : []
+
+                    this.infoCidadao.comorbidades.forEach(linha => {
+                        const index = this.infoCidadao.todasComorbidades.findIndex( el => el.id === linha.id );
+                        if (index != -1) {
+                            linha.nome = this.infoCidadao.todasComorbidades[index].nome
+                        }
+                    });
                 })
-                .catch((response) => {
-                    this.mensagemErro =  mainService.catchPadrao(response)
-                })
+                .catch((response) => {this.mensagemErro =  mainService.catchPadrao(response)})
+
             },
             setaLogradouro(id) {
                 this.infoPesquisa.logradouroId = id;
@@ -506,7 +656,6 @@
                 }
             },
             setaUnidadeSaude(id) {
-                console.log('setaUnidadeSaude.inicio', id)
                 if (id == null) {
                     this.infoPesquisa.unidadeSaudeId = 0
                     this.infoPesquisa.microAreas = []

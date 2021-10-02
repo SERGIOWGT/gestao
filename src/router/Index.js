@@ -69,7 +69,7 @@ const RotasApp = new Router({routes})
 RotasApp.beforeEach((to, from, next) => {
     //console.log("from", from.path)
     //console.log("to", to.path)
-    console.log(`from => ${from.path}, to => ${to.path},  estaLogado => ${store.getters.estaLogado}`)
+    //console.log(`from => ${from.path}, to => ${to.path},  estaLogado => ${store.getters.estaLogado}`)
 
 /*     if (to.path == '/')
         next()

@@ -1,5 +1,5 @@
 <template>
-  <v-layout class="pa-0 ma-0 grey lighten-5" align-content-start justify-end row fill-height>
+  <v-layout class="pa-0 ma-0" align-content-start justify-end row fill-height>
     <v-container class="pa-0">
       <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" @funcaoRetorno='fechaDialog()'/>
       <v-alert
@@ -29,10 +29,10 @@
       </v-layout> -->
       <v-layout justify-center class="mt-1" v-show="mostraTela" v-for="item in funcionalidades" :key="item.id" >
         <v-layout justify-center class="px-5 py-2" v-show="item.ativo==true">
-          <v-expansion-panels >
-            <v-expansion-panel class="py-2">
-              <v-expansion-panel-header disable-icon-rotate>    
-                <div class="d-flex align-center">
+          <v-expansion-panels focused>
+            <v-expansion-panel class="py-2 blue-grey lighten-5">
+              <v-expansion-panel-header disable-icon-rotate v-on:click="executaFuncao(item.id)">    
+                <div class="d-flex align-center ">
                     <v-icon :color="item.iconColor">{{item.icon}}</v-icon><span :class="'ml-2 ' + item.textColor"> {{item.text}}</span>
                 </div>
                 <template v-slot:actions>
@@ -74,7 +74,7 @@
 </template>
 <script>
   
-  import mainService from '../services/MainService'
+  import mainService from '../services/mainService'
   import BasicDialog from '../components/BasicDialog';
 
   export default {
@@ -96,10 +96,10 @@
         funcionalidades: [
           {
               id: 1, 
-              textColor: 'blue--text', 
-              text: 'Cadastre o cidadão com suspeita de alguma enfermidade', 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Cadastre aqui o cidadão ', 
               icon: 'mdi-alert-outline', 
-              iconColor: 'blue', 
+              iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento2()', 
               perms: [
@@ -112,10 +112,10 @@
               ]
           }, {   
               id: 2, 
-              textColor: 'blue--text', 
+              textColor: 'teal--text text--lighten-2', 
               text: 'Atualize as visitas na residência do cidadão', 
               icon: 'mdi-bed', 
-              iconColor: 'blue', 
+              iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'naoImplementada()',
               perms: [
@@ -124,10 +124,10 @@
           },
           {   
               id: 3, 
-              textColor: 'blue--text', 
-              text: 'Atualize os cadastros básicos do sistema', 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Atualize os cadastros básicos', 
               icon: 'mdi-emoticon-sick', 
-              iconColor: 'blue', 
+              iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento(2)',
               perms: [

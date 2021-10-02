@@ -7,7 +7,7 @@
         width="400"
     >
       <v-flex v-if="tipo == 0">
-        <v-card color="primary" dark>
+        <v-card color="teal lighten-2" dark>
           <v-card-text class="pt-2">
             {{mensagem}}
             <v-progress-linear 
@@ -50,7 +50,6 @@
     watch: {
       mensagem: function(val) {
         this.visible  = !(val == '')
-        console.log('mensagem: function(val)', val), this.visible;
       }
     },
     methods: {

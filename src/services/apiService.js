@@ -4,8 +4,8 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
     //baseURL: 'https://apipainelsaude.azurewebsites.net/api/'
-    baseURL: 'http://api.painelsaude.com.br/api/'
-    //baseURL: 'https://localhost:44308/api/'
+    //baseURL: 'http://api.painelsaude.com.br/api/'
+    baseURL: 'https://localhost:44308/api/'
 })
 
 http.interceptors.request.use(function (config) {
@@ -13,7 +13,6 @@ http.interceptors.request.use(function (config) {
     config.headers.dataEnvio =  d
     return config;
   });
-
 http.interceptors.response.use(function (response) {
     return response
   }, function (error) {
@@ -49,7 +48,6 @@ http.interceptors.response.use(function (response) {
 
     return Promise.reject(_erros)
 })
-
 export default {
     autentica: (signKey, usuarioGuid) => {
         const _url = `Autenticacao/Autentica?signkey=${signKey}&userKey=${usuarioGuid}`
@@ -59,7 +57,7 @@ export default {
         let _url = `UnidadeSaudes/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
     },
-     excluiBairro: (token, id) => {
+    excluiBairro: (token, id) => {
         let _url = `Bairros/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
     },
@@ -71,8 +69,11 @@ export default {
         let _url = `logradouros/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
     }, 
-    listaBairros: (token,cidadeId) => {
-        var _url = `bairros?cidadeId=${cidadeId}`
+    listaBairros: (token,cidadeId, id) => {
+        let _url = `bairros?cidadeId=${cidadeId}`
+        if (id) 
+            _url += `&id=${id}`
+
         return http.get(_url, {
             headers: {
                 'Authorization': `bearer ${token}`
@@ -88,17 +89,25 @@ export default {
             }
         })
     },
-    listaMicroAreas: (token, unidadeSaudeId) => {
-        var _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
+    listaMicroAreas: (token, unidadeSaudeId, id) => {
+        let _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
+        if (id) 
+            _url += `&id=${id}`
+
+        console.log('listaMicroAreas', _url)
+
         return http.get(_url, {
             headers: {
                 'Authorization': `bearer ${token}`
             }
         })
     },
-    listaLogradouros: (token,cidadeId) => {
-        var _url = `logradouros?bairroId=${cidadeId}`
+    listaLogradouros: (token, bairroId, id) => {
+        let _url = `logradouros?bairroId=${bairroId}`
+        if (id) 
+            _url += `&id=${id}`
 
+        console.log(_url)
         return http.get(_url, {
             headers: {
                 'Authorization': `bearer ${token}`
@@ -116,51 +125,104 @@ export default {
             }
         })
     },
-    async listaPacientes (token, param) {
-        //console.log('apiService.listaPacientes', param)
-        let _url = ''
+    listaPacientesCompleta (token, param) {
+        let url = `pacientes/listaCompleta`
 
-        let _listaFiltrosIdDTO = {}
-        _listaFiltrosIdDTO.Sintomas = []
-        _listaFiltrosIdDTO.Comorbidades = []
-
-        switch (param.tipo) {
-            case 0:
-                _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&id=${param.id}`
-                break
-            case 1:
-                _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&cpf=${param.cpf}&dataNascimento=${param.dataNascimento}`
-                break
-            case 2:
-                _url += 'pacientes/listaCompleta?'
-                if (param.unidadeSaudeId) 
-                    _url += `unidadeSaudeId=${param.unidadeSaudeId}&`
-
-                if (param.microAreaId) 
-                    _url += `microAreaId=${param.microAreaId}&`
-
-                if (param.logradouroId) 
-                    _url += `logradouroId=${param.logradouroId}&`
-
-                if (param.bairroId) 
-                    _url += `bairroId=${param.bairroId}&`
-
-                break   
-            case 3:
-                _url += `pacientes?cidadeId=${param.cidadeId}&nome=${param.nome}`
-                break
-            case 4:
-                _url += `pacientes/listaCompleta?cidadeId=${param.cidadeId}&id=${param.pacienteId}`
-                break
+        let paramPost = {
+            id: 0,
+            nome: '',
+            dataNascimento: null,
+            CPF: '',
+            RG: '',
+            cartaoSUS: '',
+            celular: '',
+            celular2: '',
+            telefoneContato: '',
+            unidadeSaudeId: 0,
+            microAreaId: 0,
+            eMail: '',
+            sexo: '',
+            nomeMae: '',
+            tipoEstadoSaudeId: 0,
+            cidadeId: 0,
+            bairroId: 0,
+            logradouroId: 0,
+            numeroEndereco: '',
+            complementoEndereco: '',
+            numeroMaxLinhas: 50,
+            sintomas: [],
+            comorbidades: [],
+            doencas: [],
         }
-        console.log('apiService.listaPacientes', _url);
+        if (param.id)  
+            paramPost.id = param.id
+        else {
+            if (param.cpf) 
+                paramPost.CPF = param.cpf
 
-        return http.get(_url, 
-            {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }, 
-            
+            if (param.dataNascimento)
+                paramPost.dataNascimento = param.dataNascimento
+
+            if (param.unidadeSaudeId) 
+                paramPost.unidadeSaudeId = param.unidadeSaudeId
+
+            if (param.microAreaId) 
+                paramPost.microAreaId = param.microAreaId
+
+            if (param.logradouroId) 
+                paramPost.logradouroId = param.logradouroId
+
+            if (param.bairroId) 
+                paramPost.bairroId = param.bairroId
+
+            if (param.cartaoSUS) 
+                paramPost.cartaoSUS = param.cartaoSUS
+
+            if (param.sintomas) {
+                paramPost.sintomas = param.sintomas
+            }
+            if (param.comorbidades) {
+                paramPost.comorbidades = param.comorbidades
+            }
+            if (param.doencas) {
+                paramPost.doencas = param.doencas
+            }
+        }
+        console.log('paramPost', paramPost)
+
+        console.log('listaPacientesCompleta', url)
+        return http.post(url, paramPost, {headers: {'Authorization': `bearer ${token}`} })
+
+    },
+    listaPacientes (token, param) {
+        let _url = `pacientes?cidadeId=${param.cidadeId}`
+
+        if (param.id)  
+            _url += `&id=${param.id}`
+        else {
+            if (param.nome) 
+                _url += `&nome=${param.nome}`
+
+            if (param.cpf) 
+                _url += `&cpf=${param.cpf}`
+
+            if (param.dataNascimento)
+                _url += `&dataNascimento=${param.dataNascimento}`
+
+            if (param.unidadeSaudeId) 
+                _url += `&unidadeSaudeId=${param.unidadeSaudeId}`
+
+            if (param.microAreaId) 
+                _url += `&microAreaId=${param.microAreaId}`
+
+            if (param.logradouroId) 
+                _url += `&logradouroId=${param.logradouroId}`
+
+            if (param.bairroId) 
+                _url += `&bairroId=${param.bairroId}`
+        }
+        
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}
         })
     },
     listaPacienteSintomas: (token, pacienteId) => {
@@ -185,16 +247,23 @@ export default {
             }
         })
     },
-    async listaSintomas (token) {
+    listaSintomas (token) {
         var _url = 'tipoSintomas'
-        return await http.get(_url, {
+        return http.get(_url, {
             headers: {
                 'Authorization': `bearer ${token}`
             }
         })
     },
-    listaUnidadesSaude: (token,cidadeId) => {
-        var _url = `unidadeSaudes?cidadeId=${cidadeId}`
+    listaUnidadesSaude: (token, cidadeId, id, parteNome) => {
+        let _url = `unidadeSaudes?cidadeId=${cidadeId}`
+
+        if (id)
+            _url += `&id=${id}`
+
+        if (parteNome)
+            _url += `&nome=${parteNome}`
+
         console.log('listaUnidadesSaude: (token,cidadeId, parteNome)', _url)
 
         return http.get(_url, {
@@ -217,17 +286,14 @@ export default {
         var _cpf = infoPaciente.cpf.toString().replace(/\.|-/gm,'');
 
         var _complemento = (infoPaciente.semComplemento ? '' : infoPaciente.complemento)
-        var _celular =  infoPaciente.celular.toString().replace(/\s|-/gm,'');
-        var _celular2 =  infoPaciente.celular2.toString().replace(/\s|-/gm,'');
-
+        var _celular =  (infoPaciente.celular == null) ? '' : infoPaciente.celular.toString().replace(/\s|-/gm,'')
+        var _celular2 =  (infoPaciente.celular2 == null) ? '' : infoPaciente.celular2.toString().replace(/\s|-/gm,'')
+        var _telefoneContato =  (infoPaciente.telefoneContato == null) ? '' : infoPaciente.telefoneContato.toString().replace(/\s|-/gm,'')
+        var _cartaoSus = (infoPaciente.cartaoSUS == null) ? '' : infoPaciente.cartaoSUS.toString().replace(/\s/g, '')
+        
         var _dataNascimento = infoPaciente.dataNascimento.toString().replace(/\//gm,'').toString()
          _dataNascimento = _dataNascimento.substring(4, 8) + '-' +  _dataNascimento.substring(2, 4) + '-' + _dataNascimento.substring(0, 2)
 
-        
-        /*
-        _dataNascimento = _dataNascimento.substring(6, 10) + '-' + 
-                                infoPaciente.dataNascimento.substring(3, 5) + '-' + 
-                                infoPaciente.dataNascimento.substring(0, 2)  */
 
         let _params = {
             'Id' : infoPaciente.id,
@@ -235,9 +301,11 @@ export default {
             'NomeMae' : infoPaciente.nomeMae,
             'DataNascimento' : _dataNascimento,
             'CPF': _cpf,
-            'CartaoSUS': infoPaciente.cartaoSUS,
+            'RG': infoPaciente.RG,
+            'CartaoSUS': _cartaoSus,
             'Celular' : _celular,
             'Celular2' : _celular2,
+            'TelefoneContato' : _telefoneContato,
             'EMail' : infoPaciente.eMail,
             'Sexo' : infoPaciente.sexo,
             'TipoEstadoSaudeId': 1,
