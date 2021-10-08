@@ -16,7 +16,6 @@ export default {
                 item.id = sintomas[i].id
                 item.dataInicio = formataValores.dataYYYYMMDD(_dataInicio)
                 
-                console.log('coloquei', i, sintomas[i].dias, item.dataInicio)
                 _sintomas.push (item)
             }
         }
@@ -28,7 +27,6 @@ export default {
         mostraMensagem("Aguarde... Salvando os Sintomas")
         await mainService.salvaPacienteSintomas(pacienteId, _sintomas)
             .then(resposta => {
-                console.log('salvaPacienteSintomas', '.then', resposta)
                     mostraMensagem('')
                     if (resposta.status == 200) {
                         callback()

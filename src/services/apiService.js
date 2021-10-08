@@ -38,7 +38,6 @@ http.interceptors.response.use(function (response) {
                 'mensagem': error
             }]}
         }
-        console.log(_erros)
     } else {
         _erros = {erros: [{
             'chave': '000.0000',
@@ -53,10 +52,6 @@ export default {
         const _url = `Autenticacao/Autentica?signkey=${signKey}&userKey=${usuarioGuid}`
         return http.get(_url)
     },
-    excluiUnidadeSaude: (token, id) => {
-        let _url = `UnidadeSaudes/${id}`
-        return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
-    },
     excluiBairro: (token, id) => {
         let _url = `Bairros/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
@@ -69,61 +64,37 @@ export default {
         let _url = `logradouros/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
     }, 
+    excluiUnidadeSaude: (token, id) => {
+        let _url = `UnidadeSaudes/${id}`
+        return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
+    },
     listaBairros: (token,cidadeId, id) => {
         let _url = `bairros?cidadeId=${cidadeId}`
         if (id) 
             _url += `&id=${id}`
 
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaComorbidades: (token) => {
-        var _url = 'tipoComorbidades'
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
-    },
-    listaMicroAreas: (token, unidadeSaudeId, id) => {
-        let _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
-        if (id) 
-            _url += `&id=${id}`
-
-        console.log('listaMicroAreas', _url)
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        return http.get('tipoComorbidades', {headers: {'Authorization': `bearer ${token}`}})
     },
     listaLogradouros: (token, bairroId, id) => {
         let _url = `logradouros?bairroId=${bairroId}`
         if (id) 
             _url += `&id=${id}`
 
-        console.log(_url)
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },    
+    listaMicroAreas: (token, unidadeSaudeId, id) => {
+        let _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
+        if (id) 
+            _url += `&id=${id}`
+
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
+    },
     listaPaciente: (token, pacienteId) => {
-        var _url = `pacientes/${pacienteId}`
-
-        console.log('listaPaciente', _url);
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        const _url = `pacientes/${pacienteId}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaPacientesCompleta (token, param) {
         let url = `pacientes/listaCompleta`
@@ -131,7 +102,7 @@ export default {
         let paramPost = {
             id: 0,
             nome: '',
-            dataNascimento: null,
+            dataNascimento: '',
             CPF: '',
             RG: '',
             cartaoSUS: '',
@@ -188,9 +159,6 @@ export default {
                 paramPost.doencas = param.doencas
             }
         }
-        console.log('paramPost', paramPost)
-
-        console.log('listaPacientesCompleta', url)
         return http.post(url, paramPost, {headers: {'Authorization': `bearer ${token}`} })
 
     },
@@ -222,38 +190,23 @@ export default {
                 _url += `&bairroId=${param.bairroId}`
         }
         
-        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}
-        })
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaPacienteSintomas: (token, pacienteId) => {
-        var _url = `pacienteSintomas/${pacienteId}`
-
-        console.log('pacienteSintomas', _url);
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        const _url = `pacienteSintomas/${pacienteId}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaPacienteComorbidades: (token, pacienteId) => {
-        var _url = `pacienteComorbidades/${pacienteId}`
+        return http.get(`pacienteComorbidades/${pacienteId}`, {headers: {'Authorization': `bearer ${token}`}})
 
-        console.log('pacienteComorbidades', _url);
-
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+    },
+    listaPacienteUltimaVisita (token, pacienteId) {
+        const url = `pacienteVisitas/ListaUltimaVisita?pacienteId=${pacienteId}`
+        return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaSintomas (token) {
-        var _url = 'tipoSintomas'
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        const url = 'tipoSintomas'
+        return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaUnidadesSaude: (token, cidadeId, id, parteNome) => {
         let _url = `unidadeSaudes?cidadeId=${cidadeId}`
@@ -264,13 +217,23 @@ export default {
         if (parteNome)
             _url += `&nome=${parteNome}`
 
-        console.log('listaUnidadesSaude: (token,cidadeId, parteNome)', _url)
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
+    },
+    listaTipoRelatorioVisita: (token, id) => {
+        let _url = `TipoRelatorioVisitas`
+        if (id)
+            _url += `?id=${id}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
+    },
+    salvaBairro: (token, cidadeId, id, nome) => {
+        let _params = {}
+        _params.nome = nome
+        _params.cidadeId = cidadeId
+        let _url = (id == 0) ? 'Bairros' : `Bairros/${id}`
 
-        return http.get(_url, {
-            headers: {
-                'Authorization': `bearer ${token}`
-            }
-        })
+        return (id == 0) ?
+        http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
+            : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});
     },
     salvaPacienteComorbidades: (token, pacienteId, comorbidades) => {
         var _url = `pacienteComorbidades`
@@ -278,7 +241,6 @@ export default {
             'PacienteId' : pacienteId,
             'TipoComorbidades': comorbidades
        }
-       console.log('apiService.salvaPacienteComorbidades', _params)
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     },
     salvaPaciente: (token, infoPaciente) => {
@@ -316,13 +278,18 @@ export default {
             'ComplementoEndereco' : _complemento,
             'DescricaoEndereco' : ''
        }
-       console.log('apiService.salvaPaciente', _params)
        var _url = (infoPaciente.id == 0) ? 'pacientes' : `pacientes/${infoPaciente.id}`
-       console.log('apiService.salvaPaciente ==> url', _url)
-
        return (infoPaciente.id == 0) ?
                     http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
                         : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});
+    },
+    salvaVisita: (token, id, params) => {
+        var _url = (id == 0) ? 'pacienteVisitas' : `pacienteVisitas/${id}`
+        params.id = id
+
+        return (id == 0) ?
+                    http.post(_url, params, { headers: { 'Authorization': `bearer ${token}`}}) 
+                        : http.put(_url, params, { headers: { 'Authorization': `bearer ${token}`}});
     },
     salvaPacienteSintomas: (token, pacienteId, sintomas) => {
         var _url = `pacienteSintomas`
@@ -330,7 +297,6 @@ export default {
             'PacienteId' : pacienteId,
             'TipoSintomas': sintomas
        }
-       console.log('apiService.salvaPacienteSintomas', _params)
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     },
     salvaUnidadeSaude: (token, cidadeId, id, nome) => {
@@ -338,20 +304,6 @@ export default {
         _params.nome = nome
         _params.cidadeId = cidadeId
         let _url = (id == 0) ? 'UnidadeSaudes' : `UnidadeSaudes/${id}`
-
-        console.log('apiService.salvaUnidadeSaude', _params)
-        console.log('apiService.salvaUnidadeSaude ==> url', _url)
-
-        return (id == 0) ?
-        http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
-            : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});
-    },
-    salvaBairro: (token, cidadeId, id, nome) => {
-        let _params = {}
-        _params.nome = nome
-        _params.cidadeId = cidadeId
-        let _url = (id == 0) ? 'Bairros' : `Bairros/${id}`
-
         return (id == 0) ?
         http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
             : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});

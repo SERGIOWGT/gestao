@@ -1,10 +1,19 @@
 <template>
-    <v-flex>
-        <BasicDialog :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" /> 
-        <div style="text-align:center"><h4 class="teal--text ">CONSULTA PARA CADASTRO DE CIDADÃO</h4></div>
-        <v-expansion-panels focusable class="mt-2" v-model="areaPesquisaAberta">
-            <v-expansion-panel>
-                <v-expansion-panel-header class="blue-grey lighten-5 teal--text">
+    <v-container fluid style="height: 100vmax;" class="pa-2">
+        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
+        <ProgressBar :mensagem="mensagemAguarde"/>
+        <v-subheader class="justify-center px-0">
+            <v-col class="px-1 teal--text" cols="10">
+                <v-row justify="end"><b>CONSULTA PARA CADASTRO DE CIDADÃO</b></v-row>
+            </v-col>                    
+            <v-col cols="2" >
+                <v-row justify="end"><v-btn icon color="teal lighten-2" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn>
+                </v-row>
+            </v-col> 
+        </v-subheader>
+        <v-expansion-panels focusable class="pt-0 mt-0 " v-model="areaPesquisaAberta">
+            <v-expansion-panel default>
+                <v-expansion-panel-header class="blue-grey lighten-5 teal--text px-3">
                     <v-row no-gutters>
                         <v-col cols="12">
                         PESQUISA POR NOME
@@ -23,34 +32,27 @@
                     </v-row>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                    <v-row>
-                        <v-col cols="12" class="px-2 pb-0 pt-4">
-                            <v-form ref="form" class="mx-2" v-model="formularioValido">
-                                <v-autocomplete class="pt-1"
-                                    dense
-                                    placeholder="Nome do Cidadão"
-                                    clearable
-                                    :items="pacientes"
-                                    :search-input.sync="sincronizaPaciente"
-                                    item-value="id"
-                                    item-text="nome"
-                                    hide-no-data
-                                    :loading="isLoading"
-                                    v-model="infoPaciente.id"
-                                ></v-autocomplete>
-                            </v-form>
-                        </v-col>
-                    </v-row>
-                    <v-card-actions class="pt-5 pb-0">
+                    <v-autocomplete class="pt-1"
+                        dense
+                        placeholder="Nome do Cidadão"
+                        clearable
+                        :items="pacientes"
+                        :search-input.sync="sincronizaPaciente"
+                        item-value="id"
+                        item-text="nome"
+                        hide-no-data
+                        :loading="isLoading"
+                        v-model="infoPaciente.id"
+                    ></v-autocomplete>
+                    <v-card-actions class="pt-2 pb-0">
                         <v-spacer></v-spacer>
-                        <v-btn text small color="secondary" @click="fechaPainel()"> Oculta </v-btn>
-                        <v-btn text small color="teal lighten-2" @click="novo()"> Novo Cidadão </v-btn>
-                        <v-btn text small color="teal lighten-2" :disabled="!pesquisaPorNomeLiberada || isLoadingGrid" @click="listaPesquisa()"> Confirma </v-btn>
+                        <v-btn text small color="secondary" @click="fechaPainel()"> Limpar </v-btn>
+                        <v-btn text small color="teal lighten-2" :disabled="!pesquisaPorNomeLiberada || isLoadingGrid" @click="listaPesquisa()"> Buscar </v-btn>
                     </v-card-actions>
                 </v-expansion-panel-content>
             </v-expansion-panel>
             <v-expansion-panel class="mt-2">
-                <v-expansion-panel-header class="blue-grey lighten-5 teal--text">
+                <v-expansion-panel-header class="blue-grey lighten-5 teal--text px-3">
                     <v-row no-gutters>
                         <v-col cols="12">
                         PESQUISA POR DADOS CADASTRAIS
@@ -68,13 +70,13 @@
                         </v-col>
                     </v-row>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                <v-expansion-panel-content >
                     <v-row>
-                        <v-col cols="12" class="px-2 pb-0 pt-4">
-                            <p class="paragrafo1">
+                        <v-col cols="12" class="px-1 pb-0 pt-4">
+                            <p class="subtitle-2">
                             Preencha pelo menos um dos campos abaixo e clique no botão <span class="blue--text">CONFIRMA</span>.
                             </p>
-                            <v-form ref="form" class="mx-2" v-model="formularioValido">
+                            <v-form ref="form" class="mx-0" v-model="formularioValido">
                                 <v-text-field class="pt-3" 
                                     dense clearable
                                     label="Número do SUS"
@@ -101,9 +103,8 @@
                     </v-row>
                     <v-card-actions class="pt-5 pb-0">
                         <v-spacer></v-spacer>
-                        <v-btn text small color="secondary" @click="fechaPainel()"> Oculta </v-btn>
-                        <v-btn text small color="teal lighten-2" @click="novo()"> Novo Cidadão </v-btn>
-                        <v-btn text small color="teal lighten-2" :disabled="!pesquisaOutrosLiberada || isLoadingGrid" @click="listaPesquisa()"> Confirma </v-btn>
+                        <v-btn text small color="secondary" @click="fechaPainel()"> Limpar </v-btn>
+                        <v-btn text small color="teal lighten-2" :disabled="!pesquisaOutrosLiberada || isLoadingGrid" @click="listaPesquisa()"> Buscar </v-btn>
                     </v-card-actions>
                 </v-expansion-panel-content>
             </v-expansion-panel>
@@ -131,46 +132,38 @@
                             <v-list-item-subtitle v-html="linha(4, item.cpf)"></v-list-item-subtitle>
                              <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
                         </v-list-item-content>
-                        <v-btn icon color="primary" @click="edita(item.id)"><v-icon>mdi-dots-vertical</v-icon></v-btn>
+                        <v-btn icon color="teal lighten-2" @click="edita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
                     </v-list-item>
                     <v-divider></v-divider>
                     </v-flex>
                 </v-list-item-group>
             </v-list>
         </v-card>
-    </v-flex>
+    </v-container>
 </template>
 <script>
     import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
     import entradaText from '../bibliotecas/entradaText'
-    import store from '../store'
-    import BasicDialog from '../components/BasicDialog';
-    import {rotinasBasicDialog} from '../rotinasProjeto/rotinasProjeto'
+    import MessageBox from '../lastec.components/lastec-messagebox'
+    import ProgressBar from '../lastec.components/lastec-progressbar'
 
   export default {
     props: {
       mostra: Boolean,
     },
-    components: {BasicDialog},
+    components: {ProgressBar, MessageBox},
     data() {
           return {
             // funcoes
             entradaCpf: entradaText.cpf,
             regras: regrasCampos,
 
-            // dados
-            infoDialog: {
-              tipo: 0,
-              mensagem: ''
-            },
-
             areaPesquisaAberta: 0,
             pesquisaPronta: false,
             formularioValido: false,
             isLoading: false,
             isLoadingGrid: false,
-            cidadeId: 0,
             pacienteIdSelecionado: 0,
             pacientes: [],
             infoPaciente: {
@@ -180,15 +173,35 @@
                 dataNascimento: '',
                 cartaoSUS: ''
             },
-            resultadoPesquisa: []
+            resultadoPesquisa: [],
+            
+            tipoMensagem: 0,
+            mensagem: '',
+            mensagemAguarde: '',
+
+            cidadePadrao: null,
           }
         },
         created() {
-            this.cidadeId = store.getters.cidadeId
+            this.cidadePadrao = this.$store.getters.cidadePadrao
         },
         computed: {
+             mensagemErro: {
+                get: function() { return this.mensagem},
+                set: function(val) {
+                    this.tipoMensagem = 1
+                    this.mensagem = val
+                }
+            },
+            mensagemSucesso: {
+                get: function() { return this.mensagem},
+                set: function(val) {
+                    this.tipoMensagem = 0
+                    this.mensagem = val
+                }
+            },
             pesquisaPorNomeLiberada () {
-                return this.formularioValido && (this.infoPaciente.id != 0) 
+                return (this.infoPaciente.id != 0) 
             },
             pesquisaOutrosLiberada () {
                 return this.formularioValido && (!this.isEmpty(this.infoPaciente.cpf) || !this.isEmpty(this.infoPaciente.cartaoSUS) || !this.isEmpty(this.infoPaciente.dataNascimento))
@@ -199,7 +212,7 @@
                 },
                 set (searchInput) {
                     if ((searchInput) && (searchInput.length >= 3)) {
-                        this.listaPacientePorNome(this.cidadeId, searchInput)
+                        this.listaPacientePorNome(this.cidadePadrao.id, searchInput)
                     } else 
                         this.pacientes = []
                 }
@@ -218,7 +231,7 @@
                 this.$emit('cbEditaCidadao', id)
             },
             refresh() {
-                alert('refresh')
+                this.listaPesquisa()
             },
             linha(tipo, value){
                 if (tipo == 2) {
@@ -250,51 +263,49 @@
             },
             async listaById(pacienteId) {
                 this.isLoadingGrid = true
-                rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Consultando dados do cidadão! Aguarde...')
+                this.mensagemAguarde =  'Consultando dados do cidadão! Aguarde...'
                 await mainService.listaPaciente(pacienteId)
                 .then((resp) => {
                     this.isLoadingGrid = false
-                     rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+                     this.mensagemAguarde =  ''
                     if (resp.status == 200) {
                         this.resultadoPesquisa = resp.data
                         this.pesquisaPronta = true
                         this.fechaPainel()
                     } else {
-                        rotinasBasicDialog.mensagemErro(this.infoDialog, resp.message)
+                        this.mensagemErro =  resp.message
                     }
                 })
                 .catch((resp) => {
-                    this.isLoadingGrid = false; rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(resp))
+                    this.isLoadingGrid = false; this.mensagemErro =  mainService.catchPadrao(resp)
                 })
             },
             async listaByParams() {
-                console.log('listaByParams')
                 let param = {}
-                param.cidadeId = this.cidadeId
+                param.cidadeId = this.cidadePadrao.id
                 param.cartaoSUS = (this.infoPaciente.cartaoSUS == null) ? '' : this.infoPaciente.cartaoSUS.replace(/\s/g, '')
                 param.cpf = (this.infoPaciente.cpf == null) ? '' : this.infoPaciente.cpf.replace(/\.|\-/g, '') // eslint-disable-line
                 param.dataNascimento = (this.infoPaciente.dataNascimento == null) ? '' : this.infoPaciente.dataNascimento.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1') // eslint-disable-line
 
                 this.isLoadingGrid = true
-                rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Consultando dados do cidadão! Aguarde...')
+                this.mensagemAguarde =  'Consultando dados do cidadão! Aguarde...'
                 await mainService.listaPacientesCompleta(param)
                 .then((resp) => {
                     this.isLoadingGrid = false
-                    rotinasBasicDialog.mensagemBusca(this.infoDialog,'')
+                    this.mensagemAguarde = ''
                     if (resp.status == 200) {
                         this.resultadoPesquisa = resp.data
                         this.pesquisaPronta = true
                         this.fechaPainel()
                     } else {
-                        rotinasBasicDialog.mensagemErro(this.infoDialog, resp.message)
+                        this.mensagemErro =  resp.message
                     }
                 })
                 .catch((resp) => {
-                    this.isLoadingGrid = false; rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(resp))
+                    this.isLoadingGrid = false; this.mensagemErro =  mainService.catchPadrao(resp)
                 })
             },
             listaPesquisa() {
-                console.log('listaPesquisa => this.infoPaciente.id', this.infoPaciente.id)
                 if ((this.infoPaciente.id == 0) || (this.infoPaciente.id == null))
                     this.listaByParams()
                 else 
@@ -303,3 +314,9 @@
         }
     }
 </script>
+<style scoped lang="scss">
+    .paragrafo1 {
+        padding: 0px;
+        margin: 0px;
+    }
+</style>

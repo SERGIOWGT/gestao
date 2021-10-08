@@ -1,32 +1,8 @@
 <template>
   <v-layout class="pa-0 ma-0" align-content-start justify-end row fill-height>
+    <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
+    <ProgressBar :mensagem="mensagemAguarde"/>
     <v-container class="pa-0">
-      <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" @funcaoRetorno='fechaDialog()'/>
-      <v-alert
-        v-show="mostraTela && semAcesso"
-        text
-        prominent
-        type="error"
-        icon="mdi-cloud-alert"
-      >
-        Você está sem permissão para acessar esse sistema. Por favor, fale com o administrador
-      </v-alert>
-      <!-- <v-layout justify-center class="my-0" v-show="mostraTela && !semAcesso">
-        <v-layout justify-center class="px-5 py-2">
-          <v-expansion-panels inset >
-            <v-expansion-panel class="green lighten-4">
-              <v-expansion-panel-header>    
-                <div class="d-flex align-center">
-                  <v-icon color="green">mdi-help-circle-outline</v-icon> <span class="ml-2 green--text">Os postos de vacinação mudaram seus horários.</span>
-                </div>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content class="green lighten-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-layout>
-      </v-layout> -->
       <v-layout justify-center class="mt-1" v-show="mostraTela" v-for="item in funcionalidades" :key="item.id" >
         <v-layout justify-center class="px-5 py-2" v-show="item.ativo==true">
           <v-expansion-panels focused>
@@ -44,51 +20,23 @@
         </v-layout>
       </v-layout>
     </v-container>
-    
-
-
-
-   <!--  <v-bottom-navigation
-        color="teal"
-        grow
-        fixed
-    >
-        <v-btn  @click="btnCancela()">
-            <span>Novo</span>
-            <v-icon>mdi-account-alert-outline</v-icon>
-        </v-btn>
-        <v-btn  @click="btnCancela()">
-            <span>Sintomas</span>
-            <v-icon>mdi-emoticon-sick</v-icon>
-        </v-btn>
-        <v-btn  @click="btnFinaliza()">
-            <span>Visitas</span>
-            <v-icon>mdi-bed</v-icon>
-        </v-btn>
-        <v-btn @click="btnNovoPaciente()">
-            <span>??????</span>
-            <v-icon>mdi-home</v-icon>
-        </v-btn>
-    </v-bottom-navigation> -->
   </v-layout>
 </template>
 <script>
-  
   import mainService from '../services/mainService'
-  import BasicDialog from '../components/BasicDialog';
+  import MessageBox from '../lastec.components/lastec-messagebox'
+  import ProgressBar from '../lastec.components/lastec-progressbar'
 
   export default {
     components: {
-        BasicDialog
+      ProgressBar, MessageBox
     },
     data() {
       return {
         // Dados
-
-        infoDialog: {
-          tipo: 0,
-          mensagem: ''
-        },
+        tipoMensagem: 0,
+        mensagem: '',
+        mensagemAguarde: '',
 
         token: '',
         mostraTela:false,
@@ -142,31 +90,24 @@
     created() {
       this.preparaTela()
     },
-    mounted() {
-      
-    },        
     computed: {
-      mensagemBusca: {
-          get: function() { return this.infoDialog.mensagem},
-          set: function(mensagem) {
-            this.infoDialog.tipo = 0
-            this.infoDialog.mensagem = mensagem
-          }
-      },
       mensagemErro: {
-          get: function() { return this.infoDialog.mensagem},
-          set: function(mensagem) {
-            this.infoDialog.tipo = 1
-            this.infoDialog.mensagem = mensagem
-          }
-      }
+        get: function() { return this.mensagem},
+        set: function(val) {
+          this.tipoMensagem = 1
+          this.mensagem = val
+        }
+      },
+      mensagemSucesso: {
+        get: function() { return this.mensagem},
+        set: function(val) {
+          this.tipoMensagem = 0
+          this.mensagem = val
+        }
+      },
     },
     methods: {
-      fechaDialog() {
-        this.infoDialog.mensagem = ''
-      },
       executaFuncao(id) {
-        this.mensagemErro = ''
         switch (id) {
           case 1:
             this.$router.push('identificacaoCidadao') 
@@ -203,7 +144,6 @@
 </script>
 <style scoped>
 
-  
   .xxx {
     height: 50px;
   }

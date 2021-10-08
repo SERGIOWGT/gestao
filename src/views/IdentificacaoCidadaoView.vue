@@ -1,9 +1,9 @@
 <template>
-  <v-container  class="pt-0 mt-0"> 
-    <v-container fluid style="height: 100vmax;" class="pa-1">
+    <v-container fluid style="height: 100vmax;" class="pa-0">
+      <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>       
       <v-flex >
         <IdentificacaoCidadao 
-            v-if="etapaAtual == enumEtapa.emPesquisa"
+            v-show="etapaAtual == enumEtapa.emPesquisa"
             @cbNovoCidadao= 'novoCidadao'
             @cbEditaCidadao='editaCidadao'
         /> 
@@ -15,16 +15,15 @@
         />
       </v-flex>
     </v-container>
-  </v-container>
 </template>
 <script>
     import IdentificacaoCidadao from '../components/CidadaoIdentifica';
     import CadastraCidadao from '../components/CidadaoCadastra';
-    import store from '../store'
+    import MessageBox from '../lastec.components/lastec-messagebox'
     
     export default {
         name: 'identificacaoCidadao',
-        components: {IdentificacaoCidadao, CadastraCidadao},
+        components: {IdentificacaoCidadao, CadastraCidadao, MessageBox},
         data() {
           return {
 
@@ -37,14 +36,20 @@
             etapaAtual: 0,
 
             // dados
-            infoDialog: {
-              tipo: 0,
-              mensagem: ''
-            },
+            tipoMensagem: 0,
+            mensagem: '',
+            mensagemAguarde: '',
+
           }
         },
-        created() {
-          this.cidadeId = store.getters.cidadeId
+        computed: {
+          mensagemSucesso: {
+              get: function() { return this.mensagem},
+              set: function(val) {
+                  this.tipoMensagem = 0
+                  this.mensagem = val
+              }
+          },
         },
         methods: {
           novoCidadao() {
@@ -55,7 +60,11 @@
             this.etapaAtual = this.enumEtapa.emCadastro
             this.pacienteId = id
           },
-          fimCadastro() {
+          fimCadastro(volta) {
+            if (volta == false) {
+              this.mensagemSucesso = 'Cidadão ' + (this.pacienteId == 0? 'cadastrado' : 'alterado') + ' com sucesso!' 
+            } 
+              
             this.etapaAtual = this.enumEtapa.emPesquisa
           }
         }

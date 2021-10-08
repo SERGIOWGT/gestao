@@ -1,14 +1,15 @@
 <template>
   <v-container fill-height>
       <v-container >
-        <BasicDialog :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem" /> 
+        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
+        <ProgressBar :mensagem="mensagemAguarde"/>
         <v-row class="justify-center pt-0 pb-15 px-3">
             <v-img
               class="shrink mr-2"
               contain
               src="../assets/logoTelaAbertura.jpeg"
             />
-         </v-row>
+        </v-row>
         <v-form class="my-2 px-2 " v-model="formularioValido" >
           <v-text-field 
             v-model="email"
@@ -47,9 +48,8 @@
   import RotinasLogin from '../lasTec.Login/bibliotecas/rotinasLogin'
   import sso from '../services/ssoService'
   import mainService from '../services/mainService'
-  import BasicDialog from '../components/BasicDialog';
-  import {rotinasBasicDialog} from '../rotinasProjeto/rotinasProjeto'
-  import store from '../store'
+  import MessageBox from '../lastec.components/lastec-messagebox'
+  import ProgressBar from '../lastec.components/lastec-progressbar'
 
   export default {inject: {
       theme: {
@@ -57,7 +57,7 @@
       },
     },
     components:{
-      BasicDialog
+      ProgressBar, MessageBox
     },
     data() {
       return {
@@ -85,14 +85,30 @@
         mensagemErroFormatoSenha: '',
         permiteRegistroUsuario: false,
 
-        infoDialog: {
-          tipo: 0,
-          mensagem: ''
-        }
+        tipoMensagem: 0,
+        mensagem: '',
+        mensagemAguarde: ''
+
       }
     },
     mounted() {
       this.consultaSso()
+    },
+    computed: {
+      mensagemErro: {
+        get: function() { return this.mensagem},
+        set: function(val) {
+          this.tipoMensagem = 1
+          this.mensagem = val
+        }
+      },
+      mensagemSucesso: {
+        get: function() { return this.mensagem},
+        set: function(val) {
+          this.tipoMensagem = 0
+          this.mensagem = val
+        }
+      },
     },
     methods: {
       trocaSenha() {   
@@ -125,15 +141,15 @@
           }
           this.$store.commit('setaConfiguracaoSistema', param)
         })
-        .catch (err => {rotinasBasicDialog.mensagemErro(this.infoDialog, mainService.catchPadrao(err)); });
+        .catch (err => {this.mensagemErro= mainService.catchPadrao(err); });
       },
 
       async autenticaApi() {
-        rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Algumas informações estão sendo carregadas! Aguarde')
-        const usuarioGuid = store.getters.usuarioGuid
+        this.mensagemAguarde =  'Algumas informações estão sendo carregadas! Aguarde'
+        const usuarioGuid = this.$store.getters.usuarioGuid
         await mainService.autentica(usuarioGuid)
         .then((resposta)=> {
-          rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+          this.mensagemAguarde =  ''
           this.isLoading = false
 
           if (resposta.status == 200) {
@@ -155,48 +171,45 @@
                     nomeBairro: _cidades[0].nomeBairro,
                     logradouroId: _cidades[0].logradouroId,
                     nomeLogradouro: _cidades[0].nomeLogradouro,
-
-
-                    //unidadeSaudeId: 2,
-                    //nomeUnidadeSaude:'TANCREDO NEVES - PSF VIVER BEM',
-                    //microAreaId: 7,
-                    //nomeMicroArea: '07 - TATIANE CONCEICAO DO NASCIMENTO',
-                    //bairroId: 8,
-                    //nomeBairro: 'CHACARA',
-                    //logradouroId: 53,
-                    //nomeLogradouro: 'SÂO JOAO',
                   }
-                  console.log('autenticadoApi', _param)
+/*                   _param.unidadeSaudeId= 2
+                  _param.nomeUnidadeSaude='TANCREDO NEVES - PSF VIVER BEM'
+                  _param.microAreaId= 7
+                  _param.nomeMicroArea= '07 - TATIANE CONCEICAO DO NASCIMENTO'
+                  _param.bairroId= 8
+                  _param.nomeBairro= 'CHACARA'
+                  _param.logradouroId= 53
+                  _param.nomeLogradouro= 'SÂO JOAO' */
 
                   this.$store.commit('autenticadoApi', _param)
                 } else {
-                  rotinasBasicDialog.mensagemErro(this.infoDialog, 'Erro na autenticacao da Api. [ErroId=32156] ')
+                  this.mensagemErro =  'Erro na autenticacao da Api. [ErroId=32156] '
                   return
                 }
               } else {
-                rotinasBasicDialog.mensagemErro(this.infoDialog, 'Erro na autenticacao da Api. [ErroId=32157] ')
+                this.mensagemErro =  'Erro na autenticacao da Api. [ErroId=32157] '
                 return
               }
             }
             else {
-              rotinasBasicDialog.mensagemErro(this.infoDialog, 'Erro na autenticacao da Api. [ErroId=32158] ')
+              this.mensagemErro =  'Erro na autenticacao da Api. [ErroId=32158] '
               return;
             }
           } else {
-            rotinasBasicDialog.mensagemErro(this.infoDialog, resposta.message)
+            this.mensagemErro =  resposta.message
             return;
           }
           this.$router.push('/Home')
         })
         .catch (err => {
-            rotinasBasicDialog.mensagemBusca(this.infoDialog, '')
+            this.mensagemAguarde =  ''
             this.isLoading = false
-            rotinasBasicDialog.mensagemErro(this.infoDialog, 'Autenticando API: ' + mainService.catchPadrao(err))
+            this.mensagemErro =  'Autenticando API: ' + mainService.catchPadrao(err)
         });
       },
       async autentica() {
         this.isLoading =true;
-        rotinasBasicDialog.mensagemBusca(this.infoDialog, 'Autenticando usuário! Aguarde...')
+        this.mensagemAguarde =  'Autenticando usuário! Aguarde...'
         await sso.autentica(this.tokenSistema, this.email, this.senha)
         .then (resposta => {
           this.isLoading =false;
@@ -211,7 +224,7 @@
           this.$store.commit('autenticadoSso', param)
           this.autenticaApi()
         })
-        .catch (err => {this.isLoading =false; rotinasBasicDialog.mensagemErro(this.infoDialog, 'Autenticando usuário: ' + mainService.catchPadrao(err))});
+        .catch (err => {this.isLoading =false; this.mensagemErro =  'Autenticando usuário: ' + mainService.catchPadrao(err)});
       }
     }
   }

@@ -1,41 +1,46 @@
 s<template>
     <v-container fluid style="height: 100vmax;" class="px-2 py-0">
-        <BasicDialog :mostra="infoDialog.mensagem != ''" :tipo="infoDialog.tipo" :mensagem="infoDialog.mensagem"/>
-        <v-dialog v-model="infoNovo.mostraDialog" persistent max-width="600px">
-            <v-card class="pa-0 ma-0">
-                <v-card-title class="pa-2 teal lighten-2" >
-                    <span class="white--text subtitle-1">{{infoNovo.titulo}}</span>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text class="pa-0">
-                    <v-form ref="myForm" class="mx-3" v-model="formularioValido">
-                        <v-text-field class="mt-5 pt-2" v-if="infoNovo.labelPai != ''"
-                        dense
-                        disabled
-                        :label="infoNovo.labelPai"
-                        v-model="infoNovo.nomePai"
-                        ></v-text-field>
-                        <v-text-field class="mt-5 pt-2 mb-5" 
-                        dense
-                        :label="infoNovo.label"
-                        :disabled="infoNovo.exclusao == true"
-                        required
-                        clearable
-                        v-model="infoNovo.nome"
-                        :rules="[regras.Basicas.obrigatorio()]"
-                        counter
-                        maxlength="50"
-                        ></v-text-field>
-                    </v-form>
-                </v-card-text>
-                <v-card-actions class="pa-0 ma-0">
-                    <v-spacer></v-spacer>
-                    <v-btn text small color="secundary" @click="infoNovo.mostraDialog = false">Fechar </v-btn>
-                    <v-btn text small color="error" v-if="infoNovo.exclusao == true" @click="exclui()">Excluir</v-btn>
-                    <v-btn text small color="primary" v-if="infoNovo.exclusao == false" @click="salva()">Salvar</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
+        <ProgressBar :mensagem="mensagemAguarde"/>
+         <v-bottom-sheet
+             v-model="infoNovo.mostraDialog" inset  max-width="500px"
+        >
+            <v-sheet class="text-center ">
+                <v-card tile class="pa-0 ma-0 ">
+                    <v-card-title class="pa-2 teal lighten-2" >
+                        <span class="white--text subtitle-1">{{infoNovo.titulo}}</span>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text class="pa-0">
+                        <v-form ref="myForm" class="mx-3" v-model="formularioValido">
+                            <v-text-field class="mt-5 pt-2" v-if="infoNovo.labelPai != ''"
+                            dense
+                            disabled
+                            :label="infoNovo.labelPai"
+                            v-model="infoNovo.nomePai"
+                            ></v-text-field>
+                            <v-text-field class="mt-5 pt-2 mb-5" 
+                            dense
+                            :label="infoNovo.label"
+                            :disabled="infoNovo.exclusao == true"
+                            required
+                            clearable
+                            v-model="infoNovo.nome"
+                            :rules="[regras.Basicas.obrigatorio()]"
+                            counter
+                            maxlength="50"
+                            ></v-text-field>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions class="pa-0 ma-0">
+                        <v-spacer></v-spacer>
+                        <v-btn text small color="secundary" @click="infoNovo.mostraDialog = false">Fechar </v-btn>
+                        <v-btn text small color="error" v-if="infoNovo.exclusao == true" @click="exclui()">Excluir</v-btn>
+                        <v-btn text small color="primary" v-if="infoNovo.exclusao == false" @click="salva()">Salvar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-sheet>
+        </v-bottom-sheet>
         <v-card class="pt-0 mt-0" v-if="opcaoAtual == enumCadastro.microArea">
             <v-card-text class="">
                 <v-row no-gutters>
@@ -67,6 +72,7 @@ s<template>
             </v-card-text>
         </v-card>
         <v-card flat class="pt-0 mt-3" tile v-if="telaPronta" >
+            <v-flex><div style="text-align:center"><h4 class="teal--text ">{{tituloTelaPrincipal}}</h4></div></v-flex>
             <v-list>
                 <v-subheader class="justify-center px-0">
                     <v-col class="px-1" cols="9"><b>{{tituloLista}}</b></v-col>                    
@@ -111,13 +117,13 @@ s<template>
 
 <script>
 import mainService from '../services/mainService'
-import BasicDialog from '../components/BasicDialog';
 import regrasCampos from '../bibliotecas/regrasCampos'
-import store from '../store'
+import MessageBox from '../lastec.components/lastec-messagebox'
+import ProgressBar from '../lastec.components/lastec-progressbar'
 
 export default {
     components: {
-    BasicDialog
+      ProgressBar, MessageBox
     },
     data() {
           return {
@@ -125,10 +131,6 @@ export default {
 
             formularioValido: false,
 
-            infoDialog: {
-              tipo: 0,
-              mensagem: ''
-            },
             enumCadastro : {
                 unidadeSaude: 0,
                 bairro: 1,
@@ -183,87 +185,97 @@ export default {
             mnicroAreaPadrao: null,
             bairroPadrao: null,
             logradouroPadrao: null,
-          }
+
+            tipoMensagem: 0,
+            mensagem: '',
+            mensagemAguarde: ''
+        }
     },
     created() {
         this.opcaoAtual = -1
-        this.cidadePadrao = store.getters.cidadePadrao
-        this.unidadeSaudePadrao = store.getters.unidadeSaudePadrao
-        this.microAreaPadrao = store.getters.microAreaPadrao
-        this.bairroPadrao = store.getters.bairroPadrao
-        this.logradouroPadrao = store.getters.logradouroPadrao
+        this.cidadePadrao = this.$store.getters.cidadePadrao
+        this.unidadeSaudePadrao = this.$store.getters.unidadeSaudePadrao
+        this.microAreaPadrao = this.$store.getters.microAreaPadrao
+        this.bairroPadrao = this.$store.getters.bairroPadrao
+        this.logradouroPadrao = this.$store.getters.logradouroPadrao
     },
     mounted() {
         this.buscaDadosIniciais()
     },
     computed: {
-      tituloLista: function() {
-        let _retorno = ''
-        let _numeroRegistros = this.listas.tela.length
-        if (_numeroRegistros == 0) {
+        mensagemErro: {
+            get: function() { return this.mensagem},
+            set: function(val) {
+                this.tipoMensagem = 1
+                this.mensagem = val
+            }
+        },
+        mensagemSucesso: {
+            get: function() { return this.mensagem},
+            set: function(val) {
+                this.tipoMensagem = 0
+                this.mensagem = val
+            }
+        },
+        tituloTelaPrincipal() {
+            if (this.opcaoAtual == -1)
+                return ''
+
+            return ('CADASTRO DE ' + this.vetCampos[this.opcaoAtual].titulo).toUpperCase()
+        },
+        tituloLista: function() {
+            let _retorno = ''
+            let _numeroRegistros = this.listas.tela.length
+            if (_numeroRegistros == 0) {
+                switch (this.opcaoAtual) {
+                    case this.enumCadastro.unidadeSaude: 
+                        _retorno = (_numeroRegistros == 0) ? 'Não há Unidades de Saúde cadastradas no Município' : ''
+                        break;
+                    case this.enumCadastro.bairro: 
+                        _retorno = (_numeroRegistros == 0) ? 'Não há Bairros cadastrados no Município' : ''
+                        break;
+                    case this.enumCadastro.logradouro: 
+                        _retorno = (_numeroRegistros == 0) ? 'Não há Logradouros cadastrados no Bairro selecionado' : ''
+                        break;
+                    case this.enumCadastro.microArea: 
+                        _retorno = (_numeroRegistros == 0) ? 'Não há Micro Áreas cadastradas na Unidade de Saúde selecionada' : ''
+                        break;
+                }
+            } else {
+                _retorno = ` ${this.opcoes[this.opcaoAtual].titulo} (${_numeroRegistros} `
+                _retorno += (_numeroRegistros == 0) ? ' registro)' : ' registros)'
+            }
+            return _retorno
+        },
+        desabilitaNovo: function() {
+            let retorno = true
             switch (this.opcaoAtual) {
                 case this.enumCadastro.unidadeSaude: 
-                    _retorno = (_numeroRegistros == 0) ? 'Não há Unidades de Saúde cadastradas no Município' : ''
+                    retorno = (this.unidadeSaudePadrao.id != 0)
                     break;
                 case this.enumCadastro.bairro: 
-                    _retorno = (_numeroRegistros == 0) ? 'Não há Bairros cadastrados no Município' : ''
+                    retorno = (this.bairroPadrao.id != 0)
                     break;
                 case this.enumCadastro.logradouro: 
-                    _retorno = (_numeroRegistros == 0) ? 'Não há Logradouros cadastrados no Bairro selecionado' : ''
+                    retorno = (this.logradouroPadrao.id != 0)
                     break;
                 case this.enumCadastro.microArea: 
-                    _retorno = (_numeroRegistros == 0) ? 'Não há Micro Áreas cadastradas na Unidade de Saúde selecionada' : ''
+                    retorno = (this.microAreaPadrao.id != 0)
                     break;
-            }
-        } else {
-            _retorno = ` ${this.opcoes[this.opcaoAtual].titulo} (${_numeroRegistros} `
-            _retorno += (_numeroRegistros == 0) ? ' registro)' : ' registros)'
+                }
+            return retorno
         }
-        return _retorno
-      },
-      desabilitaNovo: function() {
-        let retorno = true
-        switch (this.opcaoAtual) {
-            case this.enumCadastro.unidadeSaude: 
-                retorno = (this.unidadeSaudePadrao.id != 0)
-                break;
-            case this.enumCadastro.bairro: 
-                retorno = (this.bairroPadrao.id != 0)
-                break;
-            case this.enumCadastro.logradouro: 
-                retorno = (this.logradouroPadrao.id != 0)
-                break;
-            case this.enumCadastro.microArea: 
-                retorno = (this.microAreaPadrao.id != 0)
-                break;
-            }
-        return retorno
-      },
-      mensagemBusca: {
-        get: function() { return this.infoDialog.mensagem},
-        set: function(mensagem) {
-        this.infoDialog.tipo = 0
-        this.infoDialog.mensagem = mensagem
-        }
-      },
-      mensagemErro: {
-        get: function() { return this.infoDialog.mensagem},
-        set: function(mensagem) {
-            this.infoDialog.tipo = 1
-            this.infoDialog.mensagem = mensagem
-        }
-      }
     },
     methods: {
-        tituloTela(posicao) {
+        tituloTelaCadastro(posicao) {
             let _retorno = 'Nome ' + (this.vetCampos[posicao].genero == 'F' ? ' da ': ' do ') + this.vetCampos[posicao].titulo
             return _retorno
         },
         async listaBairros(cidadeId) {
-            this.mensagemBusca = 'Buscando Bairros! Aguarde...'
+            this.mensagemAguarde = 'Buscando Bairros! Aguarde...'
             await mainService.listaBairros(cidadeId, this.bairroPadrao.id)
             .then(_resposta => {
-                this.mensagemBusca = ''
+                this.mensagemAguarde = ''
                 this.listas.bairros = _resposta.status == 200  ? _resposta.data : []
              })
             .catch((response) => {
@@ -271,10 +283,10 @@ export default {
             })
         },
         async listaLogradouros(bairroId) {
-            this.mensagemBusca = 'Buscando Logradouros! Aguarde...'
+            this.mensagemAguarde = 'Buscando Logradouros! Aguarde...'
             await mainService.listaLogradouros(bairroId, this.logradouroPadrao.id)
             .then(resposta => {
-                this.mensagemBusca = ''
+                this.mensagemAguarde = ''
                 this.listas.logradouros = resposta.status == 200  ? resposta.data : []
             })
             .catch((response) => {
@@ -284,7 +296,7 @@ export default {
         async listaMicroAreas(unidadeSaudeId) {
             await mainService.listaMicroAreas(unidadeSaudeId, this.microAreaPadrao.id)
             .then(resposta => {
-                this.mensagemBusca = ''
+                this.mensagemAguarde = ''
                 this.listas.microAreas = resposta.status == 200  ? resposta.data : []
             })
             .catch((response) => {
@@ -292,10 +304,10 @@ export default {
             })
         },
         async listaUnidadesSaude(cidadeId, id) {
-            this.mensagemBusca = 'Buscando Unidades de Saúde! Aguarde...'
+            this.mensagemAguarde = 'Buscando Unidades de Saúde! Aguarde...'
             await mainService.listaUnidadesSaude(cidadeId, id)
             .then(_resposta => {
-                this.mensagemBusca = ''
+                this.mensagemAguarde = ''
                 this.listas.unidadesSaude = (_resposta.status == 200)  ?  _resposta.data : []
              })
             .catch((response) => {
@@ -310,12 +322,12 @@ export default {
             this.infoNovo.titulo = (this.vetCampos[this.opcaoAtual].genero == 'F' ? 'Nova ': 'Novo ')
                 + this.vetCampos[this.opcaoAtual].titulo
 
-            this.infoNovo.label = this.tituloTela(this.opcaoAtual)
+            this.infoNovo.label = this.tituloTelaCadastro(this.opcaoAtual)
             this.infoNovo.placeholder = 'Informe ' + this.infoNovo.label
 
             const _posicaoPai = this.vetCampos[this.opcaoAtual].posicaoPai;
             if (_posicaoPai != -1) {
-                this.infoNovo.labelPai = this.tituloTela(_posicaoPai)
+                this.infoNovo.labelPai = this.tituloTelaCadastro(_posicaoPai)
             } else {
                 this.infoNovo.labelPai = ''
                 this.infoNovo.paiId = 0
@@ -329,10 +341,10 @@ export default {
             this.infoNovo.id = id
             this.infoNovo.nome = nome
             this.infoNovo.titulo = (exclusao ? 'Exclusão de ':'Alteração de ')  + this.vetCampos[this.opcaoAtual].titulo
-            this.infoNovo.label = this.tituloTela(this.opcaoAtual)
+            this.infoNovo.label = this.tituloTelaCadastro(this.opcaoAtual)
             const _posicaoPai = this.vetCampos[this.opcaoAtual].posicaoPai;
             if (_posicaoPai != -1) {
-                this.infoNovo.labelPai = this.tituloTela(_posicaoPai)
+                this.infoNovo.labelPai = this.tituloTelaCadastro(_posicaoPai)
             } else {
                 this.infoNovo.labelPai = ''
                 this.infoNovo.paiId = 0
@@ -352,7 +364,7 @@ export default {
             if (value != this.opcaoAtual) {
                 this.itemSelecionadoGrid = 0
                 this.opcaoAtual = value
-                this.mensagemBusca = ''
+                this.mensagemAguarde = ''
 
                 switch (value) {
                     case this.enumCadastro.logradouro:
@@ -375,8 +387,7 @@ export default {
             }
         },
         async setaBairro(value) {
-            console.log('setaBairro-inicio', value.id)
-            this.mensagemBusca = 'Buscando alguns dados! Aguarde...'
+            this.mensagemAguarde = 'Buscando alguns dados! Aguarde...'
             this.infoSelecionadaComboPesquisa.bairro.nome = this.infoNovo.nomePai = value.nome
             this.infoSelecionadaComboPesquisa.bairro.id = this.infoNovo.paiId = value.id
 
@@ -385,7 +396,7 @@ export default {
             this.listas.tela = this.listas.logradouros
         },
         async setaUnidadeSaude(value) {
-            this.mensagemBusca = 'Buscando alguns dados! Aguarde...'
+            this.mensagemAguarde = 'Buscando alguns dados! Aguarde...'
             this.infoSelecionadaComboPesquisa.unidadeSaude.nome = this.infoNovo.nomePai = value.nome
             this.infoSelecionadaComboPesquisa.unidadeSaude.id = this.infoNovo.paiId = value.id
 
@@ -397,66 +408,67 @@ export default {
             if (this.$refs.myForm.validate()) {
                 switch (this.opcaoAtual) {
                     case this.enumCadastro.unidadeSaude: 
-                        this.mensagemBusca='Salvando a Unidade de Saúde. Aguarde...'
+                        this.mensagemAguarde='Salvando a Unidade de Saúde. Aguarde...'
                         await mainService.salvaUnidadeSaude(this.cidadePadrao.id, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
-                            console.log('salvaUnidadeSaude', '.then', resposta)
-                            this.mensagemBusca=''
+                            this.mensagemAguarde=''
                             if (resposta.status == 200) {
+                                this.mensagemSucesso = 'Unidade de Saude salva com sucesso'
                                 this.infoNovo.mostraDialog = false
                             } else {
                                 this.mensagemErro=resposta.message
                             }
                         })
                         .catch(response => {
-                            mainService.catchPadrao(response)
+                            this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
                     case this.enumCadastro.bairro: 
-                        this.mensagemBusca='Salvando o Bairro. Aguarde...'
+                        this.mensagemAguarde='Salvando o Bairro. Aguarde...'
                         await mainService.salvaBairro(this.cidadePadrao.id, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
-                            this.mensagemBusca=''
+                            this.mensagemAguarde=''
                             if (resposta.status == 200) {
+                                this.mensagemSucesso = 'Bairro salvo com sucesso'
                                 this.infoNovo.mostraDialog = false
                             } else {
                                 this.mensagemErro=resposta.message
                             }
                         })
                         .catch(response => {
-                            mainService.catchPadrao(response)
+                            this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
                     case this.enumCadastro.logradouro: 
-                        this.mensagemBusca='Salvando o Logradouro. Aguarde...'
+                        this.mensagemAguarde='Salvando o Logradouro. Aguarde...'
                         await mainService.salvaLogradouro(this.infoNovo.paiId, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
-                            console.log('salvaLogradouro', '.then', resposta)
-                            this.mensagemBusca=''
+                            this.mensagemAguarde=''
                             if (resposta.status == 200) {
                                 this.infoNovo.mostraDialog = false
+                                this.mensagemSucesso = 'Logradouro salvo com sucesso'
                             } else {
                                 this.mensagemErro=resposta.message
                             }
                         })
                         .catch(response => {
-                            mainService.catchPadrao(response)
+                            this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
                     case this.enumCadastro.microArea: 
-                        this.mensagemBusca='Salvando a Micro Area. Aguarde...'
+                        this.mensagemAguarde='Salvando a Micro Area. Aguarde...'
                         await mainService.salvaMicroArea(this.infoNovo.paiId, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
-                            console.log('salvaMicroArea', '.then', resposta)
-                            this.mensagemBusca=''
+                            this.mensagemAguarde=''
                             if (resposta.status == 200) {
                                 this.infoNovo.mostraDialog = false
+                                this.mensagemSucesso = 'Micro área salva com sucesso'
                             } else {
                                 this.mensagemErro=resposta.message
                             }
                         })
                         .catch(response => {
-                            mainService.catchPadrao(response)
+                            this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
                 }   
@@ -486,10 +498,10 @@ export default {
         async exclui() {
             switch (this.opcaoAtual) {
                 case this.enumCadastro.unidadeSaude: 
-                    this.mensagemBusca='Apagando a Unidade de Saúde. Aguarde...'
+                    this.mensagemAguarde='Apagando a Unidade de Saúde. Aguarde...'
                     await mainService.excluiUnidadeSaude(this.infoNovo.id)
                     .then(resposta => {
-                        this.mensagemBusca=''
+                        this.mensagemAguarde=''
                         if (resposta.status == 200) {
                             this.infoNovo.mostraDialog = false
                         } else {
@@ -497,14 +509,14 @@ export default {
                         }
                     })
                     .catch(response => {
-                        mainService.catchPadrao(response)
+                        this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
                 case this.enumCadastro.bairro: 
-                    this.mensagemBusca='Apagando o Bairro. Aguarde...'
+                    this.mensagemAguarde='Apagando o Bairro. Aguarde...'
                     await mainService.excluiBairro(this.infoNovo.id)
                     .then(resposta => {
-                        this.mensagemBusca=''
+                        this.mensagemAguarde=''
                         if (resposta.status == 200) {
                             this.infoNovo.mostraDialog = false
                             this.listaBairros(this.cidadePadrao.id)
@@ -513,14 +525,14 @@ export default {
                         }
                     })
                     .catch(response => {
-                        mainService.catchPadrao(response)
+                        this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
                 case this.enumCadastro.logradouro: 
-                    this.mensagemBusca='Apagando o Logradouro. Aguarde...'
+                    this.mensagemAguarde='Apagando o Logradouro. Aguarde...'
                     await mainService.excluiLogradouro(this.infoNovo.id)
                     .then(resposta => {
-                        this.mensagemBusca=''
+                        this.mensagemAguarde=''
                         if (resposta.status == 200) {
                             this.infoNovo.mostraDialog = false
                             this.listaLogradouros(this.infoNovo.paiId)
@@ -529,14 +541,14 @@ export default {
                         }
                     })
                     .catch(response => {
-                        mainService.catchPadrao(response)
+                        this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
                 case this.enumCadastro.microArea: 
-                    this.mensagemBusca='Apagando a Micro Area. Aguarde...'
+                    this.mensagemAguarde='Apagando a Micro Area. Aguarde...'
                     await mainService.excluiMicroArea(this.infoNovo.id)
                     .then(resposta => {
-                        this.mensagemBusca=''
+                        this.mensagemAguarde=''
                         if (resposta.status == 200) {
                             this.infoNovo.mostraDialog = false
                             this.listaMicroAreas(this.infoNovo.paiId)
@@ -545,7 +557,7 @@ export default {
                         }
                     })
                     .catch(response => {
-                        mainService.catchPadrao(response)
+                        this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
             }

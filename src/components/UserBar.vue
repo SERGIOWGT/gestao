@@ -1,7 +1,7 @@
 <template>
     <v-container class="pa-0">
      <v-alert 
-        class="mt-0 mb-2"
+        class="ma-0"
         color="teal lighten-2"
         flat dark tile
         icon="mdi-account"

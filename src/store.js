@@ -42,7 +42,7 @@ const store = new Vuex.Store({
                 nome: ''
             }
         },
-        permissionamento: ''
+        permissionamento: '',
     },
     mutations: {
         setaPermissao (state, obj) {
@@ -89,7 +89,7 @@ const store = new Vuex.Store({
             state.infosUsuario.nomeUsuario = ''
             state.infosUsuario.usuarioId = ''
             state.permissoes = ''
-        }
+        }, 
     },
     getters: {
         estaLogado: state => state.estaLogado,

@@ -57,6 +57,10 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaPacientesCompleta(_token, param);
     },
+    listaPacienteUltimaVisita (pacienteId) {
+        var _token = store.getters.apiToken;
+        return api.listaPacienteUltimaVisita(_token, pacienteId);
+    },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
@@ -67,6 +71,10 @@ export default {
     listaUnidadesSaude (cidadeId, id, parteNome) {
         var _token = store.getters.apiToken;
         return api.listaUnidadesSaude(_token, cidadeId, id, parteNome);
+    },
+    listaTipoRelatorioVisita (id ) {
+        var _token = store.getters.apiToken;
+        return api.listaTipoRelatorioVisita(_token, id);
     },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;
@@ -95,6 +103,10 @@ export default {
     salvaLogradouro: (bairroId, id, nome) => {
         var _token = store.getters.apiToken;
         return api.salvaLogradouro(_token, bairroId, id, nome);
+    },
+    salvaVisita: (id, params) => {
+        var _token = store.getters.apiToken;
+        return api.salvaVisita(_token, id, params);
     },
     setaPermissionamento: (permissao) => {
         store.commit('setaPermissao', permissao)

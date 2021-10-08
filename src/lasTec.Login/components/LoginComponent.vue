@@ -1,6 +1,7 @@
 <template>
   <v-container fluid  pa-0>
     <ProgressDialog :mensagem="'Aguarde um momento....'" :mostra="!sistemaChecado"/>
+    <MessageBox/>
     <LoginForm  
       :mostra="sistemaChecado"
       :tokenSistema="tokenSistema" 
@@ -23,6 +24,7 @@
   import LoginService from '../services/loginService'
   import LoginForm from './LoginForm'
   import ProgressDialog from './ProgressBar'
+  import MessageBox from '../../lastec.components/lastec-messagebox'
 
   export default {
     name: 'LasTec.Login',
@@ -30,7 +32,7 @@
       tokenSistema: String
     },
     components:{
-      LoginForm, ProgressDialog
+      LoginForm, ProgressDialog, MessageBox
     },
     data() {
       return {

@@ -13,8 +13,6 @@ export const rotinasCadastraPaciente = {
         return formatedDate;
     },
     ordenaComorbidades(todasComorbidades, ComorbidadesCidadao){
-        console.log('ordenaComorbidades(todasComorbidades, ComorbidadesCidadao)-I')
-     
         let retorno=[]
         if (ComorbidadesCidadao == null) {
             todasComorbidades.forEach((linha ) => {
@@ -57,12 +55,9 @@ export const rotinasCadastraPaciente = {
                 retorno.push(item)
             }
         })
-        console.log('ordenaSintomas(todosSintomas, sintomasCidadao)-F')
         return retorno
     },
     ordenaSintomas(todosSintomas, sintomasCidadao){
-        console.log('ordenaSintomas(todosSintomas, sintomasCidadao)-I')
-
         let retorno=[]
         if (sintomasCidadao == null) {
             todosSintomas.forEach((linha) => {
@@ -87,7 +82,6 @@ export const rotinasCadastraPaciente = {
         });
         aux.sort((a, b) => {return a - b;});
 
-
         const dataHoje = new Date()
         aux.forEach((linha, index) => {
             const dataSintoma = this.stringToDate(sintomasCidadao[index].dataInicio, 'yyyy-MM-dd', '-')
@@ -111,20 +105,7 @@ export const rotinasCadastraPaciente = {
                 retorno.push(item)
             }
         })
-        console.log('ordenaSintomas(todosSintomas, sintomasCidadao)-F')
         return retorno
-    },
-}
-
-export const rotinasBasicDialog = {
-    mensagemBusca(infoDialog, msg) {
-        infoDialog.tipo = 0
-        infoDialog.mensagem = msg
-    },
-    mensagemErro(infoDialog, msg ) {
-        console.log(msg)
-        infoDialog.tipo = 1
-        infoDialog.mensagem = msg
     },
 }
 

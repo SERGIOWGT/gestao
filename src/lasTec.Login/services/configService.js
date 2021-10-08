@@ -33,7 +33,6 @@ http.interceptors.response.use(function (response) {
                 'mensagem': error
             }]}
         }
-        console.log(_erros)
     } else {
         _erros = {erros: [{
             'chave': '000.0000',

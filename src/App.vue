@@ -1,25 +1,17 @@
 <template>
-<v-app>
- <AppBar
-    v-if="$store.getters.estaAutenticadoApi"
-    :titulo="$store.getters.nomeSistema"
-    :urlLogo="urlLogo"
-  />
-  
-  <v-main>
-     <v-container fill-height fluid style="max-width: 600px;" class="pa-0">
-       <UserBar
-        v-if="$store.getters.estaAutenticadoApi"
-       />
-       <transition appear
-        name="slide"
-        mode="out-in"
-      >
-       <Router-view/>
-       </transition>
-    </v-container>
-  </v-main>
-</v-app>
+   <v-app>
+    <v-container fill-height grid-list-md class="pa-0" style="max-width: 600px;">
+      <v-layout row wrap justify-center>
+        <AppBar v-if="$store.getters.estaAutenticadoApi" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
+        <v-main>
+            <UserBar v-if="$store.getters.estaAutenticadoApi"/>
+            <transition appear name="slide" mode="out-in">
+              <Router-view/>
+            </transition>
+      </v-main>
+      </v-layout>
+      </v-container>
+  </v-app>
 </template>
 
 <script>
@@ -28,11 +20,7 @@ import UserBar from './components/UserBar';
 
 export default {
   name: 'App', 
-
-  components: {
-    AppBar, UserBar
-  }, 
-
+  components: { AppBar, UserBar}, 
   data(){
     return {
       titulo: 'Painel Saúde',
@@ -41,7 +29,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
   .slide-leave-active{
     transition: 0s;
@@ -55,5 +42,8 @@ export default {
   .slide-leave-to {
     transform: translate(-100%, 0);
   }
-  
+  .v-app {
+    max-width:600px;
+    margin: 0 auto;
+  }
 </style>

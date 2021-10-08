@@ -9,7 +9,6 @@ export default {
     },
     data(val) {
         if (!val) return null;
-        console.log(val)
 
         const [year, month, day] = val.split('-')
         return `${day}/${month}/${year}`
@@ -23,6 +22,15 @@ export default {
         return [val.getFullYear(),'-',
                 (mm>9 ? '' : '0') + mm,'-',
                 (dd>9 ? '' : '0') + dd
+               ].join('');
+    },
+    dataDDMMYYYY(val, sep) {
+        var mm = val.getMonth() + 1; // getMonth() is zero-based
+        var dd = val.getDate();
+      
+        return [(dd>9 ? '' : '0') + dd, sep, 
+                (mm>9 ? '' : '0') + mm, sep,
+                val.getFullYear()
                ].join('');
     }
     /*

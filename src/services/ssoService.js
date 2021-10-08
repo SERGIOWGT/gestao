@@ -32,7 +32,6 @@ http.interceptors.response.use(function (response) {
                 'mensagem': error
             }]}
         }
-        console.log(_erros)
     } else {
         _erros = {erros: [{
             'chave': '000.0000',
@@ -64,7 +63,6 @@ export default {
             'senha': senha,
             'comPermissoes': true
         }
-        console.log('login/autentica', params)
         return http.put('login/autentica', params)
     },
 /*     

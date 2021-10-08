@@ -1,11 +1,6 @@
 <template>
-    <v-app-bar
-      app
-      flat
-      color="teal darken-4"
-      dark
-    >
-      <div class="d-flex align-center">
+    <v-app-bar app flat dark  color="teal darken-4">
+      <div>
         <v-btn  icon v-on:click="goHome()">
           <v-icon>mdi-menu</v-icon>
         </v-btn>
@@ -42,7 +37,6 @@
       },
       logout() {
         store.commit('logout')
-        console.log('logout()', store.getters.estaLogado)
         this.$router.push('/login')
       }
     }
@@ -52,4 +46,5 @@
 .v-btn::before {
   background-color: transparent;
 }
+
 </style>
