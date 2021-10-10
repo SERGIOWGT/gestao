@@ -1,16 +1,14 @@
 <template>
    <v-app>
-    <v-container fill-height grid-list-md class="pa-0" style="max-width: 600px;">
-      <v-layout row wrap justify-center>
-        <AppBar v-if="$store.getters.estaAutenticadoApi" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
+    <AppBar v-if="$store.getters.estaAutenticadoApi" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
         <v-main>
+          <v-container fill-height grid-list-md class="pa-0" style="max-width: 600px;">
             <UserBar v-if="$store.getters.estaAutenticadoApi"/>
             <transition appear name="slide" mode="out-in">
               <Router-view/>
             </transition>
+          </v-container>
       </v-main>
-      </v-layout>
-      </v-container>
   </v-app>
 </template>
 

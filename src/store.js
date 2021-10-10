@@ -43,8 +43,16 @@ const store = new Vuex.Store({
             }
         },
         permissionamento: '',
+        listasComuns: {
+            sintomas: [],
+            comorbidades: []
+        }
     },
     mutations: {
+        setaListaComuns (state, obj) {
+            state.listasComuns.sintomas = obj.sintomas
+            state.listasComuns.comorbidades = obj.comorbidades
+        },
         setaPermissao (state, obj) {
             state.permissionamento = obj
         },
@@ -111,7 +119,9 @@ const store = new Vuex.Store({
         bairroPadrao: state => state.infosUsuario.bairroPadrao,
         logradouroPadrao: state => state.infosUsuario.logradouroPadrao,
         permissionamento: state => state.permissionamento,
-        autenticadoApi: state => state.infosUsuario.apiToken != ''
+        autenticadoApi: state => state.infosUsuario.apiToken != '',
+        todosSintomas: state => state.listasComuns.sintomas,
+        todasComorbidades: state => state.listasComuns.comorbidades
     }
   })
   export default store

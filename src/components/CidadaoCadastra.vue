@@ -3,8 +3,8 @@
     <v-container fluid style="height: 100vmax;" class="pa-0">
       <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>       
       <ProgressBar :mensagem="mensagemAguarde"/>
+      <div style="text-align:center" class="pt-3 pb-2"><h4 class="teal--text ">{{tituloTela}}</h4></div>
       <v-flex  v-show="buscandoDados==false">
-        <div style="text-align:center" class="pt-3 pb-2"><h4 class="teal--text ">{{tituloTela}}</h4></div>
         <v-flex class="py-0 my-0 pt-2" v-if="etapaCadastro == enumEtapaCadastro.dadosCidadao">
           <v-expansion-panels focusable class="pt-0 mt-0" v-model="areaPesquisaAberta">
             <v-expansion-panel :disabled="this.infoPesquisa.listasCarregadas == false" >
@@ -386,8 +386,6 @@
           
             infoPesquisa: {
               listasCarregadas: false,
-              allSintomas: [],
-              allComorbidades: [],
               allBairros: [],
               allUnidadesSaude: [],
               microAreas: [],
@@ -436,9 +434,6 @@
           comorbidadesOrdenadas: function () {
             return this.infoPesquisa.allComorbidades.Sort(function(a, b) {a.ordem - b.ordem})
           },
-          sintomasOrdenadas: function () {
-            return this.infoPesquisa.allSintomas.Sort(function(a, b) {a.ordem - b.ordem})
-          },
           iconePainel() {
             return  pos => (pos >= this.enumPaineis.comorbidades) ? 'mdi-alert-outline' : this.painelValido[pos] ? 'mdi-check' :  'mdi-alert-circle-outline'
           },
@@ -477,11 +472,7 @@
             this.buscandoDados = true
             this.limpaDadosPaciente()
 
-            this.mensagemAguarde =  'Buscando sintomas! Aguarde...'
-            await mainService.listaSintomas()
-            .then (resp => {this.infoPesquisa.allSintomas = resp.status == 200 ? resp.data : []})
-            .catch (err => {this.mensagemErro =  mainService.catchPadrao(err)});
-            
+
             this.mensagemAguarde =  'Buscando unidades de saude! Aguarde...'
             await mainService.listaUnidadesSaude(this.unidadeSaudePadrao.id, this.cidadePadrao.id, '')
             .then (resp => {this.infoPesquisa.allUnidadesSaude = resp.status == 200 ? resp.data : []})
@@ -491,12 +482,9 @@
             await mainService.listaBairros(this.cidadePadrao.id)
             .then (resp => {this.infoPesquisa.allBairros = resp.status == 200 ? resp.data : []})
             .catch (err => {this.mensagemErro =  mainService.catchPadrao(err); });
-                        
-            this.mensagemAguarde =  'Buscando comorbidades! Aguarde...'
-            await mainService.listaComorbidades()
-            .then (resp => {this.infoPesquisa.allComorbidades = resp.status == 200 ? resp.data : []})
-            .catch(err => {this.mensagemErro =  mainService.catchPadrao(err); });
-            
+
+            const todosSintomas = this.$store.getters.todosSintomas
+            const todasComorbidades = this.$store.getters.todasComorbidades
             if (pacienteId != 0) {
               let erro = false
 
@@ -515,7 +503,7 @@
                 await mainService.listaPacienteComorbidades(pacienteId)
                 .then (resp => {
                   this.infoPaciente.comorbidades = resp.status == 200 ? resp.data : []
-                  this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.infoPesquisa.allComorbidades, this.infoPaciente.comorbidades)
+                  this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(todasComorbidades, this.infoPaciente.comorbidades)
                 })
                 .catch(err => {erro=true; this.mensagemErro =  mainService.catchPadrao(err); });
               }
@@ -525,7 +513,7 @@
                 await mainService.listaPacienteSintomas(pacienteId)
                 .then (resp => {
                   this.infoPaciente.sintomas = resp.status == 200 ? resp.data : []
-                  this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(this.infoPesquisa.allSintomas, this.infoPaciente.sintomas)
+                  this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(todosSintomas, this.infoPaciente.sintomas)
                 })
                 .catch(err => {erro=true; this.mensagemErro =  mainService.catchPadrao(err); });
               }
@@ -544,14 +532,20 @@
                   this.infoPesquisa.microAreas = resp.status == 200 ? resp.data : []
                   })
                 .catch(err => {this.mensagemErro =  mainService.catchPadrao(err); });
-              }
-            } else {
-              this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.infoPesquisa.allComorbidades, null)
-              this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(this.infoPesquisa.allSintomas, null)
-            }
 
-            for (var i = 0; i <= 4; ++i) {
-                this.setDelay(i);
+                for (var i = 0; i <= 4; ++i) {
+                  this.setDelay(i);
+                }
+                this.infoBotoes.temBotaoSalva = true
+              }
+              else {
+                this.infoBotoes.temBotaoSalva = false
+              }
+
+            } else {
+              this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(todasComorbidades, null)
+              this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(todosSintomas, null)
+              this.infoBotoes.temBotaoSalva = true
             }
 
             this.buscandoDados = false
@@ -608,10 +602,9 @@
             this.infoPaciente.semComplemento = false
           },
           novoCidadao() {
-              this.limpaDadosPaciente()
-
-              this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.infoPesquisa.allComorbidades, null)
-              this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(this.infoPesquisa.allSintomas, null)
+            this.limpaDadosPaciente()
+            this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.$store.getters.todosSintomas, null)
+            this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(this.$store.getters.todasComorbidades, null)
           },
           required(value) {
             if (value instanceof Array && value.length == 0) 
@@ -800,7 +793,7 @@
             this.infoBotoes.temBotaoProximo = false
             this.infoBotoes.temBotaoCancela = false
             this.infoBotoes.temBotaoFinaliza = false
-            this.infoBotoes.temBotaoSalva = false
+            //this.infoBotoes.temBotaoSalva = false
             this.infoBotoes.temBotaoVerifica = false
             this.infoBotoes.temBotaoNovo = false
 
@@ -808,7 +801,7 @@
               case this.enumEtapaCadastro.dadosCidadao:
                 this.infoBotoes.podeVoltar = true
                 this.infoBotoes.temBotaoAnterior = true
-                this.infoBotoes.temBotaoSalva = true
+                //this.infoBotoes.temBotaoSalva = true
                 break
 
               case this.enumEtapaCadastro.proximoCidadao:

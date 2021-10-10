@@ -6,7 +6,7 @@ import loginView from '../views/LoginView.vue'
 import homeView from '../views/HomeView.vue'
 import visitaView from '../views/VisitaView.vue'
 import cadastrosView from '../views/CadastrosView.vue'
-import identificacaoCidadaoView from '../views/IdentificacaoCidadaoView.vue'
+import cidadaoView from '../views/CidadaoView.vue'
 
 Vue.use(Router)
 
@@ -22,9 +22,9 @@ const routes = [
         component: homeView
     },
     {
-        path: '/identificacaoCidadao',
-        name: 'identificacaoCidadao',
-        component: identificacaoCidadaoView
+        path: '/cidadao',
+        name: 'cidadaoView',
+        component: cidadaoView
     },
     {
         path: '/visita',

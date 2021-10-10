@@ -4,7 +4,7 @@
         <ProgressBar :mensagem="mensagemAguarde"/>
         <v-subheader class="justify-center px-0">
             <v-col class="px-1 teal--text" cols="10">
-                <v-row justify="end"><b>CONSULTA PARA CADASTRO DE CIDADÃO</b></v-row>
+                <v-row justify="center"><b>CONSULTA PARA CADASTRO DE CIDADÃO</b></v-row>
             </v-col>                    
             <v-col cols="2" >
                 <v-row justify="end"><v-btn icon color="teal lighten-2" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn>
@@ -46,7 +46,6 @@
                     ></v-autocomplete>
                     <v-card-actions class="pt-2 pb-0">
                         <v-spacer></v-spacer>
-                        <v-btn text small color="secondary" @click="fechaPainel()"> Limpar </v-btn>
                         <v-btn text small color="teal lighten-2" :disabled="!pesquisaPorNomeLiberada || isLoadingGrid" @click="listaPesquisa()"> Buscar </v-btn>
                     </v-card-actions>
                 </v-expansion-panel-content>

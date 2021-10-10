@@ -153,13 +153,19 @@ export default {
         return api.autentica(_signKey, usuarioGuid);
     },
     catchPadrao: (response) => {
+        console.log(response)
         let mensagemErro = ''
         if (response) {
-            let _mensagem = ""
-            response.erros.forEach(el => {
-                _mensagem += el.mensagem
-            });
-            mensagemErro=_mensagem
+            if (response.erros) {
+                let _mensagem = ""
+                response.erros.forEach(el => {
+                    _mensagem += el.mensagem
+                });
+                mensagemErro=_mensagem
+            }
+            else
+                mensagemErro=response.message
+
         } else {
             mensagemErro=response.message
         }

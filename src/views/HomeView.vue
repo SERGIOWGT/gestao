@@ -110,7 +110,7 @@
       executaFuncao(id) {
         switch (id) {
           case 1:
-            this.$router.push('identificacaoCidadao') 
+            this.$router.push('cidadao') 
             break
           case 2:
             this.$router.push('visita') 

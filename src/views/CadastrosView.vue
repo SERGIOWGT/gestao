@@ -412,7 +412,7 @@ export default {
                         await mainService.salvaUnidadeSaude(this.cidadePadrao.id, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
                             this.mensagemAguarde=''
-                            if (resposta.status == 200) {
+                            if ((resposta.status == 201) || (resposta.status == 200))  {
                                 this.mensagemSucesso = 'Unidade de Saude salva com sucesso'
                                 this.infoNovo.mostraDialog = false
                             } else {
@@ -423,6 +423,7 @@ export default {
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
+
                     case this.enumCadastro.bairro: 
                         this.mensagemAguarde='Salvando o Bairro. Aguarde...'
                         await mainService.salvaBairro(this.cidadePadrao.id, this.infoNovo.id, this.infoNovo.nome)
@@ -441,7 +442,7 @@ export default {
                         break;
                     case this.enumCadastro.logradouro: 
                         this.mensagemAguarde='Salvando o Logradouro. Aguarde...'
-                        await mainService.salvaLogradouro(this.infoNovo.paiId, this.infoNovo.id, this.infoNovo.nome)
+                        await mainService.salvaLogradouro(this.infoSelecionadaComboPesquisa.bairro.id, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
                             this.mensagemAguarde=''
                             if (resposta.status == 200) {
@@ -457,7 +458,7 @@ export default {
                         break;
                     case this.enumCadastro.microArea: 
                         this.mensagemAguarde='Salvando a Micro Area. Aguarde...'
-                        await mainService.salvaMicroArea(this.infoNovo.paiId, this.infoNovo.id, this.infoNovo.nome)
+                        await mainService.salvaMicroArea(this.infoSelecionadaComboPesquisa.unidadeSaude.id, this.infoNovo.id, this.infoNovo.nome)
                         .then(resposta => {
                             this.mensagemAguarde=''
                             if (resposta.status == 200) {
