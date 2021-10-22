@@ -1,17 +1,24 @@
 <template>
     <v-container fluid style="height: 100vmax;" class="pa-0">
-      <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>       
+      <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>  
+      <ProgressBar :mensagem="mensagemAguarde"/>          
       <v-flex >
         <IdentificacaoCidadao 
             v-show="etapaAtual == enumEtapa.emPesquisa"
             @cbNovoCidadao= 'novoCidadao'
             @cbEditaCidadao='editaCidadao'
+            @cbMensagemAguarde='cbMensagemAguarde'
+            @cbMensagemErro='cbMensagemErro'
+            @cbMensagemSucesso='cbMensagemSucesso'
         /> 
         <CadastraCidadao 
             v-if="etapaAtual == enumEtapa.emCadastro"
             :pacienteId='pacienteId'
             @cbNovoCadastro='novoCidadao'
             @cbFimCadastro='fimCadastro'
+            @cbMensagemAguarde='cbMensagemAguarde'
+            @cbMensagemErro='cbMensagemErro'
+            @cbMensagemSucesso='cbMensagemSucesso'
         />
       </v-flex>
     </v-container>
@@ -20,10 +27,11 @@
     import IdentificacaoCidadao from '../components/CidadaoIdentifica';
     import CadastraCidadao from '../components/CidadaoCadastra';
     import MessageBox from '../lastec.components/lastec-messagebox'
+    import ProgressBar from '../lastec.components/lastec-progressbar'
     
     export default {
         name: 'identificacaoCidadao',
-        components: {IdentificacaoCidadao, CadastraCidadao, MessageBox},
+        components: {IdentificacaoCidadao, CadastraCidadao, MessageBox, ProgressBar},
         data() {
           return {
 
@@ -43,6 +51,13 @@
           }
         },
         computed: {
+          mensagemErro: {
+              get: function() { return this.mensagem},
+              set: function(val) {
+                  this.tipoMensagem = 1
+                  this.mensagem = val
+              }
+          },
           mensagemSucesso: {
               get: function() { return this.mensagem},
               set: function(val) {
@@ -52,6 +67,17 @@
           },
         },
         methods: {
+          cbMensagemAguarde(msg) {
+              this.mensagemAguarde = msg
+          },
+          cbMensagemErro(msg) {
+              this.tipoMensagem = 1
+              this.mensagem = msg
+          },
+          cbMensagemSucesso(msg) {
+              this.tipoMensagem = 0
+              this.mensagem = msg
+          },
           novoCidadao() {
             this.pacienteId = 0
             this.etapaAtual = this.enumEtapa.emCadastro
@@ -71,29 +97,9 @@
     }
 </script>
 <style scoped>
-  .paragrafo1 {
-    padding: 0px;
-    margin: 0px;
-  }
   .input__label {
     color: blue;
   }
-  .nota_texto {
-    color:goldenrod;
-    font-weight: bold;
-    font-style: italic;
-  }
-  .nota_botao {
-    color:primary;
-    font-weight: bold;
-  }
-  .obs_campo {
-    margin-top: 20px;
-    color:green;
-    font-size: 0.6rem;
-    font-weight: bold;
-  }
-  
   @media(max-width: 2000px) {
     display-1 {font-size: 0.8rem}
     display-2 {font-size: 0.8rem}

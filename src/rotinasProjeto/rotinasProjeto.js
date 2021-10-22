@@ -1,4 +1,13 @@
 export const rotinasCadastraPaciente = {
+    data2SQL(val) {
+        var mm = val.getMonth() + 1; // getMonth() is zero-based
+        var dd = val.getDate();
+      
+        return [val.getFullYear(),'-',
+                (mm>9 ? '' : '0') + mm,'-',
+                (dd>9 ? '' : '0') + dd
+               ].join('');
+    },
     stringToDate(_date,_format,_delimiter)
     {
         var formatLowerCase=_format.toLowerCase();
@@ -107,5 +116,24 @@ export const rotinasCadastraPaciente = {
         })
         return retorno
     },
+    preparaSintomas2Save(dataBase, sintomas) {
+        let retorno = [];
+
+        let dataInicio = new Date()
+        sintomas.forEach((linha) => {
+            if (linha.selecionado) {
+                dataInicio.setDate(dataBase.getDate() - linha.dias)
+
+                const item = {
+                    id: linha.id,
+                    dataInicio: this.data2SQL(dataInicio)
+                }
+                retorno.push (item)
+            }
+        })
+
+        return retorno;
+    }
+
 }
 

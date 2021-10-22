@@ -78,6 +78,9 @@ export default {
     listaComorbidades: (token) => {
         return http.get('tipoComorbidades', {headers: {'Authorization': `bearer ${token}`}})
     },
+    listaDoencas: (token) => {
+        return http.get('tipoDoencas', {headers: {'Authorization': `bearer ${token}`}})
+    },
     listaLogradouros: (token, bairroId, id) => {
         let _url = `logradouros?bairroId=${bairroId}`
         if (id) 
@@ -89,6 +92,9 @@ export default {
         let _url = `microAreas?unidadeSaudeId=${unidadeSaudeId}`
         if (id) 
             _url += `&id=${id}`
+
+
+        console.log(_url)
 
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
@@ -143,6 +149,12 @@ export default {
             if (param.logradouroId) 
                 paramPost.logradouroId = param.logradouroId
 
+            if (param.numeroEndereco) 
+                paramPost.numeroEndereco = param.numeroEndereco
+
+            if (param.complementoEndereco) 
+                paramPost.complementoEndereco = param.complementoEndereco
+
             if (param.bairroId) 
                 paramPost.bairroId = param.bairroId
 
@@ -157,6 +169,18 @@ export default {
             }
             if (param.doencas) {
                 paramPost.doencas = param.doencas
+            }
+            if (param.dataInicioVisita) {
+                let _dataInicio = param.dataInicioVisita.replace(/\//gm,'').toString()
+                _dataInicio = _dataInicio.substring(4, 8) + '-' +  _dataInicio.substring(2, 4) + '-' + _dataInicio.substring(0, 2)
+
+                paramPost.dataVisitaInicio = _dataInicio
+            }
+            if (param.dataFimVisita) {
+                let _dataFim = param.dataFimVisita.replace(/\//gm,'').toString()
+                _dataFim = _dataFim.substring(4, 8) + '-' +  _dataFim.substring(2, 4) + '-' + _dataFim.substring(0, 2)
+
+                paramPost.dataVisitaFim = _dataFim
             }
         }
         return http.post(url, paramPost, {headers: {'Authorization': `bearer ${token}`} })
@@ -204,9 +228,35 @@ export default {
         const url = `pacienteVisitas/ListaUltimaVisita?pacienteId=${pacienteId}`
         return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
     },
+    listaPacienteVisitas: (token, pacienteId, dataInicio, dataFim) => {
+        let url = `pacienteVisitas/ListaCompleta?pacienteId=${pacienteId}`
+
+        if (dataInicio)
+            url += `&dataInicio=${dataInicio}`
+
+        if (dataFim)
+            url += `&dataFim=${dataFim}`
+
+        return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
+    },
     listaSintomas (token) {
         const url = 'tipoSintomas'
         return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
+    },
+    listaTipoAcaoVisita: (token) => {
+        return http.get('tipoAcaoVisitas', {headers: {'Authorization': `bearer ${token}`}})
+    },
+    listaTipoMotivoVisita: (token, id) => {
+        let _url = `TipoMotivoVisitas`
+        if (id)
+            _url += `?id=${id}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
+    },
+    listaTipoMotivoAnaliticoVisita: (token, tipoMotivoVisitaId) => {
+        let _url = `TipoMotivoVisitaAnaliticos`
+        if (tipoMotivoVisitaId)
+            _url += `?tipoMotivoVisitaId=${tipoMotivoVisitaId}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaUnidadesSaude: (token, cidadeId, id, parteNome) => {
         let _url = `unidadeSaudes?cidadeId=${cidadeId}`
@@ -219,8 +269,22 @@ export default {
 
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
-    listaTipoRelatorioVisita: (token, id) => {
-        let _url = `TipoRelatorioVisitas`
+    listaUsuarios: (token, cidadeId) => {
+        let retorno = {
+            status: 200,
+            data: []
+        }
+        if (token == token)
+            token = token + 1
+
+        retorno.data.push({id:1, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Luiz Ricardo', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
+        retorno.data.push({id:2, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Sergio', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
+        retorno.data.push({id:3, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Fulano de Guarara', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
+
+        return retorno
+    },
+    listaVisita: (token, id) => {
+        let _url = `PacienteVisitas/ListaUltimaVisita`
         if (id)
             _url += `?id=${id}`
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
@@ -244,18 +308,17 @@ export default {
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     },
     salvaPaciente: (token, infoPaciente) => {
-        var _numeroEndereco = (infoPaciente.semNumeroEndereco ? '' : infoPaciente.numeroEndereco)
-        var _cpf = infoPaciente.cpf.toString().replace(/\.|-/gm,'');
+        const _numeroEndereco = (infoPaciente.semNumeroEndereco ? 'S/N' : infoPaciente.numeroEndereco)
+        const _cpf = infoPaciente.cpf.toString().replace(/\.|-/gm,'');
 
-        var _complemento = (infoPaciente.semComplemento ? '' : infoPaciente.complemento)
-        var _celular =  (infoPaciente.celular == null) ? '' : infoPaciente.celular.toString().replace(/\s|-/gm,'')
-        var _celular2 =  (infoPaciente.celular2 == null) ? '' : infoPaciente.celular2.toString().replace(/\s|-/gm,'')
-        var _telefoneContato =  (infoPaciente.telefoneContato == null) ? '' : infoPaciente.telefoneContato.toString().replace(/\s|-/gm,'')
-        var _cartaoSus = (infoPaciente.cartaoSUS == null) ? '' : infoPaciente.cartaoSUS.toString().replace(/\s/g, '')
+        const _complemento = (infoPaciente.semComplemento ? '' : infoPaciente.complemento)
+        const _celular =  (infoPaciente.celular == null) ? '' : infoPaciente.celular.toString().replace(/\s|-/gm,'')
+        const _celular2 =  (infoPaciente.celular2 == null) ? '' : infoPaciente.celular2.toString().replace(/\s|-/gm,'')
+        const _telefoneContato =  (infoPaciente.telefoneContato == null) ? '' : infoPaciente.telefoneContato.toString().replace(/\s|-/gm,'')
+        const _cartaoSus = (infoPaciente.cartaoSUS == null) ? '' : infoPaciente.cartaoSUS.toString().replace(/\s/g, '')
         
-        var _dataNascimento = infoPaciente.dataNascimento.toString().replace(/\//gm,'').toString()
+        let _dataNascimento = infoPaciente.dataNascimento.toString().replace(/\//gm,'').toString()
          _dataNascimento = _dataNascimento.substring(4, 8) + '-' +  _dataNascimento.substring(2, 4) + '-' + _dataNascimento.substring(0, 2)
-
 
         let _params = {
             'Id' : infoPaciente.id,
@@ -286,7 +349,7 @@ export default {
     salvaVisita: (token, id, params) => {
         var _url = (id == 0) ? 'pacienteVisitas' : `pacienteVisitas/${id}`
         params.id = id
-
+        
         return (id == 0) ?
                     http.post(_url, params, { headers: { 'Authorization': `bearer ${token}`}}) 
                         : http.put(_url, params, { headers: { 'Authorization': `bearer ${token}`}});
@@ -297,6 +360,7 @@ export default {
             'PacienteId' : pacienteId,
             'TipoSintomas': sintomas
        }
+       console.log('salvaPacienteSintomas', _params)
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     },
     salvaUnidadeSaude: (token, cidadeId, id, nome) => {

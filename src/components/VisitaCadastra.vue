@@ -1,67 +1,26 @@
 <template>
     <v-container fluid style="height: 100vmax;" class="pa-1">
-        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
-        <ProgressBar :mensagem="mensagemAguarde"/>
+        <TituloPagina titulo="CADASTRO DE VISITA" @cbAnterior="fimCadastro(true)" />
         <v-flex v-if="buscandoDados==false">
-            <div style="text-align:center"><h4 class="teal--text ">CADASTRO DE VISITA</h4></div>
             <v-expansion-panels focused class="pt-0 mt-2">
-                <v-expansion-panel>
-                    <v-expansion-panel-header  class="blue-grey lighten-5 teal--text">
-                        <v-row no-gutters>
-                            <v-col cols="12">
-                            <b>{{infoCidadao.nome}}</b>
-                            </v-col>
-                            <v-col
-                            cols="1"
-                            class="text--secondary"
-                            >
-                            <v-fade-transition leave-absolute>
-                                <span
-                                key="0"
-                                >
-                                </span>
-                            </v-fade-transition>
-                            </v-col>
-                        </v-row>
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                        <v-text-field 
-                            disabled hide-details
-                            label="Endereço"
-                            v-model="enderecoAtual"
-                        ></v-text-field >
-                        <v-text-field 
-                            disabled hide-details
-                            label="Micro Área"
-                            v-model="infoCidadao.nomeMicroArea"
-                        ></v-text-field>
-                        <v-text-field 
-                            disabled hide-details
-                            label="Estado de Saúde"
-                            v-model="infoCidadao.nomeEstadoSaude"
-                        ></v-text-field>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
+                <ExpansionVisitaCidadao :nome="infoCidadao.nome" :endereco="enderecoAtual" :nomeEstadoSaude="infoCidadao.nomeEstadoSaude" :nomeMicroArea="infoCidadao.nomeMicroArea"/>
                 <br>
                 <v-divider></v-divider>
-                <v-expansion-panel class="mt-2">
-                    <v-expansion-panel-header v-if="infoCidadao.comorbidades.length == 0" hide-actions disabled class="blue-grey lighten-5 red--text text--lighten-1">Cidadão sem comorbidades</v-expansion-panel-header >
-                    <v-expansion-panel-header v-else class="blue-grey lighten-5 teal--text text--lighten-2">Consulte aqui as Comorbidades</v-expansion-panel-header >
-                    <v-expansion-panel-content >
-                        <v-flex class="px-0 pt-2" v-for="(item) in infoCidadao.comorbidades" :key="item.id" >
-                            <v-chip> {{item.nome}} </v-chip>
-                        </v-flex>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
+                <ExpansionLista tipo="C" posTitulo="" :lista="infoCidadao.comorbidades" />
                 <v-expansion-panel class="mt-2">
                     <v-expansion-panel-header v-if="infoUltimaVisita.id == 0" hide-actions disabled class="blue-grey lighten-5 red--text text--lighten-1">Essa é a primeira visita do cidadão</v-expansion-panel-header >
                     <v-expansion-panel-header v-else class="blue-grey lighten-5 teal--text text--lighten-2">Consulte aqui a última visita</v-expansion-panel-header >
                     <v-expansion-panel-content>
-                        <v-subheader class="px-0">{{tipoDataVisita}}</v-subheader>
-                        <v-subheader  class="px-0">{{infoUltimaVisita.resumo}}</v-subheader>
+                        <v-card flat tile>
+                            <v-card-text class="pt-4 px-0">
+                                <v-text-field  dense disabled label="Data da Visita" v-model="tipoDataVisita" />
+                                <v-text-field dense disabled label="Tipo da Visita" v-model="infoUltimaVisita.nomeTipoVisita"/>
+                                <v-text-field dense disabled label="Ação" v-model="infoUltimaVisita.nomeAcaoVisita" />
+                                <v-textarea auto-grow disabled label="Resumo" v-model="infoUltimaVisita.resumo" row-height="10" ></v-textarea>
+                            </v-card-text>
+                        </v-card>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
-
                 <v-expansion-panel class="mt-2">
                     <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Atualize aqui os Sintomas</v-expansion-panel-header>
                     <v-expansion-panel-content class="pt-2">
@@ -97,16 +56,63 @@
                                 v-mask="'##/##/####'"
                                 :rules="[regras.Data.valida(true)]"
                             ></v-text-field>
+                            <v-autocomplete class="pt-2" @input="setaTipoMotivo"
+                                dense hide-no-data return-object
+                                label="Motivo*"
+                                v-model="infoVisita.tipoMotivo"
+                                :items="tiposMotivoVisita"
+                                item-value="id"
+                                item-text="nome"
+                                :rules="[regras.Basicas.obrigatorio()]"
+                            ></v-autocomplete> 
+                            <v-autocomplete class="pt-2"
+                                dense hide-no-data return-object
+                                :disabled="infoVisita.tipoMotivo.id === 0 || tiposMotivoVisita.length === 0 "
+                                label="Detalhamento do Motivo*"
+                                v-model="infoVisita.tipoMotivoAnalitico"
+                                :items="tiposMotivoAnaliticoVisita"
+                                item-value="id"
+                                item-text="nome"
+                                :rules="[regras.Basicas.obrigatorio()]"
+                            ></v-autocomplete> 
+                            <v-row class="mt-0">
+                                <v-col cols="6"> 
+                                    <v-text-field @focus="$event.target.select()" 
+                                        dense 
+                                        type="number"
+                                        label="Peso em KG"
+                                        v-model="infoVisita.peso"
+                                        min=3
+                                        max=450
+                                    />
+                                </v-col>
+                                <v-col cols="6"> 
+                                    <v-text-field @focus="$event.target.select()" 
+                                        dense 
+                                        type="number"
+                                        label="Altura em cm"
+                                        v-model="infoVisita.altura"
+                                        min=0
+                                        max=250
+                                    />
+                                </v-col>
+                            </v-row>
                             <v-autocomplete class="pt-2"
                                 dense hide-no-data required
-                                label="Tipo de Relatório*"
-                                v-model="infoVisita.tipoRelatorio"
-                                :items="tiposRelatoriosVisitas"
+                                label="Tipo de Ação*"
+                                v-model="infoVisita.tipoAcao"
+                                :items="tiposAcaoVisita"
                                 item-value="id"
                                 item-text="nome"
                                 return-object
                                 :rules="[regras.Basicas.obrigatorio()]"
                             ></v-autocomplete> 
+                            <small>Desfecho da Visita*</small>
+                            <v-radio-group  class="py-0 my-0" dense row hide-details v-model="infoVisita.tipoDesfechoVisitaId">
+                                <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="1" label="Realizada"></v-radio></v-col>
+                                <v-col cols="4" class="py-1 my-1"><v-radio value="2" label="Ausente"></v-radio></v-col>
+                                <v-col cols="3" class="py-1 my-1"><v-radio value="3" label="Recusado"></v-radio></v-col>
+                            </v-radio-group>
                             <v-textarea
                                 auto-grow counter clearable
                                 clear-icon="mdi-close-circle"
@@ -147,13 +153,12 @@
     import BottomBar from '../components/StepBottomBar'
     import {rotinasCadastraPaciente } from '../rotinasProjeto/rotinasProjeto'
     import formata from '../bibliotecas/formataValores'
-    import MessageBox from '../lastec.components/lastec-messagebox'
-    import ProgressBar from '../lastec.components/lastec-progressbar'
+    import TituloPagina from '../components/TituloPagina'
+    import ExpansionVisitaCidadao from '../components/ExpansionVisitaCidadao.vue'
+    import ExpansionLista from '../components/ExpansionListaCeS.vue'
 
     export default {
-        components: {
-            ProgressBar, MessageBox, BottomBar
-        },
+        components: {BottomBar, TituloPagina, ExpansionVisitaCidadao, ExpansionLista},
         props: {
           pacienteId: Number,
         },
@@ -186,24 +191,40 @@
                 sintomas: [],
                 comorbidades:[]
             },
-            tiposRelatoriosVisitas: [],
+            tiposMotivoVisita: [],
+            tiposMotivoAnaliticoVisita: [],
+            tiposAcaoVisita: [],
 
             infoVisita:  {
                 id: 0,
                 data: '',
-                tipoRelatorio: '',
+                altura: 0,
+                peso: 0,
+                tipoMotivo: {
+                    id: 0,
+                    nome: ''
+                },
+                tipoMotivoAnalitico: {
+                    id: 0,
+                    nome: ''
+                },
+                tipoAcao: {
+                    id: 0,
+                    nome: ''
+                },
+                tipoDesfechoVisitaId: 0,
                 resumo: '',
                 sintomas:[]
             },
             infoUltimaVisita:  {
                 id: 0,
                 data: '',
-                nomeTipoRelatorio: '',
+                nomeTipoMotivo: '',
                 resumo: ''
             },
 
-            tipoMensagem: 0,
-            mensagem: '',
+            mensagemErro: '',
+            mensagemSucesso: '',
             mensagemAguarde: '',
 
             buscandoDados: true
@@ -218,6 +239,13 @@
         watch: {
             mensagemAguarde (val) {
                 this.isLoading = (val == '') ? false : true
+                this.$emit('cbMensagemAguarde', val)
+            },
+            mensagemErro (val) {
+                this.$emit('cbMensagemErro', val)
+            },
+            mensagemSuccesso (val) {
+                this.$emit('cbMensagemSucesso', val)
             }
         },
         computed: {
@@ -230,26 +258,12 @@
                 set: function() {
                 }
             },
-            mensagemErro: {
-                get: function() { return this.mensagem},
-                set: function(val) {
-                    this.tipoMensagem = 1
-                    this.mensagem = val
-                }
-            },
-            mensagemSucesso: {
-                get: function() { return this.mensagem},
-                set: function(val) {
-                    this.tipoMensagem = 0
-                    this.mensagem = val
-                }
-            },
             tipoDataVisita() {
                 if (this.infoUltimaVisita.id == 0)
                     return ''
                     
                 const str = formata.data(this.infoUltimaVisita.data.substring(0, 10))
-                return `${this.infoUltimaVisita.nomeTipoRelatorio} em ${str}`
+                return `${this.infoUltimaVisita.nomeTipoMotivo} em ${str}`
             },
         },       
         methods: {
@@ -259,25 +273,49 @@
                 } else 
                     this.salvaVisita()
             },
+            async setaTipoMotivo(value) {
+                console.log('setaTipoMotivo(value)', value)
+                this.infoVisita.tipoMotivo.id = value.id;
+                this.infoVisita.tipoMotivoAnalitico.id = 0;
+                this.infoVisita.tipoMotivoAnalitico.nome = ''
+
+                this.mensagemAguarde =  'Aguarde... Buscando Detalhamento do Motivo'
+                await mainService.listaTipoMotivoAnaliticoVisita(this.infoVisita.tipoMotivo.id)
+                .then(resp => {
+                    this.mensagemAguarde =  ''
+                    if (resp.status == 200) {
+                        this.tiposMotivoAnaliticoVisita = resp.data;
+                    } else {
+                        this.mensagemErro =  resp.message
+                    }
+                })
+                .catch(err => {this.mensagemErro =  mainService.catchPadrao(err)})
+            },
+
             async listaPaciente(pacienteId) {
                 let erroBusca = false
 
-                this.mensagemAguarde = 'Buscando Tipo Relatório Visita! Aguarde...'
-                await mainService.listaTipoRelatorioVisita()
-                .then (resp => {this.tiposRelatoriosVisitas = (resp.status == 200) ? resp.data : []})
+                this.mensagemAguarde = 'Buscando Motivos da Visita! Aguarde...'
+                await mainService.listaTipoMotivoVisita()
+                .then (resp => {this.tiposMotivoVisita = (resp.status == 200) ? resp.data : []})
                 .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
 
-                 this.mensagemAguarde = 'Buscando informações do cidadão. Aguarde...'
+                this.mensagemAguarde = 'Buscando Tipo de Acão Visita! Aguarde...'
+                await mainService.listaTipoAcaoVisita()
+                .then (resp => {this.tiposAcaoVisita = (resp.status == 200) ? resp.data : []})
+                .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
+
+                this.mensagemAguarde = 'Buscando informações do cidadão. Aguarde...'
                 await mainService.listaPaciente(pacienteId)
                 .then((_paciente) => {
                     this.mensagemAguarde = ''
                     if (_paciente.status == 200) {
-                        this.infoCidadao.nome = _paciente.data[0].nome
-                        this.infoCidadao.nomeLogradouro = _paciente.data[0].nomeLogradouro
-                        this.infoCidadao.numeroEndereco = _paciente.data[0].nomeEndereco
-                        this.infoCidadao.complementoEndereco = _paciente.data[0].complementoEndereco
-                        this.infoCidadao.nomeMicroArea = _paciente.data[0].nomeMicroArea
-                        this.infoCidadao.nomeEstadoSaude = _paciente.data[0].nomeEstadoSaude
+                        this.infoCidadao.nome = _paciente.data.nome
+                        this.infoCidadao.nomeLogradouro = _paciente.data.nomeLogradouro
+                        this.infoCidadao.numeroEndereco = _paciente.data.nomeEndereco
+                        this.infoCidadao.complementoEndereco = _paciente.data.complementoEndereco
+                        this.infoCidadao.nomeMicroArea = _paciente.data.nomeMicroArea
+                        this.infoCidadao.nomeEstadoSaude = _paciente.data.nomeEstadoSaude
                     }
                     else {
                         erroBusca = true
@@ -334,13 +372,13 @@
                         const data = resp.data[0]
                         this.infoUltimaVisita.data = data.dataVisita
                         this.infoUltimaVisita.id = data.id
-                        this.infoUltimaVisita.nomeTipoRelatorio = data.nomeTipoRelatorioVisita
+                        this.infoUltimaVisita.nomeTipoMotivo = data.nomeTipoMotivoVisita
                         this.infoUltimaVisita.resumo = data.relatorioVisita
 
                     } else {
                         this.infoUltimaVisita.data = ''
                         this.infoUltimaVisita.id = 0
-                        this.infoUltimaVisita.nomeTipoRelatorio = ''
+                        this.infoUltimaVisita.nomeTipoMotivo = ''
                         this.infoUltimaVisita.resumo = ''
                     }
                 })
@@ -356,12 +394,26 @@
             async salvaVisita() {
                 this.mensagemAguarde = 'Salvando a visita. Aguarde...'
 
-                const data = this.infoVisita.data.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1')  // eslint-disable-line
-                const sintomas = this.infoVisita.sintomas.filter(e => e.selecionado === true);
+                const strDataVisita = this.infoVisita.data.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1')  // eslint-disable-line
+                const dataVisita = rotinasCadastraPaciente.stringToDate(this.infoVisita.data, 'dd/mm/yyyy','/');
+                const sintomas = rotinasCadastraPaciente.preparaSintomas2Save(dataVisita, this.infoVisita.sintomas);
+
+                let altura = parseFloat(this.infoVisita.altura);
+                if (isNaN(altura))
+                    altura = 0;
+
+                let peso = parseFloat(this.infoVisita.peso);
+                if (isNaN(peso))
+                    peso = 0;
+                                
                 const params = {
                     pacienteId: this.pacienteId,
-                    dataVisita: data,
-                    tipoRelatorioVisitaId: this.infoVisita.tipoRelatorio.id,
+                    dataVisita: strDataVisita,
+                    tipoMotivoVisitaAnaliticoId: this.infoVisita.tipoMotivoAnalitico.id,
+                    altura: altura,
+                    peso: peso,
+                    tipoDesfechoVisitaId: this.infoVisita.tipoDesfechoVisitaId,
+                    tipoAcaoVisitaId: this.infoVisita.tipoAcao.id,
                     relatorioVisita: this.infoVisita.resumo,
                     tipoSintomas: sintomas
                 }
@@ -375,6 +427,7 @@
                     }
                 })
                 .catch(err => {this.mensagemErro = mainService.catchPadrao(err); return;});
+                this.mensagemAguarde = ''
             },
             fimCadastro (volta) {
                 this.$emit('cbFimCadastro', volta)

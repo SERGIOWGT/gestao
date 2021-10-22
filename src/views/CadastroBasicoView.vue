@@ -1,4 +1,4 @@
-s<template>
+<template>
     <v-container fluid style="height: 100vmax;" class="px-2 py-0">
         <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
         <ProgressBar :mensagem="mensagemAguarde"/>
@@ -72,7 +72,7 @@ s<template>
             </v-card-text>
         </v-card>
         <v-card flat class="pt-0 mt-3" tile v-if="telaPronta" >
-            <v-flex><div style="text-align:center"><h4 class="teal--text ">{{tituloTelaPrincipal}}</h4></div></v-flex>
+            <TituloPagina :titulo="tituloTelaPrincipal" @cbAnterior="$router.back()"/>
             <v-list>
                 <v-subheader class="justify-center px-0">
                     <v-col class="px-1" cols="9"><b>{{tituloLista}}</b></v-col>                    
@@ -120,10 +120,11 @@ import mainService from '../services/mainService'
 import regrasCampos from '../bibliotecas/regrasCampos'
 import MessageBox from '../lastec.components/lastec-messagebox'
 import ProgressBar from '../lastec.components/lastec-progressbar'
+import TituloPagina from '../components/TituloPagina'
 
 export default {
     components: {
-      ProgressBar, MessageBox
+      ProgressBar, MessageBox, TituloPagina
     },
     data() {
           return {

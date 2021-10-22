@@ -2,13 +2,13 @@
   <v-layout class="pa-0 ma-0" align-content-start justify-end row fill-height>
     <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
     <ProgressBar :mensagem="mensagemAguarde"/>
-    <v-container class="pa-0">
-      <v-layout justify-center class="mt-1" v-show="mostraTela" v-for="item in funcionalidades" :key="item.id" >
-        <v-layout justify-center class="px-5 py-2" v-show="item.ativo==true">
+    <v-container class="pa-0 ma-0 ">
+      <v-layout justify-center class="mt-2 px-0" v-show="mostraTela" v-for="item in funcionalidades" :key="item.id" >
+        <v-layout justify-center class="px-6 py-2" v-show="item.ativo==true">
           <v-expansion-panels focused>
-            <v-expansion-panel class="py-2 blue-grey lighten-5">
+            <v-expansion-panel class="py-1 blue-grey lighten-5">
               <v-expansion-panel-header disable-icon-rotate v-on:click="executaFuncao(item.id)">    
-                <div class="d-flex align-center ">
+                <div class="d-flex align-center">
                     <v-icon :color="item.iconColor">{{item.icon}}</v-icon><span :class="'ml-2 ' + item.textColor"> {{item.text}}</span>
                 </div>
                 <template v-slot:actions>
@@ -45,8 +45,8 @@
           {
               id: 1, 
               textColor: 'teal--text text--lighten-2', 
-              text: 'Cadastre aqui o cidadão ', 
-              icon: 'mdi-alert-outline', 
+              text: 'Adicione ou atualize os dados do cidadão ', 
+              icon: 'mdi-account-plus-outline', 
               iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento2()', 
@@ -61,8 +61,8 @@
           }, {   
               id: 2, 
               textColor: 'teal--text text--lighten-2', 
-              text: 'Atualize as visitas na residência do cidadão', 
-              icon: 'mdi-bed', 
+              text: 'Registre as visitas na residência do cidadão', 
+              icon: 'mdi-home-map-marker', 
               iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'naoImplementada()',
@@ -73,11 +73,53 @@
           {   
               id: 3, 
               textColor: 'teal--text text--lighten-2', 
-              text: 'Atualize os cadastros básicos', 
-              icon: 'mdi-emoticon-sick', 
+              text: 'Execute as ações necessárias relatadas nas visitas', 
+              icon: 'mdi-gesture-double-tap', 
               iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento(2)',
+              perms: [
+                {id:103, tipoId:1, acao:'A'}, 
+                {id:105, tipoId:1, acao:'A'},
+                {id:106, tipoId:1, acao:'C'}
+              ]
+          },
+          {   
+              id: 4, 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Consulte as visitas de um cidadão', 
+              icon: 'mdi-account-details-outline', 
+              iconColor: 'teal lighten-2', 
+              ativo: false,
+              func: 'cadastraMonitoramento(2)',
+              perms: [
+                {id:103, tipoId:1, acao:'A'}, 
+                {id:105, tipoId:1, acao:'A'},
+                {id:106, tipoId:1, acao:'C'}
+              ]
+          },
+          {   
+              id: 5, 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Atualize os cadastros básicos', 
+              icon: 'mdi-hammer-wrench', 
+              iconColor: 'teal lighten-2', 
+              ativo: false,
+              func: 'cadastraMonitoramento(3)',
+              perms: [
+                {id:103, tipoId:1, acao:'A'}, 
+                {id:105, tipoId:1, acao:'A'},
+                {id:106, tipoId:1, acao:'C'}
+              ]
+          },
+          {   
+              id: 6, 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Adicione, edite ou remova usuários do sistema', 
+              icon: 'mdi-account-tie', 
+              iconColor: 'teal lighten-2', 
+              ativo: false,
+              func: 'cadastraMonitoramento(3)',
               perms: [
                 {id:103, tipoId:1, acao:'A'}, 
                 {id:105, tipoId:1, acao:'A'},
@@ -110,13 +152,19 @@
       executaFuncao(id) {
         switch (id) {
           case 1:
-            this.$router.push('cidadao') 
-            break
+            this.$router.push('cidadao');
+            break;
           case 2:
-            this.$router.push('visita') 
+            this.$router.push('visita');
+            break;
+          case 4:
+            this.$router.push('visitaConsulta') 
+            break;
+          case 5:
+            this.$router.push('cadastroBasico') 
             break
-          case 3:
-            this.$router.push('cadastros') 
+          case 6:
+            this.$router.push('usuario') 
             break
           default:
             this.mensagemErro = `funcionalidade não implementada [id=${id}]`

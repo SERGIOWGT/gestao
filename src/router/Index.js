@@ -5,8 +5,10 @@ import store from '../store.js'
 import loginView from '../views/LoginView.vue'
 import homeView from '../views/HomeView.vue'
 import visitaView from '../views/VisitaView.vue'
-import cadastrosView from '../views/CadastrosView.vue'
+import cadastroBasicoView from '../views/CadastroBasicoView.vue'
 import cidadaoView from '../views/CidadaoView.vue'
+import visitaConsultaView from '../views/VisitaConsultaView.vue'
+import usuarioView from '../views/UsuarioView.vue'
 
 Vue.use(Router)
 
@@ -17,7 +19,7 @@ const routes = [
         component: loginView
     },
     {
-        path: '/Home',
+        path: '/home',
         name: 'homeView',
         component: homeView
     },
@@ -32,9 +34,19 @@ const routes = [
         component: visitaView
     },
     {
-        path: '/cadastros',
-        name: 'cadastrosView',
-        component: cadastrosView
+        path: '/cadastroBasico',
+        name: 'cadastroBasicoView',
+        component: cadastroBasicoView
+    },
+    {
+        path: '/visitaConsulta',
+        name: 'visitaConsultaView',
+        component: visitaConsultaView
+    },
+    {
+        path: '/usuario',
+        name: 'usuarioView',
+        component: usuarioView
     }
 ]
 

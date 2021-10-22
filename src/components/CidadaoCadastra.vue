@@ -1,11 +1,9 @@
 <template>
   <v-container  class="pa-1 mt-0"> 
     <v-container fluid style="height: 100vmax;" class="pa-0">
-      <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>       
-      <ProgressBar :mensagem="mensagemAguarde"/>
-      <div style="text-align:center" class="pt-3 pb-2"><h4 class="teal--text ">{{tituloTela}}</h4></div>
+      <TituloPagina :titulo="tituloTela" @cbAnterior="fimCadastro(true)" />
       <v-flex  v-show="buscandoDados==false">
-        <v-flex class="py-0 my-0 pt-2" v-if="etapaCadastro == enumEtapaCadastro.dadosCidadao">
+        <v-flex class="py-0 my-0 pt-0" v-if="etapaCadastro == enumEtapaCadastro.dadosCidadao">
           <v-expansion-panels focusable class="pt-0 mt-0" v-model="areaPesquisaAberta">
             <v-expansion-panel :disabled="this.infoPesquisa.listasCarregadas == false" >
               <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2" >
@@ -306,12 +304,11 @@
     import formataValores from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
     import {rotinasCadastraPaciente } from '../rotinasProjeto/rotinasProjeto'
-    import MessageBox from '../lastec.components/lastec-messagebox'
-    import ProgressBar from '../lastec.components/lastec-progressbar'
+    import TituloPagina from '../components/TituloPagina'
 
     export default {
         name: 'SuspeitaCovid',
-        components: {BottomBar, ProgressBar, MessageBox},
+        components: {BottomBar, TituloPagina},
         props: {
           pacienteId: Number,
         },
@@ -411,9 +408,9 @@
             },
 
             // dados
-            tipoMensagem: 0,
-            mensagem: '',
             mensagemAguarde: '',
+            mensagemErro: '',
+            mensagemSucesso: '',
 
             buscandoDados: true,
             areaPesquisaAberta: null
@@ -429,6 +426,17 @@
           if (this.infoPesquisa.listasCarregadas == false) {
             this.buscaDadosIniciais(this.pacienteId)
           } 
+        },
+        watch: {
+            mensagemAguarde (val) {
+                this.$emit('cbMensagemAguarde', val)
+            },
+            mensagemErro (val) {
+                this.$emit('cbMensagemErro', val)
+            },
+            mensagemSuccesso (val) {
+                this.$emit('cbMensagemSucesso', val)
+            }
         },
         computed: {
           comorbidadesOrdenadas: function () {
@@ -452,26 +460,11 @@
           textoPanel() {
             return (this.infoPaciente.id == 0) ? 'Informe' : 'Altere'
           },
-          mensagemErro: {
-              get: function() { return this.mensagem},
-              set: function(val) {
-                  this.tipoMensagem = 1
-                  this.mensagem = val
-              }
-          },
-          mensagemSucesso: {
-              get: function() { return this.mensagem},
-              set: function(val) {
-                  this.tipoMensagem = 0
-                  this.mensagem = val
-              }
-          },
         },
         methods: {
           async buscaDadosIniciais(pacienteId) {
             this.buscandoDados = true
             this.limpaDadosPaciente()
-
 
             this.mensagemAguarde =  'Buscando unidades de saude! Aguarde...'
             await mainService.listaUnidadesSaude(this.unidadeSaudePadrao.id, this.cidadePadrao.id, '')
@@ -492,7 +485,7 @@
               await mainService.listaPaciente(pacienteId)
               .then(resp => {
                 if (resp.status == 200) {
-                  const dadosPaciente = resp.data[0]
+                  const dadosPaciente = resp.data
                   this.setaInfoPaciente (dadosPaciente)
                 }
               })
@@ -630,7 +623,8 @@
             let erro = false;
             await mainService.salvaPaciente(this.infoPaciente)
             .then(resp => {
-              if (resp.status == 200) {
+              this.mensagemAguarde =  ''
+              if ((resp.status == 200) || (resp.status == 201)) {
                 if (this.infoPaciente.id == 0) {
                   this.infoPaciente.id = resp.data.id
                 }
@@ -640,6 +634,7 @@
               } 
             })
             .catch(err => {
+              this.mensagemAguarde =  ''
               erro = true
               this.mensagemErro =  mainService.catchPadrao(err)
             });
@@ -657,12 +652,14 @@
               }
               await mainService.salvaPacienteComorbidades(this.infoPaciente.id, _comorbidades)
               .then(resp => {
+                this.mensagemAguarde =  ''
                 if (resp.status != 200) {
                   this.mensagemErro =  resp.message
                   erro = true
                 }
               })
               .catch(err => {
+                this.mensagemAguarde =  ''
                   erro = true
                   this.mensagemErro =  mainService.catchPadrao(err)}
               );
@@ -685,12 +682,14 @@
               }
               await mainService.salvaPacienteSintomas(this.infoPaciente.id, _sintomas)
               .then(resp => {
+                this.mensagemAguarde =  ''
                 if (resp.status != 200) {
                   erro = true
                   this.mensagemErro =  resp.message
                 }
               })
               .catch(err => {
+                  this.mensagemAguarde =  ''
                   erro = true
                   this.mensagemErro =  mainService.catchPadrao(err)}
               );

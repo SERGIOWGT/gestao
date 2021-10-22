@@ -6,6 +6,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         estaLogado: false,
+        loginFinalizado: false,
         infosSistema: {
             nome: '',
             id: '',
@@ -77,9 +78,11 @@ const store = new Vuex.Store({
             state.infosUsuario.logradouroPadrao.id = obj.logradouroId
             state.infosUsuario.logradouroPadrao.nome = obj.nomeLogradouro
         },
+        finalizaLogin (state, obj) {
+            state.loginFinalizado = obj
+        },
         autenticadoSso (state, obj) {
             state.estaLogado = true
-            state.sistemaId = obj.sistemaId
             state.infosUsuario.email = obj.email
             state.infosUsuario.ssoToken = obj.token
             state.infosUsuario.apiToken = ''
@@ -89,17 +92,18 @@ const store = new Vuex.Store({
             state.permissionamento = obj.permissionamento
         },
         logout(state) {
+            state.loginFinalizado = false
             state.estaLogado = false
             state.infosUsuario.autenticado = false
-            state.sistemaId = 0
             state.infosUsuario.email = ''
-            state.infosUsuario.token = ''
+            state.infosUsuario.apiToken = ''
             state.infosUsuario.nomeUsuario = ''
             state.infosUsuario.usuarioId = ''
-            state.permissoes = ''
+            state.permissionamento = ''
         }, 
     },
     getters: {
+        loginFinalizado: state => state.loginFinalizado,
         estaLogado: state => state.estaLogado,
         estaAutenticadoApi: state => state.infosUsuario.autenticado,
         email: state => state.infosUsuario.email,

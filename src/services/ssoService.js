@@ -65,6 +65,15 @@ export default {
         }
         return http.put('login/autentica', params)
     },
+    listaUsuarios: (token, sistemaId) => {
+        const _url = `v1/usuarios/ListaBasico?sistemaId=${sistemaId}`;
+
+        return http.get(_url, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        });
+    },
 /*     
     listaSistemasPorUsuario: (usuarioId) => {
         return http.get('sistemas/PorUsuario/' + usuarioId)

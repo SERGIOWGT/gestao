@@ -1,34 +1,45 @@
 <template>
     <v-container fluid style="height: 100vmax;" class="pa-1">
-        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
-        <v-flex >
-            <IdentificaCidadao 
+        <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>   
+        <ProgressBar :mensagem="mensagemAguarde"/>     
+        <v-flex>
+            <IdentificaVisita 
                 v-show="operacaoAtual == enumOperacao.pesquisa"
                 @cbNovaVisita= 'novaVisita'
                 @cbEditaCidadao='editaCidadao'
+                @cbMensagemAguarde='cbMensagemAguarde'
+                @cbMensagemErro='cbMensagemErro'
+                @cbMensagemSucesso='cbMensagemSucesso'
             /> 
             <CadastraVisita
                 v-if="operacaoAtual == enumOperacao.cadastroVisita"
                 :pacienteId='pacienteId'
                 @cbFimCadastro='fimCadastroVisita'
+                @cbMensagemAguarde='cbMensagemAguarde'
+                @cbMensagemErro='cbMensagemErro'
+                @cbMensagemSucesso='cbMensagemSucesso'
             />
             <CadastraCidadao 
                 v-if="operacaoAtual == enumOperacao.cadastroCidadao"
                 :pacienteId='pacienteId'
                 @cbFimCadastro='fimCadastroCidadao'
+                @cbMensagemAguarde='cbMensagemAguarde'
+                @cbMensagemErro='cbMensagemErro'
+                @cbMensagemSucesso='cbMensagemSucesso'
             />
         </v-flex>
     </v-container>
 </template>
 <script>
-    import IdentificaCidadao from '../components/VisitaIdentificaCidadao';
+    import IdentificaVisita from '../components/VisitaIdentifica';
     import CadastraVisita from '../components/VisitaCadastra';
     import CadastraCidadao from '../components/CidadaoCadastra';
     import MessageBox from '../lastec.components/lastec-messagebox'
+    import ProgressBar from '../lastec.components/lastec-progressbar'
 
     export default {
         components: {
-            IdentificaCidadao, CadastraCidadao, CadastraVisita, MessageBox
+            IdentificaVisita, CadastraCidadao, CadastraVisita, MessageBox, ProgressBar
         },
         data() {
           return {
@@ -42,6 +53,7 @@
 
             tipoMensagem: 0,
             mensagem: '',
+            mensagemAguarde: ''
           }
         },
         created() {
@@ -63,6 +75,17 @@
             },
         },
         methods: {
+            cbMensagemAguarde(msg) {
+                this.mensagemAguarde = msg
+            },
+            cbMensagemErro(msg) {
+                this.tipoMensagem = 1
+                this.mensagem = msg
+            },
+            cbMensagemSucesso(msg) {
+                this.tipoMensagem = 0
+                this.mensagem = msg
+            },
             novaVisita(pacienteId) {
                 this.pacienteId = pacienteId
                 this.operacaoAtual = this.enumOperacao.cadastroVisita

@@ -1,9 +1,14 @@
 <template>
   <v-container fill-height>
-      <v-container >
+      <v-container>
         <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
         <ProgressBar :mensagem="mensagemAguarde"/>
-        <v-row class="justify-center pt-0 pb-15 px-3">
+        <v-row class="justify-center pt-15 pb-15 px-3">
+<!--           <v-responsive :aspect-ratio="16/9">
+        <v-card-text>
+          This card will always be 16:9 (unless you put more stuff in it)
+        </v-card-text>
+      </v-responsive> -->
             <v-img
               class="shrink mr-2"
               contain
@@ -88,7 +93,6 @@
         tipoMensagem: 0,
         mensagem: '',
         mensagemAguarde: ''
-
       }
     },
     mounted() {
@@ -200,6 +204,7 @@
           logradouroId: _cidades[0].logradouroId,
           nomeLogradouro: _cidades[0].nomeLogradouro,
         }
+
 /*                   _param.unidadeSaudeId= 2
         _param.nomeUnidadeSaude='TANCREDO NEVES - PSF VIVER BEM'
         _param.microAreaId= 7
@@ -239,7 +244,7 @@
 
         const _param2 = {sintomas: _sintomas, comorbidades: _comorbidades}
         this.$store.commit('setaListaComuns', _param2)
-
+        this.$store.commit('finalizaLogin', true)
         this.$router.push('/Home')
       },
       async autentica() {
@@ -274,9 +279,10 @@
             token: data.token,
             nomeUsuario: data.nomeUsuario,
             permissionamento: data.permissionamento,
-            usuarioGuid: data.usuarioGuid
+            usuarioGuid: data.usuarioGuid,
+            sistemaId: data.sistemaId
           }
-          
+          console.log(param)
           this.$store.commit('autenticadoSso', param)
           this.autenticaApi()
         })

@@ -29,6 +29,10 @@ export default {
         const _token = store.getters.apiToken;
         return api.listaComorbidades(_token);
     },
+    listaDoencas() {
+        const _token = store.getters.apiToken;
+        return api.listaDoencas(_token); 
+    },
     listaLogradouros (bairroId, id) {
         var _token = store.getters.apiToken;
         return api.listaLogradouros(_token, bairroId, id);
@@ -61,6 +65,10 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaPacienteUltimaVisita(_token, pacienteId);
     },
+    listaPacienteVisitas(pacienteId) {
+        var _token = store.getters.apiToken;
+        return api.listaPacienteVisitas(_token, pacienteId, null, null);
+    },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
@@ -72,9 +80,29 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaUnidadesSaude(_token, cidadeId, id, parteNome);
     },
-    listaTipoRelatorioVisita (id ) {
+    listaTipoAcaoVisita() {
+        const _token = store.getters.apiToken;
+        return api.listaTipoAcaoVisita(_token); 
+    },
+    listaTipoMotivoVisita (id) {
         var _token = store.getters.apiToken;
-        return api.listaTipoRelatorioVisita(_token, id);
+        return api.listaTipoMotivoVisita(_token, id);
+    },
+    listaTipoMotivoAnaliticoVisita (id ) {
+        var _token = store.getters.apiToken;
+        return api.listaTipoMotivoAnaliticoVisita(_token, id);
+    },
+    listaUsuariosSso: (sistemaId) => {
+        const token = store.getters.apiToken;
+        return sso.listaUsuarios(token, sistemaId);
+    },
+    listaUsuariosSistema: (cidadeId) => {
+        const token = store.getters.ssoToken;
+        return api.listaUsuarios(token, cidadeId);
+    },
+    listaVisita(id) {
+        var _token = store.getters.apiToken;
+        return api.listaVisita(_token, id, null);
     },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;
