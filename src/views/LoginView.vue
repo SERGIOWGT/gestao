@@ -282,7 +282,6 @@
             usuarioGuid: data.usuarioGuid,
             sistemaId: data.sistemaId
           }
-          console.log(param)
           this.$store.commit('autenticadoSso', param)
           this.autenticaApi()
         })

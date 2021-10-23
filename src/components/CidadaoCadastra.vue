@@ -301,9 +301,9 @@
     import BottomBar from '../components/StepBottomBar'
     import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
-    import formataValores from '../bibliotecas/formataValores'
+    import {formataCelular, formataCpf, data2String} from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
-    import {rotinasCadastraPaciente } from '../rotinasProjeto/rotinasProjeto'
+    import {ordenaComorbidades, ordenaSintomas } from '../rotinasProjeto/rotinasProjeto'
     import TituloPagina from '../components/TituloPagina'
 
     export default {
@@ -496,7 +496,7 @@
                 await mainService.listaPacienteComorbidades(pacienteId)
                 .then (resp => {
                   this.infoPaciente.comorbidades = resp.status == 200 ? resp.data : []
-                  this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(todasComorbidades, this.infoPaciente.comorbidades)
+                  this.infoPesquisa.comorbidadesTela = ordenaComorbidades(todasComorbidades, this.infoPaciente.comorbidades)
                 })
                 .catch(err => {erro=true; this.mensagemErro =  mainService.catchPadrao(err); });
               }
@@ -506,7 +506,7 @@
                 await mainService.listaPacienteSintomas(pacienteId)
                 .then (resp => {
                   this.infoPaciente.sintomas = resp.status == 200 ? resp.data : []
-                  this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(todosSintomas, this.infoPaciente.sintomas)
+                  this.infoPesquisa.sintomasTela = ordenaSintomas(todosSintomas, this.infoPaciente.sintomas)
                 })
                 .catch(err => {erro=true; this.mensagemErro =  mainService.catchPadrao(err); });
               }
@@ -536,8 +536,8 @@
               }
 
             } else {
-              this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(todasComorbidades, null)
-              this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(todosSintomas, null)
+              this.infoPesquisa.comorbidadesTela = ordenaComorbidades(todasComorbidades, null)
+              this.infoPesquisa.sintomasTela = ordenaSintomas(todosSintomas, null)
               this.infoBotoes.temBotaoSalva = true
             }
 
@@ -596,8 +596,8 @@
           },
           novoCidadao() {
             this.limpaDadosPaciente()
-            this.infoPesquisa.comorbidadesTela = rotinasCadastraPaciente.ordenaComorbidades(this.$store.getters.todosSintomas, null)
-            this.infoPesquisa.sintomasTela = rotinasCadastraPaciente.ordenaSintomas(this.$store.getters.todasComorbidades, null)
+            this.infoPesquisa.comorbidadesTela = ordenaComorbidades(this.$store.getters.todosSintomas, null)
+            this.infoPesquisa.sintomasTela = ordenaSintomas(this.$store.getters.todasComorbidades, null)
           },
           required(value) {
             if (value instanceof Array && value.length == 0) 
@@ -676,7 +676,7 @@
 
                   _dataInicio.setDate(_dataHoje.getDate() - this.infoPesquisa.sintomasTela[i].dias)
                   item.id = this.infoPesquisa.sintomasTela[i].id
-                  item.dataInicio = formataValores.dataYYYYMMDD(_dataInicio)
+                  item.dataInicio = data2String(_dataInicio, 'SQL')
                   _sintomas.push (item)
                 }
               }
@@ -749,11 +749,11 @@
             const _dataNascimento = dadosPaciente.dataNascimento.substring(0, 10)
             this.infoPaciente.dataNascimento = _dataNascimento.substring(8, 10) + '/' + _dataNascimento.substring(5, 7) + '/' + _dataNascimento.substring(0, 4)
 
-            this.infoPaciente.telefoneContato = (dadosPaciente.telefoneContato) ? formataValores.celular(dadosPaciente.telefoneContato) : ''
-            this.infoPaciente.celular = (dadosPaciente.celular) ? formataValores.celular(dadosPaciente.celular) : '' 
-            this.infoPaciente.celular2 = (dadosPaciente.celular2) ? formataValores.celular(dadosPaciente.celular2) : '' 
+            this.infoPaciente.telefoneContato = (dadosPaciente.telefoneContato) ? formataCelular(dadosPaciente.telefoneContato) : ''
+            this.infoPaciente.celular = (dadosPaciente.celular) ? formataCelular(dadosPaciente.celular) : '' 
+            this.infoPaciente.celular2 = (dadosPaciente.celular2) ? formataCelular(dadosPaciente.celular2) : '' 
               
-            this.infoPaciente.cpf = formataValores.cpf(dadosPaciente.cpf)
+            this.infoPaciente.cpf = formataCpf(dadosPaciente.cpf)
 
             // Guarda a unidade de saude selecionadea
             this.infoPesquisa.allUnidadesSaude.forEach ((elemento) => {

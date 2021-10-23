@@ -65,9 +65,13 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaPacienteUltimaVisita(_token, pacienteId);
     },
-    listaPacienteVisitas(pacienteId) {
+    listaPacienteVisita(id) {
         var _token = store.getters.apiToken;
-        return api.listaPacienteVisitas(_token, pacienteId, null, null);
+        return api.listaPacienteVisita(_token, id);
+    },
+    listaPacienteVisitas(param) {
+        var _token = store.getters.apiToken;
+        return api.listaPacienteVisitas(_token, param);
     },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
@@ -99,10 +103,6 @@ export default {
     listaUsuariosSistema: (cidadeId) => {
         const token = store.getters.ssoToken;
         return api.listaUsuarios(token, cidadeId);
-    },
-    listaVisita(id) {
-        var _token = store.getters.apiToken;
-        return api.listaVisita(_token, id, null);
     },
     salvaPaciente: (infoPaciente) => {
         var _token = store.getters.apiToken;
@@ -181,7 +181,6 @@ export default {
         return api.autentica(_signKey, usuarioGuid);
     },
     catchPadrao: (response) => {
-        console.log(response)
         let mensagemErro = ''
         if (response) {
             if (response.erros) {

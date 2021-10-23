@@ -96,12 +96,14 @@
             },
             fimCadastroCidadao(volta) {
                 this.operacaoAtual = this.enumOperacao.pesquisa
+                this.mensagemAguarde = ''
 
                 if (volta == false) 
                     this.mensagemSucesso = 'Cidadão ' + (this.pacienteId == 0? 'cadastrado' : 'alterado') + ' com sucesso!' 
             },
             fimCadastroVisita(volta) {
                 this.operacaoAtual = this.enumOperacao.pesquisa
+                this.mensagemAguarde = ''
 
                 if (volta == false) 
                     this.mensagemSucesso = 'Visita incluída com sucesso!' 

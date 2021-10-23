@@ -1,14 +1,54 @@
+export function formataCpf(v) {return v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')} ; // eslint-disable-line
+export function formataCnpj(v) {return (v.length == 11) ? v.toString().replace(/(\d{2})(\d{5})(\d{4})/, '$1 $2-$3') : v.toString().replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3')}
+export function formataCelular(v) {return ((v.length == 11) ? v.toString().replace(/(\d{2})(\d{5})(\d{4})/, '$1 $2-$3') : v.toString().replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3'))} 
+export function stringDataSql2Br(v) {
+    if (!v) return null;
+
+    if (v.length > 10)
+        v = v.substring(0,10);
+
+    const [year, month, day] = v.split('-')
+    return `${day}/${month}/${year}`
+}
+export function data2String(data, padrao) {
+    if (!data)
+        return ''
+
+    padrao = (padrao == null) ? 'SQL' : padrao.toUpperCase();
+
+    return (padrao == 'BR') ? `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}` : `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`
+}
+export function string2Data(data, formato, delimitador) {
+    const _formato = formato.toLowerCase();
+    const _itens = _formato.split(delimitador)
+    const _itensData = data.split(delimitador)
+
+    const _iMes =_itens.indexOf("mm");
+    const _iDia =_itens.indexOf("dd");
+    const _iAno=_itens.indexOf("yyyy");
+
+    let _mes =parseInt(_itensData[_iMes]);
+    _mes--;
+        
+    return new Date(_itensData[_iAno], _mes,_itensData[_iDia]);
+}
+
+/*
+
 export default {
-    cpf(val){
-        return val.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') // eslint-disable-line
-    },
-    cnpj(){
-    },
-    celular(val){
-        return ((val.length == 11) ? val.toString().replace(/(\d{2})(\d{5})(\d{4})/, '$1 $2-$3') : val.toString().replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3')) 
-    },
     data(val) {
         if (!val) return null;
+
+        const [year, month, day] = val.split('-')
+        return `${day}/${month}/${year}`
+
+        //return val.toString().replace(/(\d{4})\-(\d{2})\-(\d{2})/,'$3/$2/$1'); // eslint-disable-line
+    },
+    strDataSqlToBr(val) {
+        if (!val) return null;
+
+        if (val.length > 10)
+            val = val.substring(0,10);
 
         const [year, month, day] = val.split('-')
         return `${day}/${month}/${year}`
@@ -33,19 +73,5 @@ export default {
                 val.getFullYear()
                ].join('');
     }
-    /*
-    formatDate (date) {
-        if (!date) return null
 
-        const [year, month, day] = date.split('-')
-        return `${month}/${day}/${year}`
-      },
-      parseDate (date) {
-        if (!date) return null
-
-        const [month, day, year] = date.split('/')
-        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-      },
-      */
-
-}
+*/

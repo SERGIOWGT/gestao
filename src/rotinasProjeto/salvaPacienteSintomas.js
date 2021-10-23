@@ -1,4 +1,4 @@
-import formataValores from '../bibliotecas/formataValores'
+import {data2String} from '../bibliotecas/formataValores'
 import mainService from '../services/mainService'
 export default {
     data() {
@@ -14,7 +14,7 @@ export default {
 
                 _dataInicio.setDate(_dataHoje.getDate() - sintomas[i].dias)
                 item.id = sintomas[i].id
-                item.dataInicio = formataValores.dataYYYYMMDD(_dataInicio)
+                item.dataInicio = data2String(_dataInicio, 'SQL')
                 
                 _sintomas.push (item)
             }

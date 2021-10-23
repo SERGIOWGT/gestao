@@ -13,10 +13,16 @@
                     <v-expansion-panel-content>
                         <v-card flat tile>
                             <v-card-text class="pt-4 px-0">
-                                <v-text-field  dense disabled label="Data da Visita" v-model="tipoDataVisita" />
-                                <v-text-field dense disabled label="Tipo da Visita" v-model="infoUltimaVisita.nomeTipoVisita"/>
-                                <v-text-field dense disabled label="Ação" v-model="infoUltimaVisita.nomeAcaoVisita" />
-                                <v-textarea auto-grow disabled label="Resumo" v-model="infoUltimaVisita.resumo" row-height="10" ></v-textarea>
+                                <v-text-field dense disabled label="Data da Visita" v-model="infoUltimaVisita.data" />
+                                <v-text-field dense disabled label="Motivo" v-model="infoUltimaVisita.nomeTipoMotivo"/>
+                                <v-text-field dense disabled hide-details label="Detalhamento do Motivo" v-model="infoUltimaVisita.nomeTipoMotivoAnalitico"/>
+                                <v-row class="mt-0">
+                                    <v-col cols="6"><v-text-field dense disabled label="Peso em KG" v-model="infoUltimaVisita.peso"/></v-col>
+                                    <v-col cols="6"><v-text-field dense disabled label="Altura em cm" v-model="infoUltimaVisita.altura"/></v-col>
+                                </v-row>
+                                <v-text-field dense disabled label="Tipo de Ação" v-model="infoUltimaVisita.nomeAcao"/>
+                                <v-text-field dense disabled label="Desfecho" v-model="infoUltimaVisita.nomeDesfecho"/>
+                                <v-textarea dense auto-grow disabled label="Resumo" v-model="infoUltimaVisita.resumo" row-height="10" ></v-textarea>
                             </v-card-text>
                         </v-card>
                     </v-expansion-panel-content>
@@ -151,8 +157,8 @@
     import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
     import BottomBar from '../components/StepBottomBar'
-    import {rotinasCadastraPaciente } from '../rotinasProjeto/rotinasProjeto'
-    import formata from '../bibliotecas/formataValores'
+    import {preparaSintomas2Save, ordenaSintomas} from '../rotinasProjeto/rotinasProjeto'
+    import {data2String, stringDataSql2Br, string2Data} from '../bibliotecas/formataValores'
     import TituloPagina from '../components/TituloPagina'
     import ExpansionVisitaCidadao from '../components/ExpansionVisitaCidadao.vue'
     import ExpansionLista from '../components/ExpansionListaCeS.vue'
@@ -219,7 +225,12 @@
             infoUltimaVisita:  {
                 id: 0,
                 data: '',
+                altura: 0,
+                peso: 0,
                 nomeTipoMotivo: '',
+                nomeTipoMotivoAnalitico: '',
+                nomeAcao: '',
+                nomeDesfecho: 0,
                 resumo: ''
             },
 
@@ -231,7 +242,7 @@
           }
         },
         async mounted() {
-            this.infoVisita.data = formata.dataDDMMYYYY(new Date())
+            this.infoVisita.data = data2String(new Date(), 'BR')
             this.buscandoDados = true
             await this.listaPaciente(this.pacienteId)
             this.buscandoDados = false
@@ -262,7 +273,7 @@
                 if (this.infoUltimaVisita.id == 0)
                     return ''
                     
-                const str = formata.data(this.infoUltimaVisita.data.substring(0, 10))
+                const str = stringDataSql2Br(this.infoUltimaVisita.data)
                 return `${this.infoUltimaVisita.nomeTipoMotivo} em ${str}`
             },
         },       
@@ -353,7 +364,7 @@
                     this.mensagemAguarde = ''
                     this.infoCidadao.sintomas = resp.status == 200 ? resp.data : []
                     const _todosSintomas = this.$store.getters.todosSintomas
-                    this.infoVisita.sintomas = rotinasCadastraPaciente.ordenaSintomas(_todosSintomas, this.infoCidadao.sintomas)
+                    this.infoVisita.sintomas = ordenaSintomas(_todosSintomas, this.infoCidadao.sintomas)
                 })
                 .catch((response) => {
                     erroBusca = true
@@ -368,18 +379,27 @@
                 await mainService.listaPacienteUltimaVisita(pacienteId)
                 .then((resp) => {
                     this.mensagemAguarde = ''
-                    if ((resp.status == 200) && (resp.data.length > 0)) {
-                        const data = resp.data[0]
-                        this.infoUltimaVisita.data = data.dataVisita
+                    if (resp.status == 200)  {
+                        const data = resp.data
                         this.infoUltimaVisita.id = data.id
+                        this.infoUltimaVisita.data = stringDataSql2Br(data.dataVisita)
                         this.infoUltimaVisita.nomeTipoMotivo = data.nomeTipoMotivoVisita
                         this.infoUltimaVisita.resumo = data.relatorioVisita
-
+                        this.infoUltimaVisita.altura = data.altura
+                        this.infoUltimaVisita.peso= data.peso
+                        this.infoUltimaVisita.nomeTipoMotivoAnalitico = data.nomeTipoMotivoVisitaAnalitico
+                        this.infoUltimaVisita.nomeAcao = data.nomeAcaoVisita
+                        this.infoUltimaVisita.nomeDesfecho= data.nomeDesfechoVisita
                     } else {
                         this.infoUltimaVisita.data = ''
                         this.infoUltimaVisita.id = 0
                         this.infoUltimaVisita.nomeTipoMotivo = ''
                         this.infoUltimaVisita.resumo = ''
+                        this.infoUltimaVisita.altura = ''
+                        this.infoUltimaVisita.peso= ''
+                        this.infoUltimaVisita.nomeTipoMotivoAnalitico = ''
+                        this.infoUltimaVisita.nomeTipoAcao = ''
+                        this.infoUltimaVisita.nomeDesfecho= ''
                     }
                 })
                 .catch((response) => {
@@ -395,8 +415,8 @@
                 this.mensagemAguarde = 'Salvando a visita. Aguarde...'
 
                 const strDataVisita = this.infoVisita.data.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1')  // eslint-disable-line
-                const dataVisita = rotinasCadastraPaciente.stringToDate(this.infoVisita.data, 'dd/mm/yyyy','/');
-                const sintomas = rotinasCadastraPaciente.preparaSintomas2Save(dataVisita, this.infoVisita.sintomas);
+                const dataVisita = string2Data(this.infoVisita.data, 'dd/mm/yyyy','/');
+                const sintomas = preparaSintomas2Save(dataVisita, this.infoVisita.sintomas);
 
                 let altura = parseFloat(this.infoVisita.altura);
                 if (isNaN(altura))

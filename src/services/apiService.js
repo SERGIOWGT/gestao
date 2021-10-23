@@ -93,9 +93,6 @@ export default {
         if (id) 
             _url += `&id=${id}`
 
-
-        console.log(_url)
-
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaPaciente: (token, pacienteId) => {
@@ -228,16 +225,118 @@ export default {
         const url = `pacienteVisitas/ListaUltimaVisita?pacienteId=${pacienteId}`
         return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
     },
-    listaPacienteVisitas: (token, pacienteId, dataInicio, dataFim) => {
-        let url = `pacienteVisitas/ListaCompleta?pacienteId=${pacienteId}`
-
-        if (dataInicio)
-            url += `&dataInicio=${dataInicio}`
-
-        if (dataFim)
-            url += `&dataFim=${dataFim}`
-
+    listaPacienteVisita (token, id) {
+        const url = `pacienteVisitas/ListaVisita?id=${id}`
         return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
+    },
+    listaPacienteVisitas: (token, param) => {
+        let url = `pacienteVisitas/ListaCompleta`
+        
+        let paramPost = {
+            id: 0,
+            pacienteId: 0,
+            nomepaciente: null,
+            tipoMotivoVisitaAnaliticoId: 0,
+            tipoAcaoVisitaId: 0,
+            TipoSolucaoVisitaId: 0,
+            unidadeSaudeId: 0,
+            microAreaId: 0,
+            cidadeId: 0,
+            bairroId: 0,
+            logradouroId: 0,
+            numeroEndereco: null,
+            complementoEndereco: null,
+            CPF: null,
+            cartaoSUS: null,
+            sexo: null,
+            tipoEstadoSaudeId: 0,
+            dataNascimento: null,
+            dataVisitaInicio: null,
+            dataVisitaFim: null,
+            dataSolucaoInicio: null,
+            dataSolucaoFim: null,
+            numeroMaxLinhas: 50,
+            sintomas: [],
+            comorbidades: [],
+            doencas: [],
+        }
+        if (param.id)  
+            paramPost.id = param.id
+        else {
+            if (param.pacienteId) 
+                paramPost.pacienteId = param.pacienteId
+
+            if (param.nomepaciente) 
+                paramPost.nomepaciente = param.nomepaciente
+
+            if (param.tipoMotivoVisitaAnaliticoId) 
+                paramPost.tipoMotivoVisitaAnaliticoId = param.tipoMotivoVisitaAnaliticoId
+
+            if (param.tipoAcaoVisitaId) 
+                paramPost.tipoAcaoVisitaId = param.tipoAcaoVisitaId
+
+            if (param.TipoSolucaoVisitaId) 
+                paramPost.TipoSolucaoVisitaId = param.TipoSolucaoVisitaId
+
+            if (param.unidadeSaudeId) 
+                paramPost.unidadeSaudeId = param.unidadeSaudeId
+
+            if (param.microAreaId) 
+                paramPost.microAreaId = param.microAreaId
+
+            if (param.cidadeId) 
+                paramPost.cidadeId = param.cidadeId
+
+            if (param.bairroId) 
+                paramPost.bairroId = param.bairroId
+
+            if (param.logradouroId) 
+                paramPost.logradouroId = param.logradouroId
+
+            if (param.numeroEndereco) 
+                paramPost.numeroEndereco = param.numeroEndereco
+
+            if (param.complementoEndereco) 
+                paramPost.complementoEndereco = param.complementoEndereco
+
+            if (param.cpf) 
+                paramPost.CPF = param.cpf
+
+            if (param.cartaoSUS) 
+                paramPost.cartaoSUS = param.cartaoSUS
+
+            if (param.sexo) 
+                paramPost.sexo = param.sexo
+
+            if (param.tipoEstadoSaudeId) 
+                paramPost.tipoEstadoSaudeId = param.tipoEstadoSaudeId
+    
+            if (param.dataNascimento)
+                paramPost.dataNascimento = param.dataNascimento
+    
+            if (param.dataVisitaInicio)
+                paramPost.dataVisitaInicio = param.dataVisitaInicio
+            
+            if (param.dataVisitaFim)
+                paramPost.dataVisitaFim = param.dataVisitaFim
+            
+            if (param.dataSolucaoInicio)
+                paramPost.dataSolucaoInicio = param.dataSolucaoInicio
+            
+            if (param.dataSolucaoFim)
+                paramPost.dataSolucaoFim = param.dataSolucaoFim
+
+            if (param.sintomas) {
+                paramPost.sintomas = param.sintomas
+            }
+            if (param.comorbidades) {
+                paramPost.comorbidades = param.comorbidades
+            }
+            if (param.doencas) {
+                paramPost.doencas = param.doencas
+            }
+        }
+        return http.post(url, paramPost, {headers: {'Authorization': `bearer ${token}`} })
     },
     listaSintomas (token) {
         const url = 'tipoSintomas'
@@ -282,12 +381,6 @@ export default {
         retorno.data.push({id:3, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Fulano de Guarara', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
 
         return retorno
-    },
-    listaVisita: (token, id) => {
-        let _url = `PacienteVisitas/ListaUltimaVisita`
-        if (id)
-            _url += `?id=${id}`
-        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     salvaBairro: (token, cidadeId, id, nome) => {
         let _params = {}
@@ -360,7 +453,6 @@ export default {
             'PacienteId' : pacienteId,
             'TipoSintomas': sintomas
        }
-       console.log('salvaPacienteSintomas', _params)
        return http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
     },
     salvaUnidadeSaude: (token, cidadeId, id, nome) => {

@@ -1,139 +1,118 @@
-export const rotinasCadastraPaciente = {
-    data2SQL(val) {
-        var mm = val.getMonth() + 1; // getMonth() is zero-based
-        var dd = val.getDate();
-      
-        return [val.getFullYear(),'-',
-                (mm>9 ? '' : '0') + mm,'-',
-                (dd>9 ? '' : '0') + dd
-               ].join('');
-    },
-    stringToDate(_date,_format,_delimiter)
-    {
-        var formatLowerCase=_format.toLowerCase();
-        var formatItems=formatLowerCase.split(_delimiter);
-        var dateItems=_date.split(_delimiter);
-        var monthIndex=formatItems.indexOf("mm");
-        var dayIndex=formatItems.indexOf("dd");
-        var yearIndex=formatItems.indexOf("yyyy");
-        var month=parseInt(dateItems[monthIndex]);
-        month-=1;
-        var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
-        return formatedDate;
-    },
-    ordenaComorbidades(todasComorbidades, ComorbidadesCidadao){
-        let retorno=[]
-        if (ComorbidadesCidadao == null) {
-            todasComorbidades.forEach((linha ) => {
-                const item = {
-                    id: linha.id, 
-                    nome: linha.nome,
-                    selecionado: false
-                }
-                retorno.push(item)
-            })
-            return retorno
-        }
-        let aux =[]
-        ComorbidadesCidadao.forEach(linha => {
-            const index = todasComorbidades.findIndex( el => el.id === linha.id );
-            if (index != -1) {
-                aux.push(index)
-            }
-            
-        });
-        aux.sort((a, b) => {return a - b;});
+import {data2String, string2Data} from '../bibliotecas/formataValores'
 
+export function ordenaComorbidades(todasComorbidades, ComorbidadesCidadao) {
+    let retorno=[]
+    if (ComorbidadesCidadao == null) {
+        todasComorbidades.forEach((linha ) => {
+            const item = {
+                id: linha.id, 
+                nome: linha.nome,
+                selecionado: false
+            }
+            retorno.push(item)
+        })
+        return retorno
+    }
+    let aux =[]
+    ComorbidadesCidadao.forEach(linha => {
+        const index = todasComorbidades.findIndex( el => el.id === linha.id );
+        if (index != -1) {
+            aux.push(index)
+        }
         
-        aux.forEach((linha) => {
-            const item = {
-                id: todasComorbidades[linha].id, 
-                nome: todasComorbidades[linha].nome,
-                selecionado: true
-            }
-            retorno.push(item)
-        })
+    });
+    aux.sort((a, b) => {return a - b;});
 
-        todasComorbidades.forEach((linha, index) => {
-            if (!aux.includes(index)) {
-                const item = {
-                    id: linha.id, 
-                    nome: linha.nome,
-                    selecionado: false
-                }
-                retorno.push(item)
-            }
-        })
-        return retorno
-    },
-    ordenaSintomas(todosSintomas, sintomasCidadao){
-        let retorno=[]
-        if (sintomasCidadao == null) {
-            todosSintomas.forEach((linha) => {
-                const item = {
-                    id: linha.id, 
-                    nome: linha.nome,
-                    dias: 0,
-                    selecionado: false
-                }
-                retorno.push(item)
-            })
-            return retorno
+    
+    aux.forEach((linha) => {
+        const item = {
+            id: todasComorbidades[linha].id, 
+            nome: todasComorbidades[linha].nome,
+            selecionado: true
         }
+        retorno.push(item)
+    })
 
-        let aux =[]
-        sintomasCidadao.forEach(linha => {
-            const index = todosSintomas.findIndex( el => el.id === linha.id );
-            if (index != -1) {
-                aux.push(index)
-            }
-            
-        });
-        aux.sort((a, b) => {return a - b;});
-
-        const dataHoje = new Date()
-        aux.forEach((linha, index) => {
-            const dataSintoma = this.stringToDate(sintomasCidadao[index].dataInicio, 'yyyy-MM-dd', '-')
+    todasComorbidades.forEach((linha, index) => {
+        if (!aux.includes(index)) {
             const item = {
-                id: todosSintomas[linha].id, 
-                nome: todosSintomas[linha].nome,
-                dias: parseInt((dataHoje - dataSintoma) / (1000 * 60 * 60 * 24), 10),
-                selecionado: true
+                id: linha.id, 
+                nome: linha.nome,
+                selecionado: false
+            }
+            retorno.push(item)
+        }
+    })
+    return retorno
+}
+    
+export function ordenaSintomas(todosSintomas, sintomasCidadao){
+    let retorno=[]
+    if (sintomasCidadao == null) {
+        todosSintomas.forEach((linha) => {
+            const item = {
+                id: linha.id, 
+                nome: linha.nome,
+                dias: 0,
+                selecionado: false
             }
             retorno.push(item)
         })
-
-        todosSintomas.forEach((linha, index) => {
-            if (!aux.includes(index)) {
-                const item = {
-                    id: linha.id, 
-                    nome: linha.nome,
-                    dias: 0,
-                    selecionado: false
-                }
-                retorno.push(item)
-            }
-        })
         return retorno
-    },
-    preparaSintomas2Save(dataBase, sintomas) {
-        let retorno = [];
-
-        let dataInicio = new Date()
-        sintomas.forEach((linha) => {
-            if (linha.selecionado) {
-                dataInicio.setDate(dataBase.getDate() - linha.dias)
-
-                const item = {
-                    id: linha.id,
-                    dataInicio: this.data2SQL(dataInicio)
-                }
-                retorno.push (item)
-            }
-        })
-
-        return retorno;
     }
 
+    let aux =[]
+    sintomasCidadao.forEach(linha => {
+        const index = todosSintomas.findIndex( el => el.id === linha.id );
+        if (index != -1) {
+            aux.push(index)
+        }
+        
+    });
+    aux.sort((a, b) => {return a - b;});
+
+    const dataHoje = new Date()
+    aux.forEach((linha, index) => {
+        const dataSintoma = string2Data(sintomasCidadao[index].dataInicio, 'yyyy-mm-dd', '-')
+        const item = {
+            id: todosSintomas[linha].id, 
+            nome: todosSintomas[linha].nome,
+            dias: parseInt((dataHoje - dataSintoma) / (1000 * 60 * 60 * 24), 10),
+            selecionado: true
+        }
+        retorno.push(item)
+    })
+
+    todosSintomas.forEach((linha, index) => {
+        if (!aux.includes(index)) {
+            const item = {
+                id: linha.id, 
+                nome: linha.nome,
+                dias: 0,
+                selecionado: false
+            }
+            retorno.push(item)
+        }
+    })
+    return retorno
+}
+
+export function preparaSintomas2Save(dataBase, sintomas) {
+    let retorno = [];
+
+    let dataInicio = new Date()
+    sintomas.forEach((linha) => {
+        if (linha.selecionado) {
+            dataInicio.setDate(dataBase.getDate() - linha.dias)
+
+            const item = {
+                id: linha.id,
+                dataInicio: data2String(dataInicio, 'SQL')
+            }
+            retorno.push (item)
+        }
+    })
+
+    return retorno;
 }
 
