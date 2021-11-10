@@ -199,6 +199,7 @@ export default {
         this.microAreaPadrao = this.$store.getters.microAreaPadrao
         this.bairroPadrao = this.$store.getters.bairroPadrao
         this.logradouroPadrao = this.$store.getters.logradouroPadrao
+        this.$store.commit('habilitaUserbar', false)
     },
     mounted() {
         this.buscaDadosIniciais()
@@ -280,6 +281,7 @@ export default {
                 this.listas.bairros = _resposta.status == 200  ? _resposta.data : []
              })
             .catch((response) => {
+                this.mensagemAguarde = '';
                 this.mensagemErro =  mainService.catchPadrao(response)
             })
         },
@@ -291,6 +293,7 @@ export default {
                 this.listas.logradouros = resposta.status == 200  ? resposta.data : []
             })
             .catch((response) => {
+                this.mensagemAguarde = '';
                 this.mensagemErro =  mainService.catchPadrao(response)
             })
         },
@@ -301,6 +304,7 @@ export default {
                 this.listas.microAreas = resposta.status == 200  ? resposta.data : []
             })
             .catch((response) => {
+                this.mensagemAguarde = '';
                 this.mensagemErro =  mainService.catchPadrao(response)
             })
         },
@@ -312,6 +316,7 @@ export default {
                 this.listas.unidadesSaude = (_resposta.status == 200)  ?  _resposta.data : []
              })
             .catch((response) => {
+                this.mensagemAguarde = '';
                 this.mensagemErro =  mainService.catchPadrao(response)
             })
         },
@@ -421,6 +426,7 @@ export default {
                             }
                         })
                         .catch(response => {
+                            this.mensagemAguarde = '';
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
@@ -438,6 +444,7 @@ export default {
                             }
                         })
                         .catch(response => {
+                            this.mensagemAguarde = '';
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
@@ -454,6 +461,7 @@ export default {
                             }
                         })
                         .catch(response => {
+                            this.mensagemAguarde = '';
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
@@ -470,6 +478,7 @@ export default {
                             }
                         })
                         .catch(response => {
+                            this.mensagemAguarde = '';
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
@@ -511,6 +520,7 @@ export default {
                         }
                     })
                     .catch(response => {
+                        this.mensagemAguarde = '';
                         this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
@@ -527,6 +537,7 @@ export default {
                         }
                     })
                     .catch(response => {
+                        this.mensagemAguarde = '';
                         this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
@@ -543,6 +554,7 @@ export default {
                         }
                     })
                     .catch(response => {
+                        this.mensagemAguarde = '';
                         this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;
@@ -559,6 +571,7 @@ export default {
                         }
                     })
                     .catch(response => {
+                        this.mensagemAguarde = '';
                         this.mensagemErro=mainService.catchPadrao(response)
                     })
                     break;

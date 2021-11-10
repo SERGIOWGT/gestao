@@ -114,7 +114,7 @@
                                 :rules="[regras.Basicas.obrigatorio()]"
                             ></v-autocomplete> 
                             <small>Desfecho da Visita*</small>
-                            <v-radio-group  class="py-0 my-0" dense row hide-details v-model="infoVisita.tipoDesfechoVisitaId">
+                            <v-radio-group  class="py-0 my-0" required dense row hide-details v-model="infoVisita.tipoDesfechoVisitaId">
                                 <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="1" label="Realizada"></v-radio></v-col>
                                 <v-col cols="4" class="py-1 my-1"><v-radio value="2" label="Ausente"></v-radio></v-col>
                                 <v-col cols="3" class="py-1 my-1"><v-radio value="3" label="Recusado"></v-radio></v-col>
@@ -178,12 +178,6 @@
             },
             areaPesquisaAberta: 0,
             formularioValido: false,
-
-            cidadePadrao: null,
-            unidadeSaudePadrao: null,
-            mnicroAreaPadrao: null,
-            bairroPadrao: null,
-            logradouroPadrao: null,
             podeSalvar: false,
 
             infoCidadao: {
@@ -218,7 +212,7 @@
                     id: 0,
                     nome: ''
                 },
-                tipoDesfechoVisitaId: 0,
+                tipoDesfechoVisitaId: '1',
                 resumo: '',
                 sintomas:[]
             },

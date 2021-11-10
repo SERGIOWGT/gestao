@@ -3,12 +3,11 @@
         <!-- <v-subheader class="justify-center px-0">
             <v-col cols="1" ><v-row justify="start"><v-btn icon color="teal lighten-2" @click="$router.back()"><v-icon>mdi-arrow-left</v-icon></v-btn></v-row></v-col>
             <v-col class="px-1 teal--text" cols="10"><v-row justify="center"><h4 class="teal--text ">CONSULTA PARA CADASTRO DE CIDADÃO</h4></v-row></v-col>                    
-            <v-col cols="1"><v-row justify="end"><v-btn icon color="teal lighten-2" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn></v-row></v-col> 
+            <v-col cols="1"><v-row justify="end"><v-btn icon color="teal lighten-2" @click="novo()"><v-icon disabled="somenteConsulta">mdi-account-plus-outline</v-icon></v-btn></v-row></v-col> 
         </v-subheader> -->
-        <TituloPagina titulo="CONSULTA PARA CADASTRO DE CIDADÃO" @cbAnterior="$router.back()" iconBotao="mdi-account-plus-outline" @cbBotao="novo()"/>
-       
-        <PesquisaPorNome  :aberto="statusPainel==1" :cidadeId="cidadePadrao.id" :habilitaPesquisa="!isLoadingGrid" 
-                          @cbAbriu="abrePanelNome" @cbBusca="cbBuscaPorPacienteId"/>
+        <TituloPagina titulo="CONSULTA PARA CADASTRO DE CIDADÃO" @cbAnterior="$router.back()" :iconBotao="(somenteConsulta) ? '' : 'mdi-account-plus-outline'" @cbBotao="novo()"/>
+        <PesquisaPorNome  :aberto="statusPainel==1" :cidadeId="cidadePadrao.id" :habilitaPesquisa="!isLoadingGrid" tituloData="" 
+                          @cbAbriu="abrePanelNome" @cbBusca="cbBuscaPorPaciente"/>
 
         <PesquisaPorOutros  :aberto="statusPainel==2" :habilitaPesquisa="!isLoadingGrid"  
                           @cbAbriu="abrePanelOutros" @cbBusca="cbBuscaPorOutros"/>
@@ -19,8 +18,8 @@
                     <v-col class="px-1" cols="9"><b>{{tituloLista}}</b></v-col>                    
                     <v-col cols="3" >
                         <v-row justify="end">
-                            <v-btn icon color="teal lighten-2" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn>
-                            <v-btn icon color="teal lighten-2" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
+                            <v-btn :disabled="somenteConsulta" icon color="primary" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn>
+                            <v-btn icon color="primary" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
                         </v-row>
                     </v-col> 
                 </v-subheader>
@@ -36,7 +35,7 @@
                             <v-list-item-subtitle v-html="linha(4, item.cpf || '')"></v-list-item-subtitle>
                              <v-list-item-subtitle v-html="item.nomeEstadoSaude || '' "></v-list-item-subtitle>
                         </v-list-item-content>
-                        <v-btn icon color="teal lighten-2" @click="edita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
+                        <v-btn icon color="primary" @click="edita(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
                     </v-list-item>
                     <v-divider></v-divider>
                     </v-flex>
@@ -53,7 +52,7 @@
 
   export default {
     props: {
-      mostra: Boolean,
+      mostra: Boolean, somenteConsulta: Boolean
     },
     components: {PesquisaPorNome, PesquisaPorOutros, TituloPagina},
     data() {
@@ -119,9 +118,9 @@
                     this.statusPainel = 2
                 }
             },
-            cbBuscaPorPacienteId (pacienteId) {
-                this.infoPaciente.id = pacienteId
-                this.listaById(pacienteId)
+            cbBuscaPorPaciente (param) {
+                this.infoPaciente.id = param.pacienteId
+                this.listaById(this.infoPaciente.id)
             },
             cbBuscaPorOutros(v) {
                 this.infoPaciente.dataNascimento = v.dataNascimento
@@ -167,7 +166,7 @@
                 await mainService.listaPaciente(pacienteId)
                 .then((resp) => {
                     this.isLoadingGrid = false
-                     this.mensagemAguarde =  ''
+                    this.mensagemAguarde =  ''
                     if (resp.status == 200) {
                         this.resultadoPesquisa = []
                         this.resultadoPesquisa.push(resp.data)
@@ -178,7 +177,9 @@
                     }
                 })
                 .catch((resp) => {
-                    this.isLoadingGrid = false; this.mensagemErro =  mainService.catchPadrao(resp)
+                    this.mensagemAguarde =  ''
+                    this.isLoadingGrid = false 
+                    this.mensagemErro =  mainService.catchPadrao(resp)
                 })
             },
             async listaByParams() {
@@ -203,7 +204,9 @@
                     }
                 })
                 .catch((resp) => {
-                    this.isLoadingGrid = false; this.mensagemErro =  mainService.catchPadrao(resp)
+                    this.mensagemAguarde =  ''
+                    this.isLoadingGrid = false; 
+                    this.mensagemErro =  mainService.catchPadrao(resp)
                 })
             },
         }

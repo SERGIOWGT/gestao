@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar app flat dark  color="teal darken-4">
+    <v-app-bar app flat dark  color="teal darken-4" class="pr-2">
       <div>
         <v-btn  icon v-on:click="goHome()">
           <v-icon>mdi-menu</v-icon>

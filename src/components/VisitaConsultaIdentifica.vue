@@ -3,8 +3,8 @@
         <TituloPagina titulo="CONSULTA PARA VISITAS DO CIDADÃO" @cbAnterior="$router.back()"/>
         
         <v-flex>
-            <PesquisaPorNome  :aberto="statusPainel==1" :cidadeId="cidadePadrao.id" :habilitaPesquisa="!isLoadingGrid" 
-                              @cbAbriu="cbAbrePainelNome"  @cbBusca="cbBuscaPorPacienteId"
+            <PesquisaPorNome  :aberto="statusPainel==1" :cidadeId="cidadePadrao.id" :habilitaPesquisa="!isLoadingGrid"  tituloData="Período de visitação" 
+                              @cbAbriu="cbAbrePainelNome"  @cbBusca="cbBuscaPorPaciente"
             />
             
             <v-card flat class="pt-0 mt-0" tile v-if="gridPronto">
@@ -13,7 +13,7 @@
                             <v-col class="px-1" cols="9"><b>{{tituloLista}}</b></v-col>                    
                             <v-col cols="3" >
                                 <v-row justify="end">
-                                    <v-btn icon color="teal lighten-2" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
+                                    <v-btn icon color="primary" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
                                 </v-row>
                             </v-col> 
                         </v-subheader>
@@ -30,7 +30,7 @@
                                             <v-list-item-subtitle>{{item.nomeDesfechoVisita}}</v-list-item-subtitle>
                                         </v-col>
                                         <v-col cols="1" class="justify-center pt-6">
-                                            <v-btn icon color="teal lighten-2" @click="visualizaVisita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
+                                            <v-btn icon color="primary" @click="visualizaVisita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-list-item>
@@ -46,7 +46,7 @@
     import mainService from '../services/mainService'
     import PesquisaPorNome from '../components/PesquisaCidadaoPorNome'
     import TituloPagina from '../components/TituloPagina'
-    import { stringDataSql2Br } from '../bibliotecas/formataValores'
+    import { stringDataSql2Br, stringDataBr2Sql } from '../bibliotecas/formataValores'
 
     export default {
         components: {PesquisaPorNome, TituloPagina},
@@ -58,8 +58,12 @@
             gridPronto: false,
 
             cidadePadrao: null,
-            
-            pacienteId: 0,
+
+            infosPesquisa: {
+                pacienteId: 0,
+                dataInicioVisita: '',
+                dataFimVisita: ''
+            },
             
             mensagemAguarde: '',
             mensagemErro: '',
@@ -104,9 +108,12 @@
                     this.statusPainel = 1
                 }
             },
-            cbBuscaPorPacienteId (pacienteId, nomePaciente) {
-                this.pacienteId = pacienteId;
-                this.nomePaciente = nomePaciente
+            cbBuscaPorPaciente (param) {
+                this.infosPesquisa.pacienteId = param.pacienteId;
+                this.infosPesquisa.dataInicioVisita = stringDataBr2Sql(param.dataInicio);
+                this.infosPesquisa.dataFimVisita = stringDataBr2Sql(param.dataFim);
+                this.nomePaciente = ''
+
                 this.listaVisitas();
             },
             visualizaVisita(id) {
@@ -125,7 +132,7 @@
                 this.gridPronto = false
                 this.mensagemAguarde = 'Consultando visitas do cidadão! Aguarde...'
 
-                const param = {pacienteId: this.pacienteId}
+                const param = {pacienteId: this.infosPesquisa.pacienteId, dataVisitaInicio: this.infosPesquisa.dataInicioVisita, dataVisitaFim: this.infosPesquisa.dataFimVisita}
                 await mainService.listaPacienteVisitas(param)
                 .then(_resposta => {
                     this.mensagemAguarde = ''
@@ -137,9 +144,9 @@
                     } else {
                         this.mensagemErro = _resposta.message
                     }
-                    this.mensagemAguarde = '';
                 })
                 .catch((response) => {
+                    this.mensagemAguarde = '';
                     this.mensagemErro =  mainService.catchPadrao(response)
                 })
             },

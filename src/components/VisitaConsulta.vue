@@ -110,7 +110,6 @@
                 await mainService.listaPacienteVisita(visitaId)
                 .then((_visita) => {
                     this.mensagemAguarde = ''        
-                    console.log('_visita', _visita)
                      if (_visita.status == 200) {
                         this.infoVisita.dataVisita = stringDataSql2Br(_visita.data.dataVisita);
                         this.infoVisita.tipoMotivo = _visita.data.nomeTipoMotivoVisita;
@@ -126,7 +125,7 @@
                         this.infoCidadao.numeroEndereco = _visita.data.numeroEndereco
                         this.infoCidadao.complementoEndereco = _visita.data.complementoEndereco
                         this.infoCidadao.nomeMicroArea = _visita.data.nomeMicroArea
-                        this.infoCidadao.nomeEstadoSaude = '_visita.data.nomeEstadoSaude'
+                        this.infoCidadao.nomeEstadoSaude = _visita.data.nomeTipoEstadoSaude
                     }
                     else {
                         erroBusca = true
@@ -134,6 +133,7 @@
                     }
                 })
                 .catch((response) => {
+                     this.mensagemAguarde = ''
                     erroBusca = true
                     this.mensagemErro =  mainService.catchPadrao(response)
                 })
@@ -145,6 +145,7 @@
                     this.infoCidadao.comorbidades = resp.status == 200 ? resp.data : []
                 })
                 .catch((response) => {
+                    this.mensagemAguarde = ''
                     erroBusca = true
                     this.mensagemErro =  mainService.catchPadrao(response)
                 })
@@ -157,6 +158,7 @@
             fimCadastro (volta) {
                 this.$emit('cbFimCadastro', volta)
             },
+            
         }
     }
 </script>

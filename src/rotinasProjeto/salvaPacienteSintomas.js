@@ -5,14 +5,17 @@ export default {
     },
     async salvaSintomas(pacienteId, sintomas, mostraMensagem, mostraErro, callback){ 
         let _sintomas = []
-        const _dataHoje = new Date()
-        const _dataInicio = new Date()
-        
+        const _dataAux = new Date()
+        const _dataHoje = new Date(_dataAux.getFullYear(),_dataAux.getMonth()+1,_dataAux.getDate())
+        let _dataInicio = _dataHoje
+
         for (let i = 0;  i < sintomas.length; i++) {
             if (sintomas[i].selecionado) {
                 let item = {}
 
-                _dataInicio.setDate(_dataHoje.getDate() - sintomas[i].dias)
+                _dataInicio = _dataInicio.setDate(_dataHoje.getDate() - sintomas[i].dias)
+                console.log('_dataHoje, _dataInicio', _dataHoje, _dataInicio)
+
                 item.id = sintomas[i].id
                 item.dataInicio = data2String(_dataInicio, 'SQL')
                 
@@ -34,7 +37,8 @@ export default {
                         mostraMensagem(resposta.message)
                     }
                 })
-            .catch(response => {mainService.catchPadrao(response)}) 
+            .catch(response => {
+                this.mensagemAguarde = ''; mainService.catchPadrao(response)}) 
     },
     async listaPacientePorNome(cidadeId, parteNome) {
         const retorno = await mainService.listaPacientesPorNome(cidadeId, parteNome)

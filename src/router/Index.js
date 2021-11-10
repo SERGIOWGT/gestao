@@ -8,6 +8,7 @@ import visitaView from '../views/VisitaView.vue'
 import cadastroBasicoView from '../views/CadastroBasicoView.vue'
 import cidadaoView from '../views/CidadaoView.vue'
 import visitaConsultaView from '../views/VisitaConsultaView.vue'
+import visitaEncerraView from '../views/VisitaEncerraView.vue'
 import usuarioView from '../views/UsuarioView.vue'
 
 Vue.use(Router)
@@ -42,6 +43,11 @@ const routes = [
         path: '/visitaConsulta',
         name: 'visitaConsultaView',
         component: visitaConsultaView
+    },
+    {
+        path: '/visitaEncerra',
+        name: 'visitaEncerraView',
+        component: visitaEncerraView
     },
     {
         path: '/usuario',

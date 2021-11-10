@@ -10,13 +10,22 @@ export function stringDataSql2Br(v) {
     const [year, month, day] = v.split('-')
     return `${day}/${month}/${year}`
 }
+export function stringDataBr2Sql(v) {
+    if (!v) return null;
+
+    if (v.length > 10)
+        v = v.substring(0,10);
+
+    const [day, month, year] = v.split('/')
+    return `${year}-${month}-${day}`
+}
 export function data2String(data, padrao) {
     if (!data)
         return ''
-
     padrao = (padrao == null) ? 'SQL' : padrao.toUpperCase();
 
-    return (padrao == 'BR') ? `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}` : `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`
+    const dia = data.getDate().toString().padStart(2, "0")
+    return (padrao == 'BR') ? `${dia}/${data.getMonth() + 1}/${data.getFullYear()}` : `${data.getFullYear()}-${data.getMonth() + 1}-${data.getDate()}`
 }
 export function string2Data(data, formato, delimitador) {
     const _formato = formato.toLowerCase();
@@ -32,6 +41,7 @@ export function string2Data(data, formato, delimitador) {
         
     return new Date(_itensData[_iAno], _mes,_itensData[_iDia]);
 }
+
 
 /*
 

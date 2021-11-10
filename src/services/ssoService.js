@@ -4,7 +4,8 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
     //baseURL: 'https://lastecweb01.azurewebsites.net/api/'
-    baseURL: 'http://sso.painelsaude.com.br/api/'
+    //baseURL: 'http://sso.painelsaude.com.br/api/'
+    baseURL: 'http://localhost:56486/api/'
 })
 
 http.interceptors.response.use(function (response) {
@@ -43,8 +44,21 @@ http.interceptors.response.use(function (response) {
   })
 
 export default {
+    adicionaUsuarioGrupo: (token, usuarioId, grupoAcessoId) => {
+        const param = {
+            usuarioIdGrupo: 1,
+            grupoAcessoId: grupoAcessoId,
+            usuarioId: usuarioId
+        }
+        return  http.post('permissionamentos', param, { headers: { 'Authorization': `bearer ${token}`}})
+    },
+    ativaUsuario: (token, id) => {
+        const _url =  `v1/usuarios/ativa/${id}?usuarioId=1`
+        return http.put(_url, null, { headers: { 'Authorization': `bearer ${token}`}});
+    },
+
     listaPermissionamento: (token, usuarioId, sistemaId) => {
-        var _url = `v1/Usuarios/${usuarioId}/ListaPermissionamento?sistemaId=${sistemaId}`
+        const _url = `v1/Usuarios/${usuarioId}/ListaPermissionamento?sistemaId=${sistemaId}`
 
         return http.get(_url, {
             headers: {
@@ -52,8 +66,8 @@ export default {
             }
         })
     },
-    listaConfiguracao: (sistemaId) => {
-        var _url = 'login/listaConfiguracao?tokenSistema='+sistemaId;
+    async listaConfiguracao (sistemaToken) {
+        const _url = `login/listaConfiguracao?tokenSistema=${sistemaToken}`;
         return http.get(_url);
     },
     autentica: (sistemaId, email, senha) => {
@@ -65,8 +79,12 @@ export default {
         }
         return http.put('login/autentica', params)
     },
-    listaUsuarios: (token, sistemaId) => {
-        const _url = `v1/usuarios/ListaBasico?sistemaId=${sistemaId}`;
+    inativaUsuario: (token, id) => {
+        const _url =  `v1/usuarios/inativa/${id}?usuarioId=1`
+        return http.put(_url, null, { headers: { 'Authorization': `bearer ${token}`}});
+    },
+    listaUsuarios: (token, plataformaId) => {
+        const _url = `v1/usuarios/ListaBasico?plataformaId=${plataformaId}`;
 
         return http.get(_url, {
             headers: {
@@ -74,54 +92,31 @@ export default {
             }
         });
     },
-/*     
-    listaSistemasPorUsuario: (usuarioId) => {
-        return http.get('sistemas/PorUsuario/' + usuarioId)
-    },
+    salvaUsuario: (token, id, param) => {
+        let url = (id == 0) ? 'v1/usuarios' : `v1/usuarios/${id}`
+        url += '/ComGrupo'
 
-    // lista usuario
-    listaUsuariosPorSistema: (sistemaId) => {
-        return http.get('usuarios/PorSistema/' + sistemaId)
+        return (id == 0) ?
+        http.post(url, param, { headers: { 'Authorization': `bearer ${token}`}}) 
+            : http.put(url, param, { headers: { 'Authorization': `bearer ${token}`}});
     },
-    listaUsuariosPorSistemaPorGrupoAcesso: (sistemaId, grupoAcessoId) => {
-        return http.get('usuarios/PorSistema/' + sistemaId + '/PorGrupoAcesso/' + grupoAcessoId)
-    },
-    listaUsuariosPorSistemaPorFuncionalidade: (sistemaId, FuncionalidadeId) => {
-        return http.get('usuarios/PorSistema/' + sistemaId + '/PorFuncionalidade/' + FuncionalidadeId)
-    },
-    // Lista por Grupo de Acesso
-    listaPerfisPorSistema: (sistemaId) => {
-        return http.get('GruposAcesso/PorSistema/' + sistemaId)
-    },
-    listaPerfisPorSistemaPorUsuario: (sistemaId, usuarioId) => {
-        return http.get('GruposAcesso/PorSistema/' + sistemaId + '/PorUsuario/' + usuarioId)
-    },
-    listaPerfisPorSistemaPorFuncionalidade: (sistemaId, FuncionalidadeId) => {
-        return http.get('GruposAcesso/PorSistema/' + sistemaId + '/PorFuncionalidade/'+ FuncionalidadeId)
-    },
-
-    // Lista funcionalidades
-    listaFuncionalidadesPorSistema: (sistemaId) => {
-        return http.get('funcionalidades/PorSistema/' + sistemaId)
-    },
-    listaFuncionalidadesPorSistemaPorUsuario: (sistemaId, usuarioId) => {
-        return http.get('funcionalidades/PorSistema/' + sistemaId + '/PorUsuario/' + usuarioId)
-    },
-    listaFuncionalidadesPorSistemaPorGrupoAcesso: (sistemaId, grupoAcessoId) => {
-        return http.get('funcionalidades/PorSistema/' + sistemaId + '/PorGrupoAcesso/' + grupoAcessoId)
-    }, */
-    // POR FUNCIONALIDADE
-/*     trataErroHttp: (error) => {
-        let mensagem = '';
-        if (error.response) {
-            error.response.data.forEach(el => {
-                mensagem += el.mensagem;
-            });
-        } else if (error.request) {
-            mensagem = error.request;
-        } else {
-            mensagem = error.message;
+  
+    trocaSenha: (signKey, chave, senha, novaSenha) => {
+        const params = {
+            'tokenSistema': signKey,
+            'chave': chave,
+            'senhaAtual': senha,
+            'senhaNova': novaSenha
         }
-        return mensagem
-    } */
+        return http.put('login/TrocaSenhaV2', params)
+    },
+
+    esqueceuSenha: (signKey, chave) => {
+        const params = {
+            'tokenSistema': signKey,
+            'chave': chave
+        }
+        return http.put('login/EsqueciSenha', params)
+    },
+
 }

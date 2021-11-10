@@ -23,9 +23,9 @@
   </v-layout>
 </template>
 <script>
-  import mainService from '../services/mainService'
   import MessageBox from '../lastec.components/lastec-messagebox'
   import ProgressBar from '../lastec.components/lastec-progressbar'
+  import {temAcesso} from '../rotinasProjeto/rotinasProjeto'
 
   export default {
     components: {
@@ -50,13 +50,7 @@
               iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento2()', 
-              perms: [
-                {id:101, tipoId:1, acao:'I'},
-                {id:102, tipoId:1, acao:'I'},
-                {id:103, tipoId:1, acao:'I'},
-                {id:105, tipoId:1, acao:'I'},
-                {id:106, tipoId:1, acao:'I'},
-                {id:107, tipoId:1, acao:'C'}
+              perms: [{id:109, tipoId:1, acao:'I'}, {id:110, tipoId:1, acao:'C'}
               ]
           }, {   
               id: 2, 
@@ -67,21 +61,20 @@
               ativo: false,
               func: 'naoImplementada()',
               perms: [
-                {id:107, tipoId:1, acao:'C'}
+                {id:111, tipoId:1, acao:'I'},
               ]
           },
           {   
               id: 3, 
               textColor: 'teal--text text--lighten-2', 
-              text: 'Execute as ações necessárias relatadas nas visitas', 
+              text: 'Execute as baixas das visitas', 
               icon: 'mdi-gesture-double-tap', 
               iconColor: 'teal lighten-2', 
               ativo: false,
               func: 'cadastraMonitoramento(2)',
               perms: [
-                {id:103, tipoId:1, acao:'A'}, 
-                {id:105, tipoId:1, acao:'A'},
-                {id:106, tipoId:1, acao:'C'}
+                {id:115, tipoId:1, acao:'I'}, 
+                {id:116, tipoId:1, acao:'C'}
               ]
           },
           {   
@@ -93,9 +86,7 @@
               ativo: false,
               func: 'cadastraMonitoramento(2)',
               perms: [
-                {id:103, tipoId:1, acao:'A'}, 
-                {id:105, tipoId:1, acao:'A'},
-                {id:106, tipoId:1, acao:'C'}
+                {id:112, tipoId:1, acao:'C'}
               ]
           },
           {   
@@ -107,9 +98,14 @@
               ativo: false,
               func: 'cadastraMonitoramento(3)',
               perms: [
+                {id:101, tipoId:1, acao:'A'}, 
+                {id:102, tipoId:1, acao:'C'}, 
                 {id:103, tipoId:1, acao:'A'}, 
-                {id:105, tipoId:1, acao:'A'},
-                {id:106, tipoId:1, acao:'C'}
+                {id:104, tipoId:1, acao:'C'}, 
+                {id:105, tipoId:1, acao:'A'}, 
+                {id:106, tipoId:1, acao:'C'}, 
+                {id:107, tipoId:1, acao:'A'}, 
+                {id:108, tipoId:1, acao:'C'} 
               ]
           },
           {   
@@ -121,9 +117,8 @@
               ativo: false,
               func: 'cadastraMonitoramento(3)',
               perms: [
-                {id:103, tipoId:1, acao:'A'}, 
-                {id:105, tipoId:1, acao:'A'},
-                {id:106, tipoId:1, acao:'C'}
+                {id:113, tipoId:1, acao:'A'},
+                {id:114, tipoId:1, acao:'C'}
               ]
           },
         ]
@@ -131,6 +126,7 @@
     },
     created() {
       this.preparaTela()
+      this.$store.commit('habilitaUserbar', true)
     },
     computed: {
       mensagemErro: {
@@ -157,6 +153,9 @@
           case 2:
             this.$router.push('visita');
             break;
+          case 3:
+            this.$router.push('visitaEncerra') 
+            break
           case 4:
             this.$router.push('visitaConsulta') 
             break;
@@ -171,16 +170,17 @@
         }
       },
       preparaTela() {
+        let _temAcesso = false
         for (var i=0; i < this.funcionalidades.length; ++i) {
-          var _passouTodos = true
+          _temAcesso = false
           for (var j=0; j < this.funcionalidades[i].perms.length; ++j) {
-            var _item = this.funcionalidades[i].perms[j];
-            if (mainService.temAcesso(_item.id, _item.tipoId, _item.acao) == false) {
-              _passouTodos = false;
-              break;
+            const _item = this.funcionalidades[i].perms[j];
+            if (temAcesso(this.$store.getters.permissionamento, _item.id, _item.tipoId, _item.acao)) {
+              _temAcesso = true
+              j = this.funcionalidades[i].perms.length
             }
           }
-          if (_passouTodos) {
+          if (_temAcesso) {
             this.semAcesso = false
             this.funcionalidades[i].ativo = true
           }
@@ -190,10 +190,4 @@
     }
   }
 </script>
-<style scoped>
-
-  .xxx {
-    height: 50px;
-  }
-</style>
 

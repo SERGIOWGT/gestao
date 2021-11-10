@@ -3,28 +3,18 @@
         <v-expansion-panel class="mt-2">
             <v-expansion-panel-header class="blue-grey lighten-5 teal--text px-3">
                 <v-row no-gutters>
-                    <v-col cols="12">
-                    PESQUISA POR DADOS CADASTRAIS
-                    </v-col>
-                    <v-col
-                    cols="1"
-                    class="text--secondary"
-                    >
-                    <v-fade-transition leave-absolute>
-                        <span
-                        key="0"
-                        >
-                        </span>
-                    </v-fade-transition>
+                    <v-col cols="12">PESQUISA POR DADOS CADASTRAIS </v-col>
+                    <v-col cols="1" class="text--secondary">
+                        <v-fade-transition leave-absolute>
+                            <span key="0"> </span>
+                        </v-fade-transition>
                     </v-col>
                 </v-row>
             </v-expansion-panel-header>
-            <v-expansion-panel-content >
+            <v-expansion-panel-content>
                 <v-row>
                     <v-col cols="12" class="px-1 pb-0 pt-4">
-                        <p class="subtitle-2">
-                        Preencha pelo menos um dos campos abaixo e clique no botão <span class="blue--text">CONFIRMA</span>.
-                        </p>
+                        <p class="subtitle-2">Preencha pelo menos um dos campos abaixo e clique no botão <span class="red--text">BUSCAR</span>.</p>
                         <v-form ref="form" class="mx-0" v-model="formularioValido">
                             <v-text-field class="pt-3" 
                                 dense clearable
@@ -52,8 +42,8 @@
                 </v-row>
                 <v-card-actions class="pt-5 pb-0">
                     <v-spacer></v-spacer>
-                    <v-btn text small color="secondary" @click="$refs.form.reset()"> Limpar </v-btn>
-                    <v-btn text small color="teal lighten-2" :disabled="!pesquisaLiberada || !habilitaPesquisa" @click="busca()"> Buscar </v-btn>
+                    <v-btn text small color="primary" @click="$refs.form.reset()"> Limpar </v-btn>
+                    <v-btn text small color="red" :disabled="!pesquisaLiberada || !habilitaPesquisa" @click="busca()"> Buscar </v-btn>
                 </v-card-actions>
             </v-expansion-panel-content>
         </v-expansion-panel>

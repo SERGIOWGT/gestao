@@ -70,8 +70,12 @@ export default {
         return api.listaPacienteVisita(_token, id);
     },
     listaPacienteVisitas(param) {
-        var _token = store.getters.apiToken;
+        const _token = store.getters.apiToken;
         return api.listaPacienteVisitas(_token, param);
+    },
+    listaPerfisSeguranca () {
+        const _token = store.getters.apiToken;
+        return api.listaPerfisSeguranca(_token);
     },
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
@@ -96,50 +100,62 @@ export default {
         var _token = store.getters.apiToken;
         return api.listaTipoMotivoAnaliticoVisita(_token, id);
     },
-    listaUsuariosSso: (sistemaId) => {
-        const token = store.getters.apiToken;
-        return sso.listaUsuarios(token, sistemaId);
+    listaTipoSolucaoVisita(cidadeId) {
+        const _token = store.getters.apiToken;
+        return api.listaTipoSolucaoVisita(_token, cidadeId); 
     },
-    listaUsuariosSistema: (cidadeId) => {
+    listaUsuariosSso: (plataformaId) => {
         const token = store.getters.ssoToken;
+        return sso.listaUsuarios(token, plataformaId);
+    },
+    async listaUsuariosSistema (cidadeId) {
+        const token = store.getters.apiToken;
         return api.listaUsuarios(token, cidadeId);
     },
-    salvaPaciente: (infoPaciente) => {
-        var _token = store.getters.apiToken;
+    async salvaPaciente (infoPaciente) {
+        const _token = store.getters.apiToken;
         return api.salvaPaciente(_token, infoPaciente);
     },
-    salvaPacienteComorbidades: (pacienteId, comorbidades) => {
-        var _token = store.getters.apiToken;
+    async salvaUsuario (id, param) {
+        const _token = store.getters.apiToken;
+        return api.salvaUsuario(_token, id, param);
+    },
+    async salvaPacienteComorbidades (pacienteId, comorbidades) {
+        const _token = store.getters.apiToken;
         return api.salvaPacienteComorbidades(_token, pacienteId, comorbidades);
     },
-    salvaPacienteSintomas: (pacienteId, sintomas) => {
-        var _token = store.getters.apiToken;
+    async salvaPacienteSintomas (pacienteId, sintomas) {
+        const _token = store.getters.apiToken;
         return api.salvaPacienteSintomas(_token, pacienteId, sintomas);
     },
-    salvaUnidadeSaude: (cidadeId, id, nome) => {
-        var _token = store.getters.apiToken;
+    async salvaUnidadeSaude (cidadeId, id, nome) {
+        const _token = store.getters.apiToken;
         return api.salvaUnidadeSaude(_token, cidadeId, id, nome);
     },
-    salvaBairro: (cidadeId, id, nome) => {
-        var _token = store.getters.apiToken;
+    async salvaBairro (cidadeId, id, nome) {
+        const _token = store.getters.apiToken;
         return api.salvaBairro(_token, cidadeId, id, nome);
     },
-    salvaMicroArea: (unidadeSaudeId, id, nome) => {
-        var _token = store.getters.apiToken;
+    async salvaMicroArea (unidadeSaudeId, id, nome)  {
+        const _token = store.getters.apiToken;
         return api.salvaMicroArea(_token, unidadeSaudeId, id, nome);
     },
-    salvaLogradouro: (bairroId, id, nome) => {
+    async salvaLogradouro (bairroId, id, nome) {
         var _token = store.getters.apiToken;
         return api.salvaLogradouro(_token, bairroId, id, nome);
     },
-    salvaVisita: (id, params) => {
+    async salvaVisita (id, params){
         var _token = store.getters.apiToken;
         return api.salvaVisita(_token, id, params);
     },
-    setaPermissionamento: (permissao) => {
+    async salvaVisitaBaixa (id, params){
+        var _token = store.getters.apiToken;
+        return api.salvaVisitaBaixa(_token, id, params);
+    },
+    async setaPermissionamento (permissao) {
         store.commit('setaPermissao', permissao)
     },
-    temAcesso: (funcionalidadeId, tipoFuncionalidadeId, acao) => {
+    async temAcesso (funcionalidadeId, tipoFuncionalidadeId, acao) {
         var _busca = function (linha) {
             var _retorno = false;
             
@@ -176,8 +192,24 @@ export default {
         var _item = _array.find(_busca)
         return !(_item == null) 
     },
-    autentica: (usuarioGuid) => {
-        var _signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
+    salvaUsuarioSso: (id, param) => {
+        const token = store.getters.ssoToken;
+        return sso.salvaUsuario(token, id, param);
+    },
+    adicionaUsuarioGrupoSso: (usuarioId, grupoAcessoId) => {
+        const token = store.getters.ssoToken;
+        return sso.adicionaUsuarioGrupo(token, usuarioId, grupoAcessoId);
+    },
+    async ativaUsuarioSso (id) {
+        var _token = store.getters.ssoToken;
+        return sso.ativaUsuario(_token, id);
+    },
+    async inativaUsuarioSso (id) {
+        var _token = store.getters.ssoToken;
+        return sso.inativaUsuario(_token, id);
+    },
+    async autentica (usuarioGuid) {
+        const _signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
         return api.autentica(_signKey, usuarioGuid);
     },
     catchPadrao: (response) => {

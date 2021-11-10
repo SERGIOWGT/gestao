@@ -27,6 +27,14 @@
                 @cbMensagemErro='cbMensagemErro'
                 @cbMensagemSucesso='cbMensagemSucesso'
             />
+            <ConsultaCidadao 
+                v-if="operacaoAtual == enumOperacao.consultaCidadao"
+                :pacienteId='pacienteId'
+                @cbFimCadastro='fimCadastroCidadao'
+                @cbMensagemAguarde='cbMensagemAguarde'
+                @cbMensagemErro='cbMensagemErro'
+                @cbMensagemSucesso='cbMensagemSucesso'
+            />
         </v-flex>
     </v-container>
 </template>
@@ -34,22 +42,27 @@
     import IdentificaVisita from '../components/VisitaIdentifica';
     import CadastraVisita from '../components/VisitaCadastra';
     import CadastraCidadao from '../components/CidadaoCadastra';
+    import ConsultaCidadao from '../components/CidadaoConsulta';
     import MessageBox from '../lastec.components/lastec-messagebox'
     import ProgressBar from '../lastec.components/lastec-progressbar'
+    import {temAcesso} from '../rotinasProjeto/rotinasProjeto'
 
     export default {
         components: {
-            IdentificaVisita, CadastraCidadao, CadastraVisita, MessageBox, ProgressBar
+            IdentificaVisita, CadastraCidadao, CadastraVisita, ConsultaCidadao, MessageBox, ProgressBar
         },
         data() {
           return {
             enumOperacao: {
                 pesquisa: 0,
                 cadastroVisita: 1,
-                cadastroCidadao: 2
+                cadastroCidadao: 2,
+                consultaCidadao: 3
             },
             operacaoAtual: 0,
             pacienteId: 0,
+
+            somenteConsultaPaciente: true,
 
             tipoMensagem: 0,
             mensagem: '',
@@ -57,6 +70,8 @@
           }
         },
         created() {
+            this.somenteConsultaPaciente = temAcesso(this.$store.getters.permissionamento, 1090, 1, 'I') ? false : true
+            this.$store.commit('habilitaUserbar', false)
         },
         computed: {
             mensagemErro: {
@@ -92,7 +107,7 @@
             },
             editaCidadao(pacienteId) {
                 this.pacienteId = pacienteId
-                this.operacaoAtual = this.enumOperacao.cadastroCidadao
+                this.operacaoAtual = (this.somenteConsultaPaciente) ? this.enumOperacao.consultaCidadao : this.enumOperacao.cadastroCidadao
             },
             fimCadastroCidadao(volta) {
                 this.operacaoAtual = this.enumOperacao.pesquisa

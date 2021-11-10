@@ -52,6 +52,7 @@ export default {
         const _url = `Autenticacao/Autentica?signkey=${signKey}&userKey=${usuarioGuid}`
         return http.get(_url)
     },
+
     excluiBairro: (token, id) => {
         let _url = `Bairros/${id}`
         return http.delete(_url, { headers: { 'Authorization': `bearer ${token}`}});    
@@ -103,31 +104,42 @@ export default {
         let url = `pacientes/listaCompleta`
 
         let paramPost = {
-            id: 0,
-            nome: '',
-            dataNascimento: '',
-            CPF: '',
-            RG: '',
+            bairroId: 0,
             cartaoSUS: '',
             celular: '',
             celular2: '',
-            telefoneContato: '',
-            unidadeSaudeId: 0,
-            microAreaId: 0,
-            eMail: '',
-            sexo: '',
-            nomeMae: '',
-            tipoEstadoSaudeId: 0,
             cidadeId: 0,
-            bairroId: 0,
-            logradouroId: 0,
-            numeroEndereco: '',
             complementoEndereco: '',
+            CPF: '',
+            dataNascimento: '',
+            dataVisitaInicio: '',
+            dataVisitaFim: '',
+            eMail: '',
+
+            id: 0,
+            logradouroId: 0,
+            microAreaId: 0,
+            nome: '',
+            nomeMae: '',
+            numeroEndereco: '',
             numeroMaxLinhas: 50,
-            sintomas: [],
+            
+            RG: '',
+            sexo: '',
+
             comorbidades: [],
+            sintomas: [],
             doencas: [],
+
+            unidadeSaudeId: 0,
+            telefoneContato: '',
+            tipoEstadoSaudeId: 0,
+            tipoMotivoVisitaAnaliticoId: 0,
         }
+
+        if (param.ordenacao !== null)
+            url += `?ordenacao=${param.ordenacao}`
+
         if (param.id)  
             paramPost.id = param.id
         else {
@@ -166,6 +178,9 @@ export default {
             }
             if (param.doencas) {
                 paramPost.doencas = param.doencas
+            }
+            if (param.tipoMotivoVisitaAnaliticoId) {
+                paramPost.tipoMotivoVisitaAnaliticoId = param.tipoMotivoVisitaAnaliticoId
             }
             if (param.dataInicioVisita) {
                 let _dataInicio = param.dataInicioVisita.replace(/\//gm,'').toString()
@@ -338,6 +353,10 @@ export default {
         }
         return http.post(url, paramPost, {headers: {'Authorization': `bearer ${token}`} })
     },
+    listaPerfisSeguranca (token) {
+        const url = 'perfisSeguranca/listaCompleta'
+        return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
+    },
     listaSintomas (token) {
         const url = 'tipoSintomas'
         return http.get(url, {headers: {'Authorization': `bearer ${token}`}})
@@ -357,6 +376,9 @@ export default {
             _url += `?tipoMotivoVisitaId=${tipoMotivoVisitaId}`
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
+    listaTipoSolucaoVisita: (token, cidadeId) => {
+        return http.get(`TipoSolucaoVisitas?cidadeId=${cidadeId}`, {headers: {'Authorization': `bearer ${token}`}})
+    },
     listaUnidadesSaude: (token, cidadeId, id, parteNome) => {
         let _url = `unidadeSaudes?cidadeId=${cidadeId}`
 
@@ -369,18 +391,8 @@ export default {
         return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     listaUsuarios: (token, cidadeId) => {
-        let retorno = {
-            status: 200,
-            data: []
-        }
-        if (token == token)
-            token = token + 1
-
-        retorno.data.push({id:1, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Luiz Ricardo', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
-        retorno.data.push({id:2, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Sergio', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
-        retorno.data.push({id:3, userKey: 'a313f0e9-f392-11eb-a3f4-566fe1410277', nome: 'Fulano de Guarara', master: 'S', cidadeId: cidadeId, bairroId: 0, unidadeSaudeId: 0, microAreaId: 0, logradouroId: 0});
-
-        return retorno
+        const _url = `Usuarios/ListaCompleta?cidadeId=${cidadeId}`
+        return http.get(_url, {headers: {'Authorization': `bearer ${token}`}})
     },
     salvaBairro: (token, cidadeId, id, nome) => {
         let _params = {}
@@ -447,6 +459,12 @@ export default {
                     http.post(_url, params, { headers: { 'Authorization': `bearer ${token}`}}) 
                         : http.put(_url, params, { headers: { 'Authorization': `bearer ${token}`}});
     },
+    salvaVisitaBaixa: (token, id, params) => {
+        var _url = `pacienteVisitas/${id}/baixa`
+        params.id = id
+        
+        return http.put(_url, params, { headers: { 'Authorization': `bearer ${token}`}})
+    },
     salvaPacienteSintomas: (token, pacienteId, sintomas) => {
         var _url = `pacienteSintomas`
         let _params = {
@@ -483,5 +501,12 @@ export default {
         return (id == 0) ?
         http.post(_url, _params, { headers: { 'Authorization': `bearer ${token}`}}) 
             : http.put(_url, _params, { headers: { 'Authorization': `bearer ${token}`}});
+    },
+    salvaUsuario: (token, id, param) => {
+        let _url = (id == 0) ? 'Usuarios' : `Usuarios/${id}`
+
+        return (id == 0) ?
+        http.post(_url, param, { headers: { 'Authorization': `bearer ${token}`}}) 
+            : http.put(_url, param, { headers: { 'Authorization': `bearer ${token}`}});
     },
 }

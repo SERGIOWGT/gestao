@@ -4,8 +4,9 @@ export default {
           return v => !!v || 'Campo obrigatório'
       },
       obrigatorioCondicional(val) {
+        console.log('obrigatorioCondicional(val)', val)
         if (val == false)
-          return v => !v 
+          return v => !v || 'xxx'
         else
           return v => !!v || 'Campo obrigatório'
       },
@@ -16,7 +17,6 @@ export default {
         return v => (v || '').length >= tamanhoMinimo || `Pelo menos ${tamanhoMinimo} caracteres`;
       },
     },
-
     Data: {
       valida(obrigatorio) {
         // eslint-disable-next-line no-useless-escape
@@ -52,9 +52,16 @@ export default {
                 //return v =>  !v || /^[1-9]{2} (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$/.test(v) || 'Campo com 12 ou 13 números (99 ?9999-9999)'  // eslint-disable-line
                 return v =>  !v || /^[1-9]{2}[ ]?(?:[2-8]|9[1-9])[0-9]{3}[\-]?[0-9]{4}$/.test(v) || 'Celular inválido (99 ?9999-9999)'  // eslint-disable-line
         }
-    }, 
-    EmailRules: [
-      v => !!v || 'E-mail é obrigatório',
-      v => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail inválido' // eslint-disable-line
+    },  
+    Email: {
+      valido(obrigatorio) {
+        if (obrigatorio)
+          return v =>  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'Email inválido'  // eslint-disable-line
+        else 
+          return v =>  !v || /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'Email inválido'  // eslint-disable-line
+      },
+    },
+    vetorObrigatorio: [
+        v => !!v || 'Campo obrigatório',
     ]
 }

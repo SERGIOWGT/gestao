@@ -38,7 +38,7 @@
                       ></v-text-field>
                       <v-text-field 
                           dense required clearable
-                          label="CPF"
+                          label="CPF*"
                           v-model="infoPaciente.cpf"
                           v-mask="'###.###.###-##'" 
                           :rules="[regras.Cpf.valido(true)]"
@@ -68,10 +68,10 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content class="pt-2">
                   <v-form ref="form2" v-model="painelValido[enumPaineis.dadosContato]">
-                  <v-text-field 
-                      dense required clearable
+                  <v-text-field dense required clearable
                       label="Email"
                       v-model="infoPaciente.eMail"
+                      :rules="[regras.Email.valido(false)]"
                       counter
                       maxlength="100"
                     ></v-text-field>
@@ -128,50 +128,16 @@
                     return-object
                     :rules="[required]"
                   ></v-autocomplete>
-                  <v-row class="mt-1">
-                    <v-col cols="8"> 
-                        <v-text-field class="mt-3"
-                          dense required clearable
-                          label="Número do sua residência*"
-                          :disabled="infoPaciente.semNumeroEndereco === true "
-                          v-model="infoPaciente.numeroEndereco"
-                          counter
-                          maxlength="10"
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="4"> 
-                        <v-switch class="mt-0"
-                        @change="liberaSemNumero()"
-                        v-model="infoPaciente.semNumeroEndereco" 
-                        label="Sem número"
-                        color="primary"
-                        hide-details
-                        />
-                    </v-col>
-                  </v-row>
-                  <v-row class="mt-1">
-                    <v-col cols="8"> 
-                      <v-text-field class="mt-1"
-                        dense
-                        label="Complemento*"
-                        :disabled="infoPaciente.semComplemento === true "
-                        required
-                        clearable
-                        v-model="infoPaciente.complemento"
-                        counter
-                        maxlength="50"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="4"> 
-                      <v-switch class="mt-0"
-                        @change="liberaSemComplemento()"
-                        v-model="infoPaciente.semComplemento" 
-                        label="Sem Compl."
-                        color="primary"
-                        hide-details
-                      />
-                    </v-col>
-                  </v-row>
+                  <v-text-field class="mt-3" dense clearable counter
+                    label="Número do sua residência"
+                    v-model="infoPaciente.numeroEndereco"
+                    maxlength="10"
+                  ></v-text-field>
+                  <v-text-field class="mt-1" dense clearable counter
+                    label="Complemento"
+                    v-model="infoPaciente.complemento"
+                    maxlength="50"
+                  ></v-text-field>
                   <small class="pt-2">*campo obrigatório</small>
                 </v-form>
               </v-expansion-panel-content>
@@ -186,9 +152,10 @@
                   <v-form ref="form4" v-model="painelValido[enumPaineis.unidadeSaude]">
                       <v-text-field 
                           dense persistent-hint clearable
-                          label="Número do Sus"
+                          label="Número do Sus*"
                           v-mask="'### #### #### ####'"
                           v-model="infoPaciente.cartaoSUS"
+                          :rules="[regras.NumeroSus.valido(true)]"
                           maxlength="18"
                       ></v-text-field>
                       <v-autocomplete @input="setaUnidadeSaude"
@@ -301,16 +268,16 @@
     import BottomBar from '../components/StepBottomBar'
     import mainService from '../services/mainService'
     import regrasCampos from '../bibliotecas/regrasCampos'
-    import {formataCelular, formataCpf, data2String} from '../bibliotecas/formataValores'
+    import {formataCelular, formataCpf} from '../bibliotecas/formataValores'
     import entradaText from '../bibliotecas/entradaText'
-    import {ordenaComorbidades, ordenaSintomas } from '../rotinasProjeto/rotinasProjeto'
+    import {ordenaComorbidades, ordenaSintomas, hoje, preparaSintomas2Save } from '../rotinasProjeto/rotinasProjeto'
     import TituloPagina from '../components/TituloPagina'
 
     export default {
         name: 'SuspeitaCovid',
         components: {BottomBar, TituloPagina},
         props: {
-          pacienteId: Number,
+          pacienteId: Number
         },
         data() {
           return {
@@ -332,11 +299,6 @@
                 unidadeSaude: 3,
                 comorbidades: 4,
                 sintomas: 5
-            },
-            enumpainelValido: {
-                disabled: 0,
-                enabled: 1,
-                valid: 2
             },
             painelValido: [false, false, false, false, false, false],
             cidadePadrao: null,
@@ -439,9 +401,6 @@
             }
         },
         computed: {
-          comorbidadesOrdenadas: function () {
-            return this.infoPesquisa.allComorbidades.Sort(function(a, b) {a.ordem - b.ordem})
-          },
           iconePainel() {
             return  pos => (pos >= this.enumPaineis.comorbidades) ? 'mdi-alert-outline' : this.painelValido[pos] ? 'mdi-check' :  'mdi-alert-circle-outline'
           },
@@ -619,7 +578,8 @@
           },
           async salva() {
             this.mensagemAguarde =  'Salvando dados do paciente. Aguarde...'
-            
+            this.mensagemErro = ''
+
             let erro = false;
             await mainService.salvaPaciente(this.infoPaciente)
             .then(resp => {
@@ -667,19 +627,9 @@
 
             if (!erro) {
               this.mensagemAguarde =  'Salvando os Sintomas. Aguarde...'
-              let _sintomas = []
-              let _dataHoje = new Date()
-              let _dataInicio = new Date()
-              for (let i = 0;  i < this.infoPesquisa.sintomasTela.length; i++) {
-                if (this.infoPesquisa.sintomasTela[i].selecionado) {
-                  let item = {}
 
-                  _dataInicio.setDate(_dataHoje.getDate() - this.infoPesquisa.sintomasTela[i].dias)
-                  item.id = this.infoPesquisa.sintomasTela[i].id
-                  item.dataInicio = data2String(_dataInicio, 'SQL')
-                  _sintomas.push (item)
-                }
-              }
+              const _dataHoje = hoje()
+              const _sintomas = preparaSintomas2Save(_dataHoje, this.infoPesquisa.sintomasTela)
               await mainService.salvaPacienteSintomas(this.infoPaciente.id, _sintomas)
               .then(resp => {
                 this.mensagemAguarde =  ''

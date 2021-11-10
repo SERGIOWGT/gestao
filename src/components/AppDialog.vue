@@ -51,16 +51,8 @@
   }
 </script>
 <style scoped>
-  .card1 {
-    background-color: #f5e4e7;
-  }
   .texto1 {
     color: red;
-    font-weight: bold;
-  }
-  
-  .texto2 {
-    color:black;
     font-weight: bold;
   }
 </style>

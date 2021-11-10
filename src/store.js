@@ -7,12 +7,17 @@ const store = new Vuex.Store({
     state: {
         estaLogado: false,
         loginFinalizado: false,
+        userBarAtivo: false,
         infosSistema: {
             nome: '',
             id: '',
             nomePlataforma: '',
             plataformaId: '',
             urlImagem: '',
+            tamanhoMaximoSenha: 0,
+            tamanhoMinimoSenha: 0,
+            formatoSenha: '',
+            mensagemErroFormatoSenha: ''
         },
         infosUsuario: {
             email: '',
@@ -50,6 +55,9 @@ const store = new Vuex.Store({
         }
     },
     mutations: {
+        habilitaUserbar (state, obj) {
+            state.userBarAtivo = obj
+        },
         setaListaComuns (state, obj) {
             state.listasComuns.sintomas = obj.sintomas
             state.listasComuns.comorbidades = obj.comorbidades
@@ -63,6 +71,10 @@ const store = new Vuex.Store({
             state.infosSistema.plataformaId = obj.plataformaId
             state.infosSistema.id = obj.sistemaId
             state.infosSistema.urlImagem = obj.urlImagem
+            state.infosSistema.tamanhoMaximoSenha = obj.tamanhoMaximoSenha,
+            state.infosSistema.tamanhoMinimoSenha = obj.tamanhoMinimoSenha,
+            state.infosSistema.formatoSenha = obj.formatoSenha
+            state.infosSistema.mensagemErroFormatoSenha = obj.mensagemErroFormatoSenha
         }, 
         autenticadoApi (state, obj) {
             state.infosUsuario.autenticado = obj.autenticado
@@ -103,8 +115,12 @@ const store = new Vuex.Store({
         }, 
     },
     getters: {
+        //configuracaoSistema: state => state.configuracaoSistema,
+
         loginFinalizado: state => state.loginFinalizado,
         estaLogado: state => state.estaLogado,
+        userBarAtivo: state => state.userBarAtivo && state.loginFinalizado,
+
         estaAutenticadoApi: state => state.infosUsuario.autenticado,
         email: state => state.infosUsuario.email,
         ssoToken: state => state.infosUsuario.ssoToken,
@@ -112,20 +128,26 @@ const store = new Vuex.Store({
         usuarioId: state => state.infosUsuario.usuarioId,
         usuarioGuid: state => state.infosUsuario.usuarioGuid,
         nomeUsuario: state => state.infosUsuario.nomeUsuario,
-        sistemaId: state => state.infosSistema.id,
-        nomeSistema: state => state.infosSistema.nome,
-        plataformaId: state => state.infosSistema.plataformaId,
-        nomePlataforma: state => state.infosSistema.nomePlataforma,
-        configuracaoSistema: state => state.configuracaoSistema,
         cidadePadrao: state => state.infosUsuario.cidadePadrao,
         unidadeSaudePadrao: state => state.infosUsuario.unidadeSaudePadrao,
         microAreaPadrao: state => state.infosUsuario.microAreaPadrao,
         bairroPadrao: state => state.infosUsuario.bairroPadrao,
         logradouroPadrao: state => state.infosUsuario.logradouroPadrao,
-        permissionamento: state => state.permissionamento,
         autenticadoApi: state => state.infosUsuario.apiToken != '',
+
         todosSintomas: state => state.listasComuns.sintomas,
-        todasComorbidades: state => state.listasComuns.comorbidades
+        todasComorbidades: state => state.listasComuns.comorbidades,
+
+        permissionamento: state => state.permissionamento,
+
+        tamanhoMinimoSenha: state => state.infosSistema.tamanhoMinimoSenha,
+        tamanhoMaximoSenha: state => state.infosSistema.tamanhoMaximoSenha,
+        formatoSenha: state => state.infosSistema.formatoSenha,
+        mensagemErroFormatoSenha: state => state.infosSistema.mensagemErroFormatoSenha,
+        sistemaId: state => state.infosSistema.id,
+        nomeSistema: state => state.infosSistema.nome,
+        plataformaId: state => state.infosSistema.plataformaId,
+        nomePlataforma: state => state.infosSistema.nomePlataforma,
     }
   })
   export default store

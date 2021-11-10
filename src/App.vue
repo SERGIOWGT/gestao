@@ -3,7 +3,7 @@
     <AppBar v-if="$store.getters.loginFinalizado" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
         <v-main>
           <v-container grid-list-md class="pa-0" style="max-width: 600px;">
-            <UserBar v-if="$store.getters.loginFinalizado"/>
+            <UserBar v-if="$store.getters.userBarAtivo"/>
             <transition appear name="slide" mode="out-in">
               <Router-view/>
             </transition>

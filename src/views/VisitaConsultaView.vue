@@ -56,6 +56,9 @@
                 }
             },
         },
+        created() {
+            this.$store.commit('habilitaUserbar', false)
+        },
         methods: {
             cbMensagemAguarde(msg) {
                 this.mensagemAguarde = msg
