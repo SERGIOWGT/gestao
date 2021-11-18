@@ -31,9 +31,15 @@
                                             <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
                                         </v-list-item-content>
                                     </v-col>
-                                    <v-col cols="2" class="justify-center pt-6">
-                                        <v-btn icon color="primary" @click="incluiVisita(item.id)"><v-icon>mdi-thermometer-plus</v-icon></v-btn>
-                                        <v-btn icon color="primary" @click="editaCidadao(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
+                                    <v-col cols="2">
+                                        <v-container class="fill-height" fluid>
+                                            <v-row justify="center" align="center">
+                                                <v-btn icon color="primary" @click="incluiVisita(item.id)"><v-icon>mdi-thermometer-plus</v-icon></v-btn>
+                                            </v-row>
+                                            <v-row justify="center" align="center">
+                                                <v-btn icon color="primary" @click="editaCidadao(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
+                                            </v-row>
+                                        </v-container>
                                     </v-col>
                                 </v-row>
                             </v-list-item>
@@ -224,7 +230,6 @@
                 }
                 this.isLoadingGrid = true
                 this.mensagemAguarde = 'Consultando dados do cidadão! Aguarde...'
-                console.log('teste', _param)
                 await mainService.listaPacientesCompleta(_param)
                 .then(_resposta => {
                     this.mensagemAguarde = ''

@@ -67,7 +67,7 @@
           {   
               id: 3, 
               textColor: 'teal--text text--lighten-2', 
-              text: 'Execute as baixas das visitas', 
+              text: 'Consulte as visitas e execute as baixas', 
               icon: 'mdi-gesture-double-tap', 
               iconColor: 'teal lighten-2', 
               ativo: false,
@@ -86,7 +86,7 @@
               ativo: false,
               func: 'cadastraMonitoramento(2)',
               perms: [
-                {id:112, tipoId:1, acao:'C'}
+                {id:1112, tipoId:1, acao:'C'}
               ]
           },
           {   

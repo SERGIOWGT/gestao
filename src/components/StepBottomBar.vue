@@ -1,36 +1,27 @@
 <template>
     <v-bottom-navigation
-        color="primary"
         grow
         fixed
     >
         <v-btn v-if="temBotaoAnterior" @click="btnFuncao('VO')" :disabled="podeVoltar === false"  >
-            <span>Voltar</span>
-            <v-icon>mdi-arrow-left</v-icon>
+            <span :class="podeVoltar?'teal--text':''">Voltar</span>
+            <v-icon color="teal lighten-2">mdi-arrow-left</v-icon>
         </v-btn>
         <v-btn v-if="temBotaoCancela" @click="btnFuncao('CA')" :disabled="podeCancelar===false"  >
-            <span>Cancela</span>
+            <span :class="podeCancelar?'teal--text':''">Cancela</span>
             <v-icon>mdi-cancel</v-icon>
         </v-btn>
         <v-btn exact v-if="temBotaoProximo" @click="btnFuncao('PX')" :disabled="podeContinuar===false"  >
-            <span>Continuar</span>
+            <span :class="podeContinuar?'teal--text':''">Continuar</span>
             <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
-        <v-btn v-if="temBotaoSalva" @click="btnFuncao('SV')"  :disabled="podeSalvar===false"   >
-            <span>Salvar</span>
-            <v-icon>mdi-cloud-upload</v-icon>
+        <v-btn  v-if="temBotaoSalva" @click="btnFuncao('SV')"  :disabled="podeSalvar===false"   >
+            <span :class="podeSalvar?'teal--text':''">Salvar</span>
+            <v-icon color="teal lighten-2">mdi-cloud-upload</v-icon>
         </v-btn>
         <v-btn v-if="temBotaoVerifica" @click="btnFuncao('VF')" :disabled="podeVerificar===false"  >
-            <span>Consultar</span>
+            <span :class="podeVerificar?'teal--text':''">Consultar</span>
             <v-icon>mdi-account-search</v-icon>
-        </v-btn>
-        <v-btn v-if="temBotaoFinaliza" @click="btnFuncao('FM')">
-            <span>Finalizado</span>
-            <v-icon>mdi-account-off</v-icon>
-        </v-btn>
-        <v-btn v-if="temBotaoNovo" @click="btnFuncao('NP')">
-            <span>Novo Cidadão</span>
-            <v-icon>mdi-account-plus</v-icon>
         </v-btn>
     </v-bottom-navigation>
 </template>

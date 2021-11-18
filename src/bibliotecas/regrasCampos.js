@@ -4,7 +4,6 @@ export default {
           return v => !!v || 'Campo obrigatório'
       },
       obrigatorioCondicional(val) {
-        console.log('obrigatorioCondicional(val)', val)
         if (val == false)
           return v => !v || 'xxx'
         else

@@ -29,8 +29,10 @@
                                             <v-list-item-subtitle class="font-weight-medium">Ação: {{item.nomeAcaoVisita}}</v-list-item-subtitle>
                                             <v-list-item-subtitle>{{item.nomeDesfechoVisita}}</v-list-item-subtitle>
                                         </v-col>
-                                        <v-col cols="1" class="justify-center pt-6">
-                                            <v-btn icon color="primary" @click="visualizaVisita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
+                                        <v-col cols="1">
+                                            <v-container class="red fill-height" fluid>
+                                                <v-btn icon color="primary" @click="visualizaVisita(item.id)"><v-icon>mdi-account-cog-outline</v-icon></v-btn>
+                                            </v-container>
                                         </v-col>
                                     </v-row>
                                 </v-list-item>

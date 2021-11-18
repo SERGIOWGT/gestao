@@ -28,14 +28,24 @@
                     <v-flex v-for="(item) in resultadoPesquisa" :key="item.id">
                     <v-list-item class="px-1">
                         <v-list-item-content>
-                            <v-list-item-title v-html="item.nome || ''"></v-list-item-title>
-                            <v-list-item-subtitle v-html="item.nomeMae || ''"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="linha(2, item.dataNascimento || '')"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="linha(3, item.cartaoSUS || '')"></v-list-item-subtitle>
-                            <v-list-item-subtitle v-html="linha(4, item.cpf || '')"></v-list-item-subtitle>
-                             <v-list-item-subtitle v-html="item.nomeEstadoSaude || '' "></v-list-item-subtitle>
+                             <v-row>
+                                <v-col cols="10">
+                                    <v-list-item-title v-html="item.nome || ''"></v-list-item-title>
+                                    <v-list-item-subtitle v-html="item.nomeMae || ''"></v-list-item-subtitle>
+                                    <v-list-item-subtitle v-html="linha(2, item.dataNascimento || '')"></v-list-item-subtitle>
+                                    <v-list-item-subtitle v-html="linha(3, item.cartaoSUS || '')"></v-list-item-subtitle>
+                                    <v-list-item-subtitle v-html="linha(4, item.cpf || '')"></v-list-item-subtitle>
+                                    <v-list-item-subtitle v-html="item.nomeEstadoSaude || '' "></v-list-item-subtitle>
+                                </v-col>
+                                 <v-col cols="2" >
+                                    <v-container class="fill-height" fluid>
+                                        <v-row justify="center" align="center">
+                                            <v-btn icon color="primary" @click="edita(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
+                                        </v-row>
+                                    </v-container>
+                                </v-col>
+                             </v-row>
                         </v-list-item-content>
-                        <v-btn icon color="primary" @click="edita(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
                     </v-list-item>
                     <v-divider></v-divider>
                     </v-flex>

@@ -1,6 +1,6 @@
 <template>
     <v-container fluid style="height: 100vmax;" class="pa-1">
-        <TituloPagina titulo="BAIXA DA VISITA" @cbAnterior="fim(true)" />
+        <TituloPagina :titulo="titulo()" @cbAnterior="fim(true)" />
         <v-flex v-if="buscandoDados==false">
             <v-expansion-panels focused class="pt-0 mt-2" v-model="painel">
                 <ExpansionVisitaCidadao :nome="infoCidadao.nome" :endereco="enderecoAtual" :nomeEstadoSaude="infoCidadao.nomeEstadoSaude" :nomeMicroArea="infoCidadao.nomeMicroArea"/>
@@ -27,39 +27,51 @@
                         </v-card>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
-                <v-expansion-panel class="mt-2">
-                    <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Faça aqui o registro da baixa da visita</v-expansion-panel-header>
-                    <v-expansion-panel-content class="pt-2">
-                        <v-form ref="form3" v-model="podeSalvar">
-                            <v-text-field class="pt-2"
-                                dense required clearable
-                                label="Data da baixa*"
-                                v-model="infoVisita.dataSolucao"
-                                v-mask="'##/##/####'"
-                                :rules="[regras.Data.valida(true)]"
-                            ></v-text-field>
-                            <v-autocomplete class="pt-2" @input="setaTipoSolucao"
-                                dense hide-no-data return-object
-                                label="Tipo de Solução*"
-                                v-model="infoVisita.tipoSolucao"
-                                :items="tiposSolucaoVisita"
-                                item-value="id"
-                                item-text="nome"
-                                :rules="[regras.Basicas.obrigatorio()]"
-                            ></v-autocomplete> 
-                            <v-textarea
-                                auto-grow counter clearable
-                                clear-icon="mdi-close-circle"
-                                label="Descrição*"
-                                v-model="infoVisita.resumoSolucao"
-                                maxlength="500"
-                                row-height="10"
-                                :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(5), regras.Basicas.max(500)]"
-                            ></v-textarea>
-                            <small>*campo obrigatório</small>
-                        </v-form>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
+                <v-flex :v-if="statusAtualVisita == enumStatusVisita.naoBaixada || statusAtualVisita == enumStatusVisita.baixada">
+                    <v-expansion-panel class="mt-2">
+                        <v-flex v-if="this.somenteConsulta">
+                            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Consulte aqui o registro da baixa da visita</v-expansion-panel-header>
+                            <v-expansion-panel-content class="pt-2">
+                                <v-text-field class="pt-2" dense disabled label="Data da baixa" v-model="infoVisita.dataSolucao"></v-text-field>
+                                <v-text-field class="pt-2" dense disabled label="Tipo de Solução" v-model="infoVisita.tipoSolucao.nome"></v-text-field> 
+                                <v-textarea auto-grow label="Descrição" disabled v-model="infoVisita.resumoSolucao"></v-textarea>
+                            </v-expansion-panel-content>
+                        </v-flex>
+                        <v-flex v-else>
+                            <v-expansion-panel-header class="blue-grey lighten-5 teal--text text--lighten-2">Faça aqui o registro da baixa da visita</v-expansion-panel-header>
+                            <v-expansion-panel-content class="pt-2">
+                                <v-form ref="form3" v-model="podeSalvar">
+                                    <v-text-field class="pt-2"
+                                        dense required clearable
+                                        label="Data da baixa*"
+                                        v-model="infoVisita.dataSolucao"
+                                        v-mask="'##/##/####'"
+                                        :rules="[lRegras.Data.valida(true)]"
+                                    ></v-text-field>
+                                    <v-autocomplete class="pt-2" @input="setaTipoSolucao"
+                                        dense hide-no-data return-object
+                                        label="Tipo de Solução*"
+                                        v-model="infoVisita.tipoSolucao"
+                                        :items="tiposSolucaoVisita"
+                                        item-value="id"
+                                        item-text="nome"
+                                        :rules="[lRegras.Basicas.obrigatorio()]"
+                                    ></v-autocomplete> 
+                                    <v-textarea
+                                        auto-grow counter clearable
+                                        clear-icon="mdi-close-circle"
+                                        label="Descrição*"
+                                        v-model="infoVisita.resumoSolucao"
+                                        maxlength="500"
+                                        row-height="10"
+                                        :rules="[lRegras.Basicas.obrigatorio(), lRegras.Basicas.min(5), lRegras.Basicas.max(500)]"
+                                    ></v-textarea>
+                                    <small>*campo obrigatório</small>
+                                </v-form>
+                            </v-expansion-panel-content>
+                        </v-flex>
+                    </v-expansion-panel>
+                </v-flex>
             </v-expansion-panels>
             <v-flex class="pt-5">
             <BottomBar 
@@ -67,7 +79,7 @@
                 :temBotaoProximo= "false"
                 :temBotaoCancela= "false"
                 :temBotaoFinaliza= "false"
-                :temBotaoSalva= "true"
+                :temBotaoSalva= "!somenteConsulta"
                 :temBotaoVerifica= "false"
                 :temBotaoNovo= "false"
                 :podeVoltar="true"
@@ -89,6 +101,7 @@
     import ExpansionLista from '../components/ExpansionListaCeS.vue'
     import {stringDataSql2Br, data2String} from '../bibliotecas/formataValores'
     import BottomBar from '../components/StepBottomBar'
+    import {statusVisita } from '../rotinasProjeto/rotinasProjeto'
 
     export default {
         components: {
@@ -97,10 +110,19 @@
         props: {
           visitaId: Number,
           pacienteId: Number,
+          somenteConsulta: Boolean
         },
         data() {
           return {
-            regras: regrasCampos,
+            lRegras: regrasCampos,
+            
+            enumStatusVisita: {
+                recusada: 0,
+                pacienteAusente: 1,
+                semPendencia: 2,
+                naoBaixada: 3,
+                baixada: 4
+            },
 
             cidadePadrao: null,
             painel: 0,
@@ -139,7 +161,9 @@
             mensagemErro: '',
             mensagemSucesso: '',
 
-            buscandoDados: true
+            buscandoDados: true,
+
+            statusAtualVisita: 0
           }
         },
         created() {
@@ -175,6 +199,12 @@
             },
         },       
         methods: {
+            titulo: function() {
+                if ((this.somenteConsulta) || ((this.statusAtualVisita != this.enumStatusVisita.baixada) && (this.statusAtualVisita != this.enumStatusVisita.naoBaixada))) 
+                    return 'CONSULTA BAIXA DA VISITA'
+                
+                return 'REGISTRA BAIXA DA VISITA'
+            },
             cmdBotao: function (value) {
                 if (value == 'VO') 
                     this.fim(true)
@@ -189,6 +219,8 @@
                 .then((_visita) => {
                     this.mensagemAguarde = ''        
                      if (_visita.status == 200) {
+                        this.statusAtualVisita = statusVisita(_visita.data.tipoDesfechoVisitaId, _visita.data.requerSolucao, _visita.data.dataSolucao)
+
                         this.infoVisita.dataVisita = stringDataSql2Br(_visita.data.dataVisita);
                         this.infoVisita.tipoMotivo = _visita.data.nomeTipoMotivoVisita;
                         this.infoVisita.tipoMotivoAnalitico = _visita.data.nomeTipoMotivoVisitaAnalitico
@@ -198,7 +230,6 @@
                         this.infoVisita.tipoAcao = _visita.data.nomeAcaoVisita
                         this.infoVisita.desfecho = _visita.data.nomeDesfechoVisita
                         
-                        console.log(_visita.data.dataSolucao, _visita.data.tipoSolucaoVisitaId, _visita.data.nomeTipoSolucaoVisita, _visita.data.relatorioSolucao)
                         if (_visita.data.dataSolucao != '0001-01-01') {
                             this.infoVisita.dataSolucao = stringDataSql2Br(_visita.data.dataSolucao);
                             this.infoVisita.tipoSolucao.id = _visita.data.tipoSolucaoVisitaId
@@ -217,6 +248,8 @@
                         this.infoCidadao.complementoEndereco = _visita.data.complementoEndereco
                         this.infoCidadao.nomeMicroArea = _visita.data.nomeMicroArea
                         this.infoCidadao.nomeEstadoSaude = '_visita.data.nomeEstadoSaude'
+
+                        
                     }
                     else {
                         erroBusca = true
@@ -276,7 +309,7 @@
                     this.mensagemAguarde = ''
                     return
                 }
-                this.painel = 3
+                this.painel = (this.statusAtualVisita == this.enumStatusVisita.naoBaixada || this.statusAtualVisita == this.enumStatusVisita.baixada) ? 4 : 3 
             },
             fim (volta) {
                 this.$emit('cbFimEncerraVisita', volta)

@@ -80,7 +80,6 @@ export function ordenaSintomas(todosSintomas, sintomasCidadao){
             dias: parseInt((dataHoje - dataSintoma) / (1000 * 60 * 60 * 24), 10),
             selecionado: true
         }
-        console.log(item.dias)
         retorno.push(item)
     })
 
@@ -147,5 +146,27 @@ export function temAcesso (array, funcionalidadeId, tipoFuncionalidadeId, acao) 
 export function hoje() {
     const _dataAux = new Date()
     return new Date(_dataAux.getFullYear(),_dataAux.getMonth(),_dataAux.getDate())
+}
+
+const  enumStatusVisita = {
+    recusada: 0,
+    pacienteAusente: 1,
+    semPendencia: 2,
+    naoBaixada: 3,
+    baixada: 4
+}
+
+export function statusVisita(tipoDesfechoVisitaId, requerSolucao, dataSolucao) {
+
+    if (tipoDesfechoVisitaId == 2) // Visita recusada
+        return enumStatusVisita.recusada
+
+    if (tipoDesfechoVisitaId == 3) // Paciente ausente
+        return enumStatusVisita.pacienteAusente
+
+    if (requerSolucao == 'S') 
+        return dataSolucao == '0001-01-01' ? enumStatusVisita.naoBaixada : enumStatusVisita.baixada
+
+    return this.enumStatusVisita.semPendencia
 }
 

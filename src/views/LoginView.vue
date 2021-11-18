@@ -75,41 +75,45 @@
       <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
       <ProgressBar :mensagem="mensagemAguarde"/>
       <v-row class="justify-center pt-15 pb-15 px-3">
-        <v-img class="shrink mr-2" contain src="../assets/logoTelaAbertura.jpeg"/>
+        <transition name="roll">
+          <v-img v-if="bounce" class="shrink mr-2" contain src="../assets/logoTelaAbertura.jpeg"/>
+        </transition>
       </v-row>
-      <v-form class="my-2 px-2 " v-model="formValido" >
-        <v-text-field 
-          :disabled="isLoading"
-          v-model="email"
-          :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
-          :label="nomeChave"
-          required
-          clearable
-          prepend-icon="mdi-account-circle"
-        ></v-text-field>
-        <v-text-field 
-          :disabled="isLoading"
-          label="Senha"
-          clearable
-          v-model="senha"
-          :counter="tamanhoMaximoSenha"
-          :rules="[rotinasLogin.SenhaRules.min(tamanhoMinimoSenha), rotinasLogin.SenhaRules.max(tamanhoMaximoSenha), rotinasLogin.SenhaRules.valido(formatoSenha, mensagemErroFormatoSenha)]"
-          :type="!senhaNaoVisivel ? 'password' : 'text'"
-          prepend-icon="mdi-lock"
-          :append-icon="senhaNaoVisivel ? 'mdi-eye' : 'mdi-eye-off'"
-          :append-icon-cb="() => (senhaNaoVisivel = !senhaNaoVisivel)"
-          @click:append="senhaNaoVisivel = !senhaNaoVisivel"
-        />
-        <v-row class="justify-center pt-5 mt-5">
-            <v-btn :disabled="isLoading || !formValido" class="white--text teal lighten-2 botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
-        </v-row>
-        <v-row dense class="justify-center pt-8" >
-            <v-btn text :disabled="isLoading"  v-on:click="mostraformEsqueciSenha()"><span class="teal--text text--lighten-2 text-caption">Esqueceu sua senha?&nbsp; Clique aqui</span></v-btn>
-        </v-row>
-        <v-row class="justify-center pt-3" v-if="permiteRegistroUsuario">
-          <v-btn text :disabled="isLoading"><span class="texto text-caption"> Sua primeira vez?&nbsp; Crie aqui seu usuário</span></v-btn>
-        </v-row>
-      </v-form>
+      <v-flex v-if="telaPronta">
+        <v-form class="my-2 px-2 " v-model="formValido" >
+          <v-text-field 
+            :disabled="isLoading"
+            v-model="email"
+            :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
+            :label="nomeChave"
+            required
+            clearable
+            prepend-icon="mdi-account-circle"
+          ></v-text-field>
+          <v-text-field 
+            :disabled="isLoading"
+            label="Senha"
+            clearable
+            v-model="senha"
+            :counter="tamanhoMaximoSenha"
+            :rules="[rotinasLogin.SenhaRules.min(tamanhoMinimoSenha), rotinasLogin.SenhaRules.max(tamanhoMaximoSenha), rotinasLogin.SenhaRules.valido(formatoSenha, mensagemErroFormatoSenha)]"
+            :type="!senhaNaoVisivel ? 'password' : 'text'"
+            prepend-icon="mdi-lock"
+            :append-icon="senhaNaoVisivel ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon-cb="() => (senhaNaoVisivel = !senhaNaoVisivel)"
+            @click:append="senhaNaoVisivel = !senhaNaoVisivel"
+          />
+          <v-row class="justify-center pt-5 mt-5">
+              <v-btn :disabled="isLoading || !formValido" class="white--text teal lighten-2 botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
+          </v-row>
+          <v-row dense class="justify-center pt-8" >
+              <v-btn text :disabled="isLoading"  v-on:click="mostraformEsqueciSenha()"><span class="teal--text text--lighten-2 text-caption">Esqueceu sua senha?&nbsp; Clique aqui</span></v-btn>
+          </v-row>
+          <v-row class="justify-center pt-3" v-if="permiteRegistroUsuario">
+            <v-btn text :disabled="isLoading"><span class="texto text-caption"> Sua primeira vez?&nbsp; Crie aqui seu usuário</span></v-btn>
+          </v-row>
+        </v-form>
+      </v-flex>
     </v-container>
   </v-container>
 </template>
@@ -132,6 +136,9 @@
       return {
         emAbertura: true,
         nomeSistema: ''  ,
+        bounce: false,
+
+        telaPronta: false,
         
         showFormTrocaSenha: false,
         showFormEsqueciSenha: false,
@@ -146,7 +153,7 @@
         mensagemPadrao: 'Configurando o ambiente! Aguarde...',
 
         email: '',
-        senha: '',
+        senha: 'Bbm@2007',
         senhaNova: '',
         senhaRepetida: '',
         rotinasLogin: RotinasLogin,
@@ -168,7 +175,13 @@
       }
     },
     mounted() {
-      this.listaConfiguracaoSso()
+      this.bounce = true
+      const delay = (time) => {return new Promise(resolve => setTimeout(resolve, time))}
+      delay(1000).then(() => this.listaConfiguracaoSso())
+
+      if (localStorage.usuarioPainel) {
+        this.email = localStorage.usuarioPainel;
+      }
     },
     computed: {
       mensagemErro: {
@@ -191,6 +204,7 @@
         this.showFormEsqueciSenha =true
       },
       async listaConfiguracaoSso() {
+        
         this.isLoading = true
         this.mensagemAguarde = "Preparando ambiente. Aguarde..."
         await sso.listaConfiguracao(this.tokenSistema)
@@ -219,6 +233,8 @@
             mensagemErroFormatoSenha: this.mensagemErroFormatoSenha
           }
           this.$store.commit('setaConfiguracaoSistema', param)
+          this.telaPronta= true
+         
         })
         .catch (err => {
             this.mensagemAguarde = ''; 
@@ -269,6 +285,8 @@
         this.mensagemAguarde =  this.mensagemPadrao
         const usuarioGuid = this.$store.getters.usuarioGuid
 
+        this.isLoading = true
+        console.log('registraApi', 'Antes do Autentica')
         let erro = false
         const resposta = await mainService.autentica(usuarioGuid)        
         .catch (err => {
@@ -320,37 +338,55 @@
           nomeLogradouro: _cidades[0].nomeLogradouro,
         }
         this.$store.commit('autenticadoApi', _param)
+
           
         // Pegas as comorbidades e sintomas
+        console.log('registraApi', 'Sintomas-Inicio')
         let _sintomas = []
-        this.mensagemAguarde = this.mensagemPadrao
-        await mainService.listaSintomas()
-        .then (resp => {
-            this.mensagemAguarde = '';
-            _sintomas = (resp.status == 200) ? resp.data : []
-        })
-        .catch (resp => {
-            this.mensagemAguarde = '';
-            this.mensagemErro =  mainService.catchPadrao(resp)
-            erro = true
-        });
-        if (erro) 
-          return;
 
+        if (localStorage.getItem("sintomas")) {
+            _sintomas = JSON.parse(localStorage.getItem("sintomas") || '[]')
+        }
+        else {
+          this.mensagemAguarde = this.mensagemPadrao
+          await mainService.listaSintomas()
+          .then (resp => {
+              this.mensagemAguarde = '';
+              _sintomas = (resp.status == 200) ? resp.data : []
+              console.log('sintomas <= api')
+              localStorage.setItem("sintomas", JSON.stringify(_sintomas) );
+          })
+          .catch (resp => {
+              this.mensagemAguarde = '';
+              this.mensagemErro =  'ERR:3320-' + mainService.catchPadrao(resp)
+              erro = true
+          });
+          if (erro) 
+            return;
+        }
+        console.log('registraApi', 'Sintomas-Fim')
+
+        console.log('registraApi', 'Comorbidades-Inicio')
         let _comorbidades = []
-        this.mensagemAguarde = this.mensagemPadrao
-        await mainService.listaComorbidades()
-        .then (resp => {
-            this.mensagemAguarde = '';
-            _comorbidades = (resp.status == 200) ? resp.data : []
-        })
-        .catch (resp => {
-            this.mensagemAguarde = '';
-            this.mensagemErro =  mainService.catchPadrao(resp)
-            erro = true
-        });
-        if (erro) 
-          return;
+        if (localStorage.getItem("comorbidades")) {
+            _comorbidades = JSON.parse(localStorage.getItem("comorbidades") || '[]')
+        } else {
+          this.mensagemAguarde = this.mensagemPadrao
+          await mainService.listaComorbidades()
+          .then (resp => {
+              this.mensagemAguarde = '';
+              _comorbidades = (resp.status == 200) ? resp.data : []
+              console.log('comorbidades <= api')
+          })
+          .catch (resp => {
+              this.mensagemAguarde = '';
+              this.mensagemErro =  'ERR:3321-'+mainService.catchPadrao(resp)
+              erro = true
+          });
+          if (erro) 
+            return;
+        }
+        console.log('registraApi', 'Comorbidades-Fim')
 
         const _param2 = {sintomas: _sintomas, comorbidades: _comorbidades}
         this.$store.commit('setaListaComuns', _param2)
@@ -395,9 +431,9 @@
             usuarioGuid: data.usuarioGuid,
             sistemaId: data.sistemaId
           }
-
-          this.$store.commit('autenticadoSso', param)
-          this.registraApi()
+          localStorage.usuarioPainel = this.email;
+          this.$store.commit('autenticadoSso', param);
+          this.registraApi();
         })
         .catch (err => {
           this.mensagemAguarde =  '';
@@ -421,4 +457,48 @@
     border-bottom-left-radius: 50px 50px; 
     border-bottom-right-radius: 50px 50px;
   } 
+
+  .bounce-enter-active {
+    animation: bounce-in .5s;
+  }
+  .bounce-leave-active {
+    animation: bounce-in 1s reverse;
+  }
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.5);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .roll-enter-active {
+    animation: roll-in .9s;
+  }
+  .roll-leave-active {
+    animation: roll-in 9s reverse;
+  }
+  @keyframes roll-in {
+    0% {
+      transform: scale(0) rotateZ(0deg) translateX(-250px);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 1;
+    }
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotateZ(360deg) translateX(0px);
+      opacity: 1;
+    }
+  }
 </style>

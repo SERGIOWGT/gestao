@@ -34,7 +34,7 @@
                                     :rules="[regras.Data.valida(true)]"
                                 ></v-text-field>
                                 </v-col>
-                                <v-col cols="6">
+                                <v-col cols="6" class="pt-2">
                                     <v-text-field dense required clearable
                                     label="Fim"
                                     v-model="dataFim"

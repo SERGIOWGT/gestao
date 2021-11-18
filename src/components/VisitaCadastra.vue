@@ -2,7 +2,7 @@
     <v-container fluid style="height: 100vmax;" class="pa-1">
         <TituloPagina titulo="CADASTRO DE VISITA" @cbAnterior="fimCadastro(true)" />
         <v-flex v-if="buscandoDados==false">
-            <v-expansion-panels focused class="pt-0 mt-2">
+            <v-expansion-panels focused class="pt-0 mt-2" v-model="painel">
                 <ExpansionVisitaCidadao :nome="infoCidadao.nome" :endereco="enderecoAtual" :nomeEstadoSaude="infoCidadao.nomeEstadoSaude" :nomeMicroArea="infoCidadao.nomeMicroArea"/>
                 <br>
                 <v-divider></v-divider>
@@ -20,8 +20,8 @@
                                     <v-col cols="6"><v-text-field dense disabled label="Peso em KG" v-model="infoUltimaVisita.peso"/></v-col>
                                     <v-col cols="6"><v-text-field dense disabled label="Altura em cm" v-model="infoUltimaVisita.altura"/></v-col>
                                 </v-row>
-                                <v-text-field dense disabled label="Tipo de Ação" v-model="infoUltimaVisita.nomeAcao"/>
                                 <v-text-field dense disabled label="Desfecho" v-model="infoUltimaVisita.nomeDesfecho"/>
+                                <v-text-field dense disabled label="Tipo de Ação" v-model="infoUltimaVisita.nomeAcao"/>
                                 <v-textarea dense auto-grow disabled label="Resumo" v-model="infoUltimaVisita.resumo" row-height="10" ></v-textarea>
                             </v-card-text>
                         </v-card>
@@ -103,7 +103,13 @@
                                     />
                                 </v-col>
                             </v-row>
-                            <v-autocomplete class="pt-2"
+                            <small>Desfecho da Visita</small>
+                            <v-radio-group  class="py-0 my-0" required dense row hide-details v-model="infoVisita.tipoDesfechoVisitaId">
+                                <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="1" label="Realizada"></v-radio></v-col>
+                                <v-col cols="4" class="py-1 my-1"><v-radio value="2" label="Ausente"></v-radio></v-col>
+                                <v-col cols="3" class="py-1 my-1"><v-radio value="3" label="Recusado"></v-radio></v-col>
+                            </v-radio-group>
+                            <v-autocomplete class="pt-2" :disabled="infoVisita.tipoDesfechoVisitaId > 1 "
                                 dense hide-no-data required
                                 label="Tipo de Ação*"
                                 v-model="infoVisita.tipoAcao"
@@ -113,12 +119,6 @@
                                 return-object
                                 :rules="[regras.Basicas.obrigatorio()]"
                             ></v-autocomplete> 
-                            <small>Desfecho da Visita*</small>
-                            <v-radio-group  class="py-0 my-0" required dense row hide-details v-model="infoVisita.tipoDesfechoVisitaId">
-                                <v-col cols="4" class="py-1 my-1 pl-0"><v-radio value="1" label="Realizada"></v-radio></v-col>
-                                <v-col cols="4" class="py-1 my-1"><v-radio value="2" label="Ausente"></v-radio></v-col>
-                                <v-col cols="3" class="py-1 my-1"><v-radio value="3" label="Recusado"></v-radio></v-col>
-                            </v-radio-group>
                             <v-textarea
                                 auto-grow counter clearable
                                 clear-icon="mdi-close-circle"
@@ -179,6 +179,7 @@
             areaPesquisaAberta: 0,
             formularioValido: false,
             podeSalvar: false,
+            painel: 0,
 
             infoCidadao: {
                 id: 0,
@@ -404,6 +405,7 @@
                     this.mensagemAguarde = ''
                     return
                 }
+                this.painel = 4
             },
             async salvaVisita() {
                 this.mensagemAguarde = 'Salvando a visita. Aguarde...'

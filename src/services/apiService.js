@@ -4,8 +4,8 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
     //baseURL: 'https://apipainelsaude.azurewebsites.net/api/'
-    //baseURL: 'http://api.painelsaude.com.br/api/'
-    baseURL: 'https://localhost:44308/api/'
+    baseURL: 'http://api.painelsaude.com.br/api/'
+    //baseURL: 'https://localhost:44308/api/'
 })
 
 http.interceptors.request.use(function (config) {
@@ -270,6 +270,8 @@ export default {
             dataVisitaFim: null,
             dataSolucaoInicio: null,
             dataSolucaoFim: null,
+            visitaBaixada: null,
+            visitaRealizada: null,
             numeroMaxLinhas: 50,
             sintomas: [],
             comorbidades: [],
@@ -341,6 +343,12 @@ export default {
             if (param.dataSolucaoFim)
                 paramPost.dataSolucaoFim = param.dataSolucaoFim
 
+            if (param.visitaRealizada)
+                paramPost.visitaRealizada = param.visitaRealizada
+    
+            if (param.visitaBaixada)
+                    paramPost.visitaBaixada = param.visitaBaixada
+    
             if (param.sintomas) {
                 paramPost.sintomas = param.sintomas
             }

@@ -104,10 +104,11 @@
         </v-flex>
         <v-flex v-show="telaPronta" >
             <v-card flat class="pt-0 mt-0" tile >
-                <v-row>
-                    <v-col cols="6">  <v-checkbox dense v-model="mostraAtivos" label="Mostra ativos" color="primary" hide-details ></v-checkbox> </v-col>
-                    <v-col cols="6">  <v-checkbox dense v-model="mostraInativos" label="Mostra inativos" color="primary"  hide-details ></v-checkbox> </v-col>
-                </v-row>
+                <v-chip-group v-model="filtro" column>
+                    <v-chip filter outlined>Todas</v-chip>
+                    <v-chip filter outlined>Ativos</v-chip>
+                    <v-chip filter outlined>Inativos</v-chip>
+                </v-chip-group>
                 <v-list>
                     <v-divider></v-divider>
                     <v-subheader class="justify-center px-0">
@@ -213,8 +214,7 @@ export default {
             usuarios: [],
             usuariosTela: [],
 
-            mostraAtivos: true,
-            mostraInativos: false,
+            filtro: 1,
 
             perfis: [],
             unidadesSaude: [],
@@ -245,10 +245,7 @@ export default {
         await this.listaUsuarios();
     },
     watch: {
-        mostraAtivos() {
-            this.filtra()
-        },
-        mostraInativos() {
+        filtro() {
             this.filtra()
         }
     },
@@ -291,20 +288,12 @@ export default {
             this.infoPergunta.abre = false
         },
         filtra() {
-            if (this.mostraAtivos == this.mostraInativos) {
-                if (this.mostraAtivos) {
-                    this.usuariosTela = this.usuarios
-                    return;
-                }
-                
-                this.usuariosTela = []
-                return;
-            }
-            if (this.mostraAtivos) {
-                this.usuariosTela = this.usuarios.filter(x=>x.ativo == true);
-                return 
-            }
-            this.usuariosTela = this.usuarios.filter(x=>x.ativo == false);
+            if (this.filtro == 0) {
+                this.usuariosTela = this.usuarios
+            } else  {
+                const opcao = this.filtro == 1 ? true : false
+                this.usuariosTela = this.usuarios.filter(x=>x.ativo == opcao);
+            } 
         },
         classeItem: function(ativo, bloqueado) {
             return 'text-wrap '.concat((ativo == false || bloqueado) ? 'red--text' : '')
