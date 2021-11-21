@@ -4,7 +4,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
     //baseURL: 'https://lastecweb01.azurewebsites.net/api/'
-    baseURL: 'http://sso.painelsaude.com.br/api/'
+    baseURL: 'https://sso.painelsaude.com.br/api/'
     //baseURL: 'http://localhost:56486/api/'
 })
 
