@@ -120,6 +120,17 @@
                 {id:113, tipoId:1, acao:'A'},
                 {id:114, tipoId:1, acao:'C'}
               ]
+          },{   
+              id: 7, 
+              textColor: 'teal--text text--lighten-2', 
+              text: 'Baixa dados dos cidadão para Visita', 
+              icon: 'mdi-home-map-marker', 
+              iconColor: 'teal lighten-2', 
+              ativo: false,
+              func: 'naoImplementada()',
+              perms: [
+                {id:111, tipoId:1, acao:'I'},
+              ]
           },
         ]
       }

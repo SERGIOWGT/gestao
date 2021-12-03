@@ -1,16 +1,16 @@
 <template>
     <v-app-bar app flat dark  color="teal darken-4" class="pr-2">
-      <div>
-        <v-btn  icon v-on:click="goHome()">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
-      </div>
-      <v-spacer>
-      <div class="text-center"><h4>{{titulo}}</h4></div>
-      </v-spacer> 
-      <v-btn  icon v-on:click="logout()">
-        <v-icon>mdi-logout</v-icon>
-      </v-btn>
+      <v-row class="linha">
+        <v-col  class="d-flex justify-center" cols="2">
+          <v-btn  icon v-on:click="goHome()"><v-icon>mdi-menu</v-icon></v-btn>
+        </v-col>
+        <v-col  class="d-flex justify-center" cols="8">
+          <h4>{{titulo}}</h4>
+        </v-col>
+        <v-col  class="d-flex justify-center" cols="2">
+          <v-btn  icon v-on:click="logout()"><v-icon>mdi-logout</v-icon></v-btn>
+        </v-col>
+      </v-row>
     </v-app-bar>
 </template>
 <script>
@@ -21,15 +21,7 @@
     props: {
       titulo: String, urlLogo: String
     },
-    data() {
-      return {
-        selectedItem: 1,
-        items: [
-          { text: 'Real-Time', icon: 'mdi-clock' },
-          { text: 'Audience', icon: 'mdi-account' },
-          { text: 'Conversions', icon: 'mdi-flag' },
-        ],
-      }
+    data() {return {}    
     },
     methods: { 
       goHome() {
@@ -45,6 +37,12 @@
 <style scoped>
 .v-btn::before {
   background-color: transparent;
+}
+.linha {
+  background-color: transparent;
+  padding: 0px 5px 0px 5px;
+  justify-items: center;
+  align-items: center;
 }
 
 </style>

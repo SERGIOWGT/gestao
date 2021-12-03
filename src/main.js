@@ -5,7 +5,9 @@ import router from './router/Index'
 import store from './store.js'
 import VueMask  from 'v-mask';
 import {TheMask} from 'vue-the-mask'
+import wb from "./registerServiceWork";
 
+Vue.prototype.$workbox = wb;
 Vue.use(VueMask);
 Vue.use(TheMask);
 Vue.config.productionTip = false

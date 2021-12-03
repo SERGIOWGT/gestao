@@ -1,0 +1,21 @@
+{
+    "short_name": "Painel Saude",
+    "name": "Gestor Painel Saude",
+    "icons": [
+      {
+        "src": "img/icons/android-chrome-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "img/icons/android-chrome-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/?pwa=true",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#276766",
+    "theme_color": "#191919"
+}
