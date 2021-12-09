@@ -2,6 +2,8 @@ import sso from './ssoService'
 import api from './apiService'
 import store from '../store'
 
+const signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
+
 export default {
 
     // Rotinas da Api
@@ -295,8 +297,7 @@ export default {
         return sso.inativaUsuario(_token, id);
     },
     async autentica (usuarioGuid) {
-        const _signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
-        return api.autentica(_signKey, usuarioGuid);
+        return api.autentica(signKey, usuarioGuid);
     },
     catchPadrao: (response) => {
         let mensagemErro = ''

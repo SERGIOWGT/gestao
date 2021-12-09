@@ -110,13 +110,21 @@ export default {
         }
         return http.put('login/TrocaSenhaV2', params)
     },
-
     esqueceuSenha: (signKey, chave) => {
         const params = {
             'tokenSistema': signKey,
             'chave': chave
         }
         return http.put('login/EsqueciSenha', params)
+    },
+    trocaSenhaPorCodigo: (signKey, chave, codigoAcesso, senhaNova) => {
+        const params = {
+            'tokenSistema': signKey,
+            'chave': chave,
+            'codigoAcesso': codigoAcesso,
+            'senhaNova': senhaNova
+        }
+        return http.put('login/TrocaSenhaPorCodigo', params)
     },
     catchPadrao: (response) => {
         let mensagemErro = ''

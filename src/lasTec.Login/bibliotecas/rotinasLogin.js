@@ -37,6 +37,11 @@ export default {
             valida(v) || 'Email é obrigatório'
         }
       },
-    }
+    },
+    CodigoAcessoRules: {
+      valido(obrigatorio) {
+        return v => !obrigatorio || (v && v.length == 6) || 'Campo com 6 números'
+      }
+    },
   }
 
