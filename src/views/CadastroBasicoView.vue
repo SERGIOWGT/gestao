@@ -2,9 +2,7 @@
     <v-container fluid style="height: 100vmax;" class="px-2 py-0">
         <MessageBox :tipo="tipoMensagem" :mensagem="mensagem" @cb= 'mensagem = ""'/>        
         <ProgressBar :mensagem="mensagemAguarde"/>
-         <v-bottom-sheet
-             v-model="infoNovo.mostraDialog" inset  max-width="500px"
-        >
+         <v-bottom-sheet v-model="infoNovo.mostraDialog" inset  max-width="500px">
             <v-sheet class="text-center ">
                 <v-card tile class="pa-0 ma-0 ">
                     <v-card-title class="pa-2 teal lighten-2" >
@@ -14,20 +12,16 @@
                     <v-card-text class="pa-0">
                         <v-form ref="myForm" class="mx-3" v-model="formularioValido">
                             <v-text-field class="mt-5 pt-2" v-if="infoNovo.labelPai != ''"
-                            dense
-                            disabled
+                            dense disabled 
                             :label="infoNovo.labelPai"
                             v-model="infoNovo.nomePai"
                             ></v-text-field>
                             <v-text-field class="mt-5 pt-2 mb-5" 
-                            dense
+                            dense required clearable counter
                             :label="infoNovo.label"
                             :disabled="infoNovo.exclusao == true"
-                            required
-                            clearable
                             v-model="infoNovo.nome"
                             :rules="[regras.Basicas.obrigatorio()]"
-                            counter
                             maxlength="50"
                             ></v-text-field>
                         </v-form>
@@ -90,8 +84,14 @@
                         <v-list-item-content>
                             <v-list-item-title class="text-wrap" v-html="item.nome"></v-list-item-title>
                         </v-list-item-content>
-                        <v-btn icon color="primary" @click="configAlteracao(item.id, item.nome, false)"><v-icon>mdi-dots-vertical</v-icon></v-btn>
-                        <v-btn icon color="error"  @click="configAlteracao(item.id, item.nome, true)"><v-icon>mdi-minus-circle</v-icon></v-btn>
+                        <v-btn  icon color="primary" @click="configAlteracao(item.id, item.nome, false)"
+                                :disabled="permissionamento[opcaoAtual].altera == false" >
+                                <v-icon>mdi-dots-vertical</v-icon>
+                        </v-btn>
+                        <v-btn  icon color="error" @click="configAlteracao(item.id, item.nome, true)"
+                                :disabled="permissionamento[opcaoAtual].exclui == false" >
+                                <v-icon>mdi-minus-circle</v-icon>
+                        </v-btn>
                     </v-list-item>
                     <v-divider></v-divider>
                     </v-flex>
@@ -102,13 +102,13 @@
             <v-btn @click="cmdBotao(enumCadastro.unidadeSaude)">
                 <v-icon>{{opcoes[enumCadastro.unidadeSaude].icone}}</v-icon>
             </v-btn>
-            <v-btn  @click="cmdBotao(enumCadastro.microArea)">
+            <v-btn  @click="cmdBotao(enumCadastro.microArea)" >
                 <v-icon>{{opcoes[enumCadastro.microArea].icone}}</v-icon>
             </v-btn>
-            <v-btn @click="cmdBotao(enumCadastro.bairro)">
+            <v-btn @click="cmdBotao(enumCadastro.bairro)" >
                 <v-icon>{{opcoes[enumCadastro.bairro].icone}}</v-icon>
             </v-btn>
-            <v-btn  @click="cmdBotao(enumCadastro.logradouro)">
+            <v-btn  @click="cmdBotao(enumCadastro.logradouro)" >
                 <v-icon>{{opcoes[enumCadastro.logradouro].icone}}</v-icon>
             </v-btn>
         </v-bottom-navigation>
@@ -121,6 +121,7 @@ import regrasCampos from '../bibliotecas/regrasCampos'
 import MessageBox from '../lastec.components/lastec-messagebox'
 import ProgressBar from '../lastec.components/lastec-progressbar'
 import TituloPagina from '../components/TituloPagina'
+import {temAcesso} from '../rotinasProjeto/rotinasProjeto'
 
 export default {
     components: {
@@ -138,6 +139,7 @@ export default {
                 logradouro: 2,
                 microArea: 3
             },
+            permissionamento: [],
             infoNovo: {
                 exclusao: false,
                 mostraDialog: false,
@@ -200,6 +202,34 @@ export default {
         this.bairroPadrao = this.$store.getters.bairroPadrao
         this.logradouroPadrao = this.$store.getters.logradouroPadrao
         this.$store.commit('habilitaUserbar', false)
+
+        const _permissionamentos = this.$store.getters.permissionamento;
+        console.log(_permissionamentos);
+
+        // Permissão 
+        this.permissionamento.push ({
+            inclui: temAcesso(_permissionamentos, '107', 1, 'I'),
+            altera: temAcesso(_permissionamentos, '107', 1, 'A'),
+            exclui: temAcesso(_permissionamentos, '107', 1, 'E'),
+        })
+
+        this.permissionamento.push ({
+            inclui: temAcesso(_permissionamentos, '101', 1, 'I'),
+            altera: temAcesso(_permissionamentos, '101', 1, 'A'),
+            exclui: temAcesso(_permissionamentos, '101', 1, 'E')
+        })
+    
+        this.permissionamento.push ({
+            inclui: temAcesso(_permissionamentos, '103', 1, 'I'),
+            altera: temAcesso(_permissionamentos, '103', 1, 'A'),
+            exclui: temAcesso(_permissionamentos, '103', 1, 'E')
+        })
+
+        this.permissionamento.push ({
+            inclui: temAcesso(_permissionamentos, '105', 1, 'I'),
+            altera: temAcesso(_permissionamentos, '105', 1, 'A'),
+            exclui: temAcesso(_permissionamentos, '105', 1, 'E')
+        })
     },
     mounted() {
         this.buscaDadosIniciais()
@@ -250,7 +280,10 @@ export default {
             return _retorno
         },
         desabilitaNovo: function() {
-            let retorno = true
+            if (this.permissionamento[this.opcaoAtual].inclui == false)
+                return true;
+
+            let retorno = true;
             switch (this.opcaoAtual) {
                 case this.enumCadastro.unidadeSaude: 
                     retorno = (this.unidadeSaudePadrao.id != 0)
@@ -358,7 +391,6 @@ export default {
             this.infoNovo.mostraDialog = true
         },
         async buscaDadosIniciais() {
-
             await this.listaUnidadesSaude(this.cidadePadrao.id, this.unidadeSaudePadrao.id)
             await this.listaBairros(this.cidadePadrao.id)
 
@@ -430,7 +462,6 @@ export default {
                             this.mensagemErro=mainService.catchPadrao(response)
                         })
                         break;
-
                     case this.enumCadastro.bairro: 
                         this.mensagemAguarde='Salvando o Bairro. Aguarde...'
                         await mainService.salvaBairro(this.cidadePadrao.id, this.infoNovo.id, this.infoNovo.nome)

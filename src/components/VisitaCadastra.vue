@@ -280,7 +280,6 @@
                     this.salvaVisita()
             },
             async setaTipoMotivo(value) {
-                console.log('setaTipoMotivo(value)', value)
                 this.infoVisita.tipoMotivo.id = value.id;
                 this.infoVisita.tipoMotivoAnalitico.id = 0;
                 this.infoVisita.tipoMotivoAnalitico.nome = ''
@@ -358,12 +357,13 @@
                 .then((resp) => {
                     this.mensagemAguarde = ''
                     this.infoCidadao.sintomas = resp.status == 200 ? resp.data : []
-                    const _todosSintomas = this.$store.getters.todosSintomas
+                    
+                    const _todosSintomas = this.$store.getters.dbSintomas
                     this.infoVisita.sintomas = ordenaSintomas(_todosSintomas, this.infoCidadao.sintomas)
                 })
-                .catch((response) => {
+                .catch((err) => {
                     erroBusca = true
-                    this.mensagemErro =  mainService.catchPadrao(response)
+                    this.mensagemErro =  mainService.catchPadrao(err)
                 })
                 if (erroBusca)  {
                     this.mensagemAguarde = ''

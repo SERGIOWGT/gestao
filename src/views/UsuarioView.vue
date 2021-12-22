@@ -4,8 +4,8 @@
         <ProgressBar :mensagem="mensagemAguarde"/>
         <TituloPagina titulo="CADASTRO DE USUÁRIOS DO SISTEMA" @cbAnterior="$router.back()"/>
         <Pergunta v-if="infoPergunta.abre" :titulo="infoPergunta.titulo" :pergunta="infoPergunta.texto" @cbRespostaSim="cbRespostaSim()" @cbRespostaNao="cbRespostaNao()"/>
-        <v-flex>
-            <v-bottom-sheet v-if="abreCadastro" v-model="abreCadastro" inset  max-width="500px">
+        <v-flex v-if="abreCadastro">
+            <v-bottom-sheet persistent v-model="abreCadastro" inset  max-width="500px" >
                 <v-sheet class="text-center">
                     <v-card tile class="pa-0 ma-0">
                         <v-card-title class="pa-2 teal lighten-2" >
@@ -14,22 +14,22 @@
                         <v-divider></v-divider>
                         <v-card-text class="pa-0">
                             <v-form ref="myForm" class="mx-3" v-model="formularioValido">
-                                <v-text-field class="pb-0 pt-4" dense disabled
+                                <v-text-field class="pb-0 pt-4" dense disabled 
                                     label="Cidade"
                                     v-model="cidadePadrao.nome"
                                 ></v-text-field>
-                                <v-text-field class="pt-0" dense clearable required counter
+                                <v-text-field class="pt-0" dense clearable required counter autofocus
                                     :disabled="eExclusao == true"
                                     v-model="infoUsuario.nome"
                                     label="Nome*"
                                     :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(5), regras.Basicas.max(100)]"
                                     maxlength="100"
                                 />
-                                <v-text-field dense clearable required counter
+                                <v-text-field dense clearable required counter  class="pt-2"
                                     v-model="infoUsuario.email"
                                     label="Email*"
                                     prepend-icon="mdi-email"
-                                    :disabled="eExclusao == true"
+                                    :disabled="infoUsuario.id != 0"
                                     :rules="[regras.Email.valido(false)]"
                                     maxlength="100"
                                 />
@@ -322,9 +322,40 @@ export default {
             this.infoUsuario.nome = this.usuariosTela[posicao].nome
             this.infoUsuario.email = this.usuariosTela[posicao].email
             this.infoUsuario.userKey = this.usuariosTela[posicao].userKey
-            this.infoUsuario.unidadeSaude.id = this.usuariosTela[posicao].unidadeSaudeId
-            this.infoUsuario.microArea.id = this.usuariosTela[posicao].microAreaId
-            this.infoUsuario.perfilAntigoId = this.usuariosTela[posicao].perfilSegurancaId
+
+            const _perfil = this.perfis.find(x => x.id == this.usuariosTela[posicao].perfilSegurancaId)
+
+            console.log('perfil de alteração', _perfil)
+            if (_perfil) {
+                this.infoUsuario.perfil.permissaoUnidadeSaude = _perfil.permissaoUnidadeSaude
+                this.infoUsuario.perfil.permissaoMicroArea = _perfil.permissaoMicroArea
+
+                if (this.infoUsuario.perfil.permissaoUnidadeSaude != 'N') {
+                    await this.listaUnidadesSaude();
+                    this.infoUsuario.unidadeSaude.id = this.usuariosTela[posicao].unidadeSaudeId;
+                } else {
+                    this.infoUsuario.unidadeSaude.id = 0;
+                }
+
+                if (this.infoUsuario.perfil.permissaoMicroArea != 'N') {
+                    if (this.usuariosTela[posicao].unidadeSaudeId) {
+                        await this.listaMicroAreas(this.usuariosTela[posicao].unidadeSaudeId);
+                    } 
+                    this.infoUsuario.microArea.id = this.usuariosTela[posicao].microAreaId
+                } else {
+                    this.infoUsuario.microArea.id = 0
+                }
+
+                this.infoUsuario.perfilAntigoId = this.usuariosTela[posicao].perfilSegurancaId
+            }
+
+            /*
+            this.infoUsuario.perfil.id = 0
+            this.infoUsuario.perfil.nome = ''
+            this.infoUsuario.perfil.permissaoUnidadeSaude = 'N'            
+            this.infoUsuario.perfil.permissaoMicroArea = 'N'
+            */
+
             this.infoUsuario.perfil.id = this.infoUsuario.perfilAntigoId
             this.infoUsuario.perfil.nome = this.usuariosTela[posicao].nomePerfilSeguranca
             this.infoUsuario.ssoId = this.usuariosTela[posicao].ssoId
@@ -420,6 +451,7 @@ export default {
             }
 
             this.usuarios = []
+            usuariosSistema = usuariosSistema.filter(x => x.perfilSegurancaId > 1);
             usuariosSistema.sort((a, b) => {return a.nome.localeCompare(b.nome)});
             usuariosSistema.forEach((usuarioSistema) => {
                 const usuarioSso = usuariosSso.find(sso=>sso.usuarioGuid == usuarioSistema.userKey);
@@ -434,17 +466,60 @@ export default {
             this.telaPronta = true
             this.filtra()
         },
-           
+        async listaUnidadesSaude() {
+            this.mensagemAguarde = 'Buscando Unidades de Saúde... Aguarde'
+            await mainService.listaUnidadesSaude(this.cidadePadrao.id)
+            .then(resposta => {
+                this.mensagemAguarde=''
+                if (resposta.status == 200) {
+                    this.unidadesSaude = resposta.data;
+                } else {
+                    this.mensagemErro=resposta.message
+                }
+            })
+            .catch((response) => {
+                this.mensagemAguarde=''
+                this.mensagemErro =  mainService.catchPadrao(response)
+            })
+
+        },
+        async listaMicroAreas(unidadeSaudeId) {
+            this.mensagemAguarde = 'Buscando Micro Áreas... Aguarde'
+            await mainService.listaMicroAreas(unidadeSaudeId)
+            .then(resposta => {
+                this.mensagemAguarde=''
+                if (resposta.status == 200) {
+                    this.microAreas = resposta.data;
+                } else {
+                    this.mensagemErro=resposta.message
+                }
+            })
+            .catch((response) => {
+                this.mensagemAguarde=''
+                this.mensagemErro =  mainService.catchPadrao(response)
+            })
+        },
         async listaPerfis() {
+            let erroBusca = false;
             this.mensagemAguarde = 'Buscando Perfis de Acesso. Aguarde...'
             const resp = await mainService.listaPerfisSeguranca()
+                .catch((response) => {
+                    this.mensagemAguarde = '';
+                    erroBusca = true
+                    this.mensagemErro =  mainService.catchPadrao(response)
+                })
+
+            console.log(resp);
+
+            if (erroBusca) {
+                return 
+            }
             let _perfil = resp.data.filter(x => {return x.id != 1})
             if (this.eMaster == false) {
                 this.perfis = _perfil.filter(x => {return x.id != 2})
             } else 
                 this.perfis = _perfil
             this.mensagemAguarde = ''
-            this.telaPronta = true
         },
         novo() {
             this.senhaNaoVisivel = false
@@ -464,6 +539,7 @@ export default {
             this.infoUsuario.perfil.nome = ''
             this.infoUsuario.perfil.permissaoUnidadeSaude = 'N'            
             this.infoUsuario.perfil.permissaoMicroArea = 'N'
+            this.listaPerfis()
             this.abreCadastro = true
         },
         async refresh() {
@@ -485,21 +561,9 @@ export default {
                 return;
             }
             this.formularioValido = false
-                
-            this.mensagemAguarde = 'Buscando Unidades de Saúde... Aguarde'
-            await mainService.listaUnidadesSaude(this.cidadePadrao.id)
-            .then(resposta => {
-                this.mensagemAguarde=''
-                if (resposta.status == 200) {
-                    this.unidadesSaude = resposta.data;
-                } else {
-                    this.mensagemErro=resposta.message
-                }
-            })
-            .catch((response) => {
-                this.mensagemAguarde=''
-                this.mensagemErro =  mainService.catchPadrao(response)
-            })
+
+            await this.listaUnidadesSaude();
+               
         },
         async setaUnidadeSaude(obj) {
             this.infoUsuario.microArea.id = 0
@@ -508,43 +572,17 @@ export default {
             this.infoUsuario.unidadeSaude.id = obj == null ? 0 : obj.id
             if (this.infoUsuario.permissaoMicroArea == 'N')
                 return;
+
+            await this.listaMicroAreas(this.infoUsuario.unidadeSaude.id)
             
-            this.mensagemAguarde = 'Buscando Micro Áreas... Aguarde'
-            await mainService.listaMicroAreas(this.infoUsuario.unidadeSaude.id)
-            .then(resposta => {
-                this.mensagemAguarde=''
-                if (resposta.status == 200) {
-                    this.microAreas = resposta.data;
-                } else {
-                    this.mensagemErro=resposta.message
-                }
-            })
-            .catch((response) => {
-                this.mensagemAguarde=''
-                this.mensagemErro =  mainService.catchPadrao(response)
-            })
         },
         async setaMicroArea(obj) {
             this.infoUsuario.microArea.id = obj == null ? 0 : obj.id;
         },
         perfil2Grupo(id) {
-            if (id == 1) 
-                return 101;
+            const _id = parseInt(id);
 
-            if (id == 2) 
-                return 102;
-
-            if (id == 3) 
-                return 103;
-
-            if (id == 4) 
-                return 104;
-
-            if (id == 5) 
-                return 105;
-
-            if (id == 6) 
-                return 106;
+            return 101 + _id;
         },
         
         async salva() {

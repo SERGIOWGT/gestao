@@ -2,6 +2,12 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
+const enumNomeTabela = {
+    config: 'dbg__config',
+    comorbidade: 'dbg__comorbidades',
+    doenca: 'dbg__doencas',
+    sintoma: 'dbg__sintomas'
+}
 
 const store = new Vuex.Store({
     state: {
@@ -49,14 +55,95 @@ const store = new Vuex.Store({
             }
         },
         permissionamento: '',
-        listasComuns: {
-            sintomas: [],
-            comorbidades: []
-        }
+        db: {
+            tbConfig: {
+              dataCarga: '',
+              versao: ''
+            },
+            tbComorbidades: [],
+            tbDoencas: [],
+            tbSintomas: [],
+        },
     },
     mutations: {
+        autenticadoApi (state, obj) {
+            state.infosUsuario.autenticado = obj.autenticado
+            state.infosUsuario.apiToken = obj.token
+            state.infosUsuario.cidadePadrao.id = obj.cidadeId
+            state.infosUsuario.cidadePadrao.nome = obj.nomeCidade
+            state.infosUsuario.unidadeSaudePadrao.id = obj.unidadeSaudeId
+            state.infosUsuario.unidadeSaudePadrao.nome = obj.nomeUnidadeSaude
+            state.infosUsuario.bairroPadrao.id = obj.bairroId
+            state.infosUsuario.bairroPadrao.nome = obj.nomeBairro
+            state.infosUsuario.microAreaPadrao.id = obj.microAreaId
+            state.infosUsuario.microAreaPadrao.nome = obj.nomeMicroArea
+            state.infosUsuario.logradouroPadrao.id = obj.logradouroId
+            state.infosUsuario.logradouroPadrao.nome = obj.nomeLogradouro
+        },
+        autenticadoSso (state, obj) {
+            state.estaLogado = true
+            state.infosUsuario.email = obj.email
+            state.infosUsuario.ssoToken = obj.token
+            state.infosUsuario.apiToken = ''
+            state.infosUsuario.nomeUsuario = obj.nomeUsuario
+            state.infosUsuario.usuarioId = obj.usuarioId
+            state.infosUsuario.usuarioGuid = obj.usuarioGuid
+            state.permissionamento = obj.permissionamento
+        },
+        carregaDadosPersistentes(state) {
+            state.db.tbComorbidades = JSON.parse(localStorage.getItem(enumNomeTabela.comorbidade) ||'[]');
+            state.db.tbDoencas = JSON.parse(localStorage.getItem(enumNomeTabela.doenca) ||'[]');
+            state.db.tbSintomas = JSON.parse(localStorage.getItem(enumNomeTabela.sintoma) ||'[]');
+        },
+        finalizaLogin (state, obj) {
+            state.loginFinalizado = obj
+        },
         habilitaUserbar (state, obj) {
             state.userBarAtivo = obj
+        },
+        init(state) {
+            if (localStorage.getItem(enumNomeTabela.config)){
+                state.db.tbConfig = JSON.parse(localStorage.getItem(enumNomeTabela.config));
+            }
+            else {
+                state.db.tbConfig.dataCarga = '';
+                state.db.tbConfig.versao = '';
+            }
+        },
+        limpaDadosPersistentes(state) {
+            state.db.tbConfig.dataCarga = '';
+            state.db.tbConfig.versao = '';
+            state.db.tbComorbidades = [];
+            state.db.tbDoencas = [];
+            state.db.tbSintomas = [];
+
+            localStorage.removeItem(enumNomeTabela.config);
+            localStorage.removeItem(enumNomeTabela.comorbidade);
+            localStorage.removeItem(enumNomeTabela.doenca);
+            localStorage.removeItem(enumNomeTabela.sintoma);
+        },
+        logout(state) {
+            state.loginFinalizado = false
+            state.estaLogado = false
+            state.infosUsuario.autenticado = false
+            state.infosUsuario.email = ''
+            state.infosUsuario.apiToken = ''
+            state.infosUsuario.nomeUsuario = ''
+            state.infosUsuario.usuarioId = ''
+            state.permissionamento = ''
+        }, 
+        salvaDadosPersistentes(state, dados) {
+            state.db.tbComorbidades = dados.comorbidades;
+            state.db.tbDoencas = dados.doencas;
+            state.db.tbSintomas = dados.sintomas;
+    
+            state.db.tbConfig.dataCarga = new Date();
+            state.db.tbConfig.versao = 'v1.0'
+
+            localStorage.setItem(enumNomeTabela.config, JSON.stringify(state.db.tbConfig));
+            localStorage.setItem(enumNomeTabela.comorbidade, JSON.stringify(dados.comorbidades));
+            localStorage.setItem(enumNomeTabela.doenca, JSON.stringify(dados.doencas));
+            localStorage.setItem(enumNomeTabela.sintoma, JSON.stringify(dados.sintomas));
         },
         setaListaComuns (state, obj) {
             state.listasComuns.sintomas = obj.sintomas
@@ -75,43 +162,6 @@ const store = new Vuex.Store({
             state.infosSistema.tamanhoMinimoSenha = obj.tamanhoMinimoSenha,
             state.infosSistema.formatoSenha = obj.formatoSenha
             state.infosSistema.mensagemErroFormatoSenha = obj.mensagemErroFormatoSenha
-        }, 
-        autenticadoApi (state, obj) {
-            state.infosUsuario.autenticado = obj.autenticado
-            state.infosUsuario.apiToken = obj.token
-            state.infosUsuario.cidadePadrao.id = obj.cidadeId
-            state.infosUsuario.cidadePadrao.nome = obj.nomeCidade
-            state.infosUsuario.unidadeSaudePadrao.id = obj.unidadeSaudeId
-            state.infosUsuario.unidadeSaudePadrao.nome = obj.nomeUnidadeSaude
-            state.infosUsuario.bairroPadrao.id = obj.bairroId
-            state.infosUsuario.bairroPadrao.nome = obj.nomeBairro
-            state.infosUsuario.microAreaPadrao.id = obj.microAreaId
-            state.infosUsuario.microAreaPadrao.nome = obj.nomeMicroArea
-            state.infosUsuario.logradouroPadrao.id = obj.logradouroId
-            state.infosUsuario.logradouroPadrao.nome = obj.nomeLogradouro
-        },
-        finalizaLogin (state, obj) {
-            state.loginFinalizado = obj
-        },
-        autenticadoSso (state, obj) {
-            state.estaLogado = true
-            state.infosUsuario.email = obj.email
-            state.infosUsuario.ssoToken = obj.token
-            state.infosUsuario.apiToken = ''
-            state.infosUsuario.nomeUsuario = obj.nomeUsuario
-            state.infosUsuario.usuarioId = obj.usuarioId
-            state.infosUsuario.usuarioGuid = obj.usuarioGuid
-            state.permissionamento = obj.permissionamento
-        },
-        logout(state) {
-            state.loginFinalizado = false
-            state.estaLogado = false
-            state.infosUsuario.autenticado = false
-            state.infosUsuario.email = ''
-            state.infosUsuario.apiToken = ''
-            state.infosUsuario.nomeUsuario = ''
-            state.infosUsuario.usuarioId = ''
-            state.permissionamento = ''
         }, 
     },
     getters: {
@@ -135,9 +185,6 @@ const store = new Vuex.Store({
         logradouroPadrao: state => state.infosUsuario.logradouroPadrao,
         autenticadoApi: state => state.infosUsuario.apiToken != '',
 
-        todosSintomas: state => state.listasComuns.sintomas,
-        todasComorbidades: state => state.listasComuns.comorbidades,
-
         permissionamento: state => state.permissionamento,
 
         tamanhoMinimoSenha: state => state.infosSistema.tamanhoMinimoSenha,
@@ -148,6 +195,19 @@ const store = new Vuex.Store({
         nomeSistema: state => state.infosSistema.nome,
         plataformaId: state => state.infosSistema.plataformaId,
         nomePlataforma: state => state.infosSistema.nomePlataforma,
+
+        
+        // db
+        dbDataCarga (state) {
+            if (state.db.tbConfig)
+                if (state.db.tbConfig.dataCarga)
+                    return state.db.tbConfig.dataCarga
+                    
+            return null;
+        },
+        dbDoencas: state => state.db.tbDoencas,
+        dbComorbidades: state => state.db.tbComorbidades,
+        dbSintomas: state => state.db.tbSintomas,
     }
   })
   export default store

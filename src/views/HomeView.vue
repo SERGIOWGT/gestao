@@ -120,18 +120,7 @@
                 {id:113, tipoId:1, acao:'A'},
                 {id:114, tipoId:1, acao:'C'}
               ]
-          },{   
-              id: 7, 
-              textColor: 'teal--text text--lighten-2', 
-              text: 'Baixa dados dos cidadão para Visita', 
-              icon: 'mdi-home-map-marker', 
-              iconColor: 'teal lighten-2', 
-              ativo: false,
-              func: 'naoImplementada()',
-              perms: [
-                {id:111, tipoId:1, acao:'I'},
-              ]
-          },
+          }
         ]
       }
     },
@@ -181,12 +170,14 @@
         }
       },
       preparaTela() {
+        const _permissionamentos = this.$store.getters.permissionamento;
+        console.log(_permissionamentos)
         let _temAcesso = false
         for (var i=0; i < this.funcionalidades.length; ++i) {
           _temAcesso = false
           for (var j=0; j < this.funcionalidades[i].perms.length; ++j) {
             const _item = this.funcionalidades[i].perms[j];
-            if (temAcesso(this.$store.getters.permissionamento, _item.id, _item.tipoId, _item.acao)) {
+            if (temAcesso(_permissionamentos, _item.id, _item.tipoId, _item.acao)) {
               _temAcesso = true
               j = this.funcionalidades[i].perms.length
             }

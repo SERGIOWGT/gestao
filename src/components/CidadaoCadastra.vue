@@ -435,8 +435,8 @@
             .then (resp => {this.infoPesquisa.allBairros = resp.status == 200 ? resp.data : []})
             .catch (err => {this.mensagemErro =  mainService.catchPadrao(err); });
 
-            const todosSintomas = this.$store.getters.todosSintomas
-            const todasComorbidades = this.$store.getters.todasComorbidades
+            const todosSintomas = this.$store.getters.dbSintomas
+            const todasComorbidades = this.$store.getters.dbComorbidades
             if (pacienteId != 0) {
               let erro = false
 
@@ -555,8 +555,8 @@
           },
           novoCidadao() {
             this.limpaDadosPaciente()
-            this.infoPesquisa.comorbidadesTela = ordenaComorbidades(this.$store.getters.todosSintomas, null)
-            this.infoPesquisa.sintomasTela = ordenaSintomas(this.$store.getters.todasComorbidades, null)
+            this.infoPesquisa.comorbidadesTela = ordenaComorbidades(this.$store.getters.dbSintomas, null)
+            this.infoPesquisa.sintomasTela = ordenaSintomas(this.$store.getters.dbComorbidades, null)
           },
           required(value) {
             if (value instanceof Array && value.length == 0) 

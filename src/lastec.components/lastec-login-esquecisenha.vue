@@ -1,5 +1,5 @@
 <template>
-    <v-bottom-sheet v-model="showTela" inset  max-width="500px">
+    <v-bottom-sheet persistent inset scrollable v-model="showTela" max-width="500px">
         <v-sheet class="text-center">
             <v-card tile class="pa-0 ma-0">
             <v-card-title class="pa-2 teal lighten-2" > <span class="white--text subtitle-1">ESQUECI MINHA SENHA</span> </v-card-title>
@@ -8,6 +8,8 @@
                 <v-card-text class="text-start"> Informe o seu email clique no botão <span class="red--text">SOLICITA CÓDIGO DE ACESSO</span>. Será enviado um código de acesso para o seu e-mail que será válido por 5 minutos.</v-card-text>
                 <v-form ref="myForm" class="pt-5 mx-3" v-model="formChaveValido">
                     <v-text-field 
+                    autofocus
+                    @focus="$event.target.select()"
                     :disabled="isLoading"
                     v-model="email"
                     :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
@@ -125,6 +127,7 @@ export default {
     },
     mounted() {
         this.email = this.chave;
+        this.showTela = true;
     },
     unmounted() {
         clearInterval(this.intervalMensagem);
@@ -136,7 +139,7 @@ export default {
                 this.mensagemCodigoAcesso = `Código enviado, verifique seu email...`;
                 clearInterval(this.intervalMensagem);
             } else 
-                this.mensagemCodigoAcesso = `Código enviado, verifique seu email... ${this.contador}`;
+                this.mensagemCodigoAcesso = `Código enviado, verifique seu email... ${this.contador} segundo(s)` ;
                 
         },
         mostraMensagem() {
@@ -186,7 +189,11 @@ export default {
             });
         },
         fecha(p) {
-            this.$emit('cbFim', p);
+            const param = {
+                trocouSenha: p,
+                senha: p ? this.senhaNova : ''
+            }
+            this.$emit('cbFim', param);
         }
     }
 }

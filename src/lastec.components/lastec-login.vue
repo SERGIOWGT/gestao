@@ -47,6 +47,8 @@
             v-model="email"
             :rules="[rotinasLogin.ChaveRules.obrigatorio(), rotinasLogin.ChaveRules.valido(formatoChave)]"
             :label="nomeChave"
+            autofocus
+            @focus="$event.target.select()"
             required
             clearable
             prepend-icon="mdi-account-circle"
@@ -58,11 +60,11 @@
             v-model="senha"
             :counter="tamanhoMaximoSenha"
             :rules="[rotinasLogin.SenhaRules.min(tamanhoMinimoSenha), rotinasLogin.SenhaRules.max(tamanhoMaximoSenha), rotinasLogin.SenhaRules.valido(formatoSenha, mensagemErroFormatoSenha)]"
-            :type="!senhaNaoVisivel ? 'password' : 'text'"
+            :type="!senhaVisivel ? 'password' : 'text'"
             prepend-icon="mdi-lock"
-            :append-icon="senhaNaoVisivel ? 'mdi-eye' : 'mdi-eye-off'"
-            :append-icon-cb="() => (senhaNaoVisivel = !senhaNaoVisivel)"
-            @click:append="senhaNaoVisivel = !senhaNaoVisivel"
+            :append-icon="senhaVisivel ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon-cb="() => (senhaVisivel = !senhaVisivel)"
+            @click:append="senhaVisivel = !senhaVisivel"
           />
           <v-row class="justify-center pt-5 mt-5">
               <v-btn :disabled="isLoading || !formValido" class="white--text teal lighten-2 botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
@@ -108,7 +110,7 @@ export default {
                 
         formValido: false, 
         isLoading: true,
-        senhaNaoVisivel: false,
+        senhaVisivel: false,
 
         email: '',
         senha: '',
@@ -170,14 +172,20 @@ export default {
         cbFimEsqueciSenha(p) {
           this.showFormEsqueciSenha = false;
           this.mensagemAguarde = '';
-          if (p)
+          this.senhaVisivel = false
+          if (p.trocouSenha) {
             this.mensagemSucesso = 'Senha trocada com sucesso. A partir de agora, use a senha nova'
+            this.senha = p.senha
+          }
         },
         cbFimTrocaSenha(p) {
           this.showFormTrocaSenha = false;
           this.mensagemAguarde = '';
-          if (p)
+          this.senhaVisivel = false
+          if (p.trocouSenha) {
             this.mensagemSucesso = 'Senha trocada com sucesso. A partir de agora, use a senha nova'  
+            this.senha = p.senha
+          }
         },
         async autentica() {
             this.isLoading =true;

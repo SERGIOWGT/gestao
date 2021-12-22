@@ -18,7 +18,7 @@
                         <v-row><v-col cols="12" class="px-1 pb-0 pt-0"><small>{{tituloData}}</small></v-col></v-row>
                         <v-row> 
                             <v-col cols="6" class="px-1 pb-0 pt-2">
-                                <v-text-field dense required clearable
+                                <v-text-field dense required clearable 
                                 label="Início"
                                 v-model="dataInicio"
                                 v-mask="'##/##/####'"
@@ -39,7 +39,7 @@
                     <v-row> 
                         <v-col cols="12" class="px-1 pb-0 pt-2">
                             <v-autocomplete class="pt-1"
-                                dense
+                                dense autofocus
                                 placeholder="Nome do Cidadão"
                                 clearable
                                 :items="pacientes"

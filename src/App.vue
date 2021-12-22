@@ -1,7 +1,7 @@
 <template>
    <v-app>
-    <AppBar v-if="$store.getters.loginFinalizado" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
-        <v-main>
+      <AppBar v-if="$store.getters.loginFinalizado" :titulo="$store.getters.nomeSistema" :urlLogo="urlLogo"/>
+      <v-main>
           <v-container grid-list-md class="pa-0" style="max-width: 600px;">
             <UserBar v-if="$store.getters.userBarAtivo"/>
             <transition appear name="slide" mode="out-in">
@@ -22,7 +22,7 @@ export default {
   data(){
     return {
       titulo: 'Painel Saúde',
-      urlLogo: 'https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png'
+      urlLogo: './assets/logo.png'
     }
   }
 };

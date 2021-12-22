@@ -1,13 +1,11 @@
 import axios from 'axios'
-
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-
 const http = axios.create({
-    baseURL: 'https://sso.homolog.painelsaude.com.br/api/'
+    //baseURL: 'https://sso.homolog.painelsaude.com.br/api/'
     //baseURL: 'https://sso.painelsaude.com.br/api/'
     //baseURL: 'http://localhost:56486/api/'
+    baseURL: process.env.VUE_APP_SSO_SERVICE_URL
 })
-
 http.interceptors.response.use(function (response) {
     return response
   }, function (error) {
@@ -41,8 +39,7 @@ http.interceptors.response.use(function (response) {
     }
 
     return Promise.reject(_erros)
-  })
-
+})
 export default {
     adicionaUsuarioGrupo: (token, usuarioId, grupoAcessoId) => {
         const param = {
@@ -56,7 +53,6 @@ export default {
         const _url =  `v1/usuarios/ativa/${id}?usuarioId=1`
         return http.put(_url, null, { headers: { 'Authorization': `bearer ${token}`}});
     },
-
     listaPermissionamento: (token, usuarioId, sistemaId) => {
         const _url = `v1/Usuarios/${usuarioId}/ListaPermissionamento?sistemaId=${sistemaId}`
 
@@ -100,7 +96,6 @@ export default {
         http.post(url, param, { headers: { 'Authorization': `bearer ${token}`}}) 
             : http.put(url, param, { headers: { 'Authorization': `bearer ${token}`}});
     },
-  
     trocaSenha: (signKey, chave, senha, novaSenha) => {
         const params = {
             'tokenSistema': signKey,
@@ -144,5 +139,4 @@ export default {
         }
         return mensagemErro;
     }
-
 }

@@ -46,7 +46,7 @@
                             </v-row>
                         </v-flex>
                         <v-flex v-if="this.unidadeSaudePadrao.id == 0" >
-                            <v-autocomplete @input="setaUnidadeSaude" class="pb-0 pt-0"
+                            <v-autocomplete @input="setaUnidadeSaude" class="pb-0 pt-2"
                                 dense
                                 clearable
                                 hide-no-data
@@ -282,7 +282,7 @@
                 comorbidades: [],
                 doencas: [],
 
-                dataMaiorVisita: '16/10/2021',
+                dataMaiorVisita: '',
                 ordenacao: 'N',
                 
                 cidadePadrao: null,
@@ -367,6 +367,7 @@
             },
         },
         mounted() {
+            this.dataMaiorVisita = data2String(new Date(), 'BR')
             this.buscaDadosIniciais()
         },   
         methods: {
@@ -374,7 +375,9 @@
                 this.mensagemAguarde = 'Buscando Doenças! Aguarde...'
                 await mainService.listaDoencas()
                 .then (resp => {this.todasDoencas = (resp.status == 200) ? resp.data : []})
-                .catch (resp => {this.mensagemErro =  mainService.catchPadrao(resp)});
+                .catch (err => {
+                    this.mensagemErro =  mainService.catchPadrao(err); 
+                });
 
                 if (this.unidadeSaudePadrao.id == 0) {
                     this.mensagemAguarde = 'Buscando unidades de saude! Aguarde...'
@@ -407,8 +410,8 @@
                     }
                 }
 
-                this.todosSintomas = this.$store.getters.todosSintomas
-                this.todasComorbidades = this.$store.getters.todasComorbidades
+                this.todosSintomas = this.$store.getters.dbSintomas
+                this.todasComorbidades = this.$store.getters.dbComorbidades
 
                 this.mensagemAguarde = ''
                 this.$emit('cbFimBuscaDados')

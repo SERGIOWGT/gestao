@@ -139,7 +139,6 @@
                 .then(_resposta => {
                     this.mensagemAguarde = ''
                     if (_resposta.status == 200) {
-                        console.log('_resposta', _resposta.data)
                         this.resultado = _resposta.data
                         this.gridPronto = true
                         this.fechaPainel()

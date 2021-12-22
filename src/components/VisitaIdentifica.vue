@@ -235,16 +235,6 @@
                     this.mensagemAguarde = ''
                     if (_resposta.status == 200) {
                         this.infoPesquisa.lista = _resposta.data
-
-                        // Carrega os dados
-/*                         this.infoPesquisa.lista.forEach((linha) => {
-                            const _paciente = {
-                                id: linha.id,
-                                nome: linha.nome,
-                                endereco: this.enderecoCidadaoConcatena(linha.nomeLogradouro, linha.numeroEndereco, linha.complementoEndereco),
-                            }
-                            localStorage.setItem(`paciente__${linha.id}`, JSON.stringify(_paciente))
-                        }) */
                         this.gridPronto = true
                         this.fechaPainel()
                     } else {

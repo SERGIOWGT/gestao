@@ -101,7 +101,7 @@
     import ExpansionLista from '../components/ExpansionListaCeS.vue'
     import {stringDataSql2Br, data2String} from '../bibliotecas/formataValores'
     import BottomBar from '../components/StepBottomBar'
-    import {statusVisita } from '../rotinasProjeto/rotinasProjeto'
+    import {statusVisita, enumStatusVisita as _enumStatusVisita} from '../rotinasProjeto/rotinasProjeto'
 
     export default {
         components: {
@@ -116,14 +116,7 @@
           return {
             lRegras: regrasCampos,
             
-            enumStatusVisita: {
-                recusada: 0,
-                pacienteAusente: 1,
-                semPendencia: 2,
-                naoBaixada: 3,
-                baixada: 4
-            },
-
+            enumStatusVisita: _enumStatusVisita,
             cidadePadrao: null,
             painel: 0,
             infoCidadao: {
@@ -247,9 +240,7 @@
                         this.infoCidadao.numeroEndereco = _visita.data.numeroEndereco
                         this.infoCidadao.complementoEndereco = _visita.data.complementoEndereco
                         this.infoCidadao.nomeMicroArea = _visita.data.nomeMicroArea
-                        this.infoCidadao.nomeEstadoSaude = '_visita.data.nomeEstadoSaude'
-
-                        
+                        this.infoCidadao.nomeEstadoSaude = _visita.data.nomeEstadoSaude
                     }
                     else {
                         erroBusca = true

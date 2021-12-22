@@ -116,7 +116,7 @@ export function preparaSintomas2Save(dataBase, sintomas) {
 export function temAcesso (array, funcionalidadeId, tipoFuncionalidadeId, acao) {
     let achou = -1
     for (let i= 0; (i < array.length) && (achou == -1); ++i) {
-        if ((funcionalidadeId == array[i].funcionalidadeId) &&  (array[i].tipoFuncionalidadeId === tipoFuncionalidadeId)) {
+        if ((funcionalidadeId == array[i].funcionalidadeId) && (array[i].tipoFuncionalidadeId === tipoFuncionalidadeId)) {
             if (tipoFuncionalidadeId == 1)
             { 
                 switch (acao)
@@ -148,7 +148,7 @@ export function hoje() {
     return new Date(_dataAux.getFullYear(),_dataAux.getMonth(),_dataAux.getDate())
 }
 
-const  enumStatusVisita = {
+export const enumStatusVisita = {
     recusada: 0,
     pacienteAusente: 1,
     semPendencia: 2,
@@ -167,6 +167,6 @@ export function statusVisita(tipoDesfechoVisitaId, requerSolucao, dataSolucao) {
     if (requerSolucao == 'S') 
         return dataSolucao == '0001-01-01' ? enumStatusVisita.naoBaixada : enumStatusVisita.baixada
 
-    return this.enumStatusVisita.semPendencia
+    return enumStatusVisita.semPendencia
 }
 

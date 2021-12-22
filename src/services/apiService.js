@@ -3,9 +3,10 @@ import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http = axios.create({
-    baseURL: 'https://api.homolog.painelsaude.com.br/api/'
+    //baseURL: 'https://api.homolog.painelsaude.com.br/api/'
     //baseURL: 'https://api.painelsaude.com.br/api/'
     //baseURL: 'https://localhost:44308/api/'
+    baseURL: process.env.VUE_APP_API_SERVICE_URL
 })
 
 http.interceptors.request.use(function (config) {
@@ -137,9 +138,8 @@ export default {
             tipoMotivoVisitaAnaliticoId: 0,
         }
 
-        if (param.ordenacao !== null)
-            url += `?ordenacao=${param.ordenacao}`
-
+        param.ordenacao = param.ordenacao || 0;
+        url += `?ordenacao=${param.ordenacao}`        
         if (param.id)  
             paramPost.id = param.id
         else {

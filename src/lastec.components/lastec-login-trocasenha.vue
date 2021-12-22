@@ -1,5 +1,5 @@
 <template>
-    <v-bottom-sheet v-model="showTela" inset  max-width="500px">
+    <v-bottom-sheet persistent inset v-model="showTela" max-width="500px">
         <v-sheet class="text-center">
           <v-card tile class="pa-0 ma-0">
             <v-card-title class="pa-2 teal lighten-2" > <span class="white--text subtitle-1">TROCA DE SENHA</span> </v-card-title>
@@ -102,8 +102,8 @@ export default {
         },
         async trocaSenha() {
             this.isLoading =true;
+            this.mensagemErro = ''
             this.mensagemAguarde =  'Trocando a senha! Aguarde...'
-            console.log(this.email, this.senhaAtual, this.senhaNova)
             await sso.trocaSenha(this.tokenSistema, this.chave, this.senhaAtual, this.senhaNova)
             .then (resp => {
                 this.mensagemAguarde =  ''
@@ -119,11 +119,14 @@ export default {
                 this.mensagemAguarde =  '';
                 this.isLoading =false; 
                 this.mensagemErro =  sso.catchPadrao(err)
-                console.log('1', this.mensagemErro)
             });
         },
         fecha(p) {
-            this.$emit('cbFim', p);
+            const param = {
+                trocouSenha: p,
+                senha: p ? this.senhaNova : ''
+            }
+            this.$emit('cbFim', param);
         }
     }
 }

@@ -3,7 +3,6 @@ import api from './apiService'
 import store from '../store'
 
 const signKey = 'd5f52a0e-f212-11eb-a054-566fe1410274'
-
 export default {
 
     // Rotinas da Api
@@ -28,36 +27,29 @@ export default {
         return api.listaBairros(_token, cidadeId, id);
     },
     async listaComorbidades() {
-        const nomeCache = `tipoComorbidades__`;
+        const _lista = store.getters.dbComorbidades || [];
 
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
+        if (_lista.length > 0) {
+            console.log(`comorbidades from cache`)
             return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
+                let resp = {status: 200, data: _lista}
                 resolve(resp);
             });
         }
-
-        console.log(`${nomeCache} from server`)
+        console.log(`comorbidades from server`)
         const ret = await api.listaComorbidades(store.getters.apiToken);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
-         return ret;
+        return ret;
     },
     async listaDoencas() {
-        const nomeCache = `tipoDoencas__`;
-
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
+        const _lista = store.getters.dbDoencas || [];
+        if (_lista.length > 0) {
             return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
+                let resp = {status: 200, data: _lista}
                 resolve(resp);
             });
         }
-
-        console.log(`${nomeCache} from server`)
+        console.log(`doencas from server`)
         const ret = await api.listaDoencas(store.getters.apiToken);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
-
         return ret;
     },
     listaLogradouros (bairroId, id) {
@@ -108,20 +100,18 @@ export default {
         return sso.listaPermissionamento(token, usuarioId, sistemaId);
     },
     async listaSintomas() {
-        const nomeCache = `tipoSintomas__`;
+        const _lista = store.getters.dbSintomas || [];
 
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
+        if (_lista.length > 0) {
+            console.log(`sintomas from cache`)
             return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
+                let resp = {status: 200, data: _lista}
                 resolve(resp);
             });
         }
 
-        console.log(`${nomeCache} from server`)
+        console.log(`sintomas from server`)
         const ret = await api.listaSintomas(store.getters.apiToken);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
-       
         return ret;
     },
     listaUnidadesSaude (cidadeId, id, parteNome) {
@@ -129,67 +119,21 @@ export default {
         return api.listaUnidadesSaude(_token, cidadeId, id, parteNome);
     },
     async listaTipoAcaoVisita() {
-        const nomeCache = `tipoAcaoVisita__`;
-
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
-            return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
-                resolve(resp);
-            });
-        }
-
-        console.log(`${nomeCache} from server`)
         const ret = await api.listaTipoAcaoVisita( store.getters.apiToken);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
         return ret;
     },
     async listaTipoMotivoVisita (id) {
-        const nomeCache = `tipoMotivoVisita__${id || ''}`;
-        
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
-            return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
-                resolve(resp);
-            });
-        }
-        console.log(`${nomeCache} from server`)
         const ret = await api.listaTipoMotivoVisita( store.getters.apiToken, id)
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
         return ret;
 
     },
     async listaTipoMotivoAnaliticoVisita (id ) {
-        const nomeCache = `tipoMotivoAnaliticoVisita__${id || ''}`;
-
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
-            return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
-                resolve(resp);
-            });
-        }
-        console.log(`${nomeCache} from server`)
         const ret = await api.listaTipoMotivoAnaliticoVisita( store.getters.apiToken, id);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
         return ret;
 
     },
     async listaTipoSolucaoVisita(cidadeId) {
-        const nomeCache = `tipoSolucaoVisita__${cidadeId || ''}`;
-
-        if (localStorage.getItem(nomeCache)) {
-            console.log(`${nomeCache} from cache`)
-            return new Promise(function(resolve) {
-                let resp = {status: 200, data: JSON.parse(localStorage.getItem(nomeCache) || '[]')}
-                resolve(resp);
-            });
-        }
-
-        console.log(`${nomeCache} from server`)
         const ret = await api.listaTipoSolucaoVisita( store.getters.apiToken, cidadeId);
-        localStorage.setItem(nomeCache, JSON.stringify(ret.status == 200 ? ret.data : []) );
         return ret;
     },
     listaUsuariosSso: (plataformaId) => {
