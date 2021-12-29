@@ -39,7 +39,7 @@
     </v-container>
 </template>
 <script>
-    import IdentificaVisita from '../components/VisitaIdentifica';
+    import IdentificaVisita from '../components/VisitaIdentifica2';
     import CadastraVisita from '../components/VisitaCadastra';
     import CadastraCidadao from '../components/CidadaoCadastra';
     import ConsultaCidadao from '../components/CidadaoConsulta';

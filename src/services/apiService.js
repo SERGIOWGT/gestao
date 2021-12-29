@@ -123,7 +123,7 @@ export default {
             nome: '',
             nomeMae: '',
             numeroEndereco: '',
-            numeroMaxLinhas: 50,
+            numeroMaxLinhas: 200,
             
             RG: '',
             sexo: '',

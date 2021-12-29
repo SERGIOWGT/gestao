@@ -21,6 +21,7 @@
                                 <v-text-field class="pt-0" dense clearable required counter autofocus
                                     :disabled="eExclusao == true"
                                     v-model="infoUsuario.nome"
+                                    autocomplete="false"
                                     label="Nome*"
                                     :rules="[regras.Basicas.obrigatorio(), regras.Basicas.min(5), regras.Basicas.max(100)]"
                                     maxlength="100"
@@ -32,9 +33,11 @@
                                     :disabled="infoUsuario.id != 0"
                                     :rules="[regras.Email.valido(false)]"
                                     maxlength="100"
+                                    :id="dynamicID()"
                                 />
                                 <v-text-field class="pt-2" dense clearable v-if="this.infoUsuario.id == 0"
                                     label="Senha"
+                                    :id="dynamicID()"
                                     v-model="infoUsuario.senha"
                                     prepend-icon="mdi-lock"
                                     :counter="tamanhoMaximoSenha"
@@ -46,6 +49,7 @@
                                 />
                                 <v-text-field class="pt-2" dense clearable v-if="this.infoUsuario.id == 0"
                                     label="Repita a Senha"
+                                    :id="dynamicID()"
                                     v-model="infoUsuario.senha2"
                                     prepend-icon="mdi-lock"
                                     counter
@@ -66,7 +70,7 @@
                                     prepend-icon="mdi-account-key"
                                     :rules="[regraPerfil()]"
                                 ></v-autocomplete> 
-                                <v-autocomplete class="pt-2" dense hide-no-data  return-object
+                                <v-autocomplete class="pt-2" dense hide-no-data  return-object clearable
                                     @input="setaUnidadeSaude"         
                                     :disabled="eExclusao == true || infoUsuario.perfil.permissaoUnidadeSaude == 'N' || unidadesSaude.length === 0 "
                                     :items="unidadesSaude"
@@ -76,9 +80,8 @@
                                     item-text="nome"
                                     prepend-icon="mdi-plus"
                                     :rules="[regraUnidadeSaude()]"
-                                    
                                 ></v-autocomplete> 
-                                <v-autocomplete class="pt-2" dense hide-no-data  
+                                <v-autocomplete class="pt-2" dense hide-no-data clearable
                                     @input="setaMicroArea"                             
                                     :disabled="eExclusao == true || infoUsuario.perfil.permissaoMicroArea == 'N' ||  microAreas.length === 0 "
                                     label="Micro Área*"
@@ -274,6 +277,8 @@ export default {
 
     },
     methods: {
+        dynamicID() { return 'dynamicID-' + Math.floor(Math.random() * Date.now().toString()); },
+
         habilitaAlteracao(itemAtivo, itemPerfilId) {
             return itemAtivo && (this.eMaster || itemPerfilId > 2)
         },
@@ -579,29 +584,25 @@ export default {
         async setaMicroArea(obj) {
             this.infoUsuario.microArea.id = obj == null ? 0 : obj.id;
         },
-        perfil2Grupo(id) {
-            const _id = parseInt(id);
-
-            return 101 + _id;
-        },
-        
         async salva() {
             let erro = false
 
-            const eInclusao = this.infoUsuario.id == 0
-
+            const _eInclusao = this.infoUsuario.id == 0
+            const _perfil = this.perfis.find(x => {return x.id == this.infoUsuario.perfil.id})
+            
             let paramSso = {
                 nome: this.infoUsuario.nome,
                 email: this.infoUsuario.email,
                 plataformaId: this.$store.getters.plataformaId,
-                grupoAcessoId: this.perfil2Grupo(this.infoUsuario.perfil.id),
+                grupoAcessoId: _perfil.grupoSsoId,
                 usuarioId: 1
             }
 
-            if (eInclusao) {
+            if (_eInclusao) {
                 paramSso.senha = this.infoUsuario.senha
             } else {
-                paramSso.grupoAcessoAntigoId = this.perfil2Grupo(this.infoUsuario.perfilAntigoId)
+                const _perfilAntigo = this.perfis.find(x => {return x.id == this.infoUsuario.perfilAntigoId})
+                paramSso.grupoAcessoAntigoId = _perfilAntigo.grupoSsoId
             }
 
             this.salvando = true;

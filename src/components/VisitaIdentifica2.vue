@@ -13,41 +13,71 @@
                                             @cbAbriu="abrePanelOutros" @cbBusca="cbBuscaPorOutros" @cbFimBuscaDados="cbFimBuscaDados"  @cbMensagemAguarde="cbMensagemAguarde" @cbMensagemErro="cbMensagemErro"/>
 
             <v-card flat class="pt-0 mt-0" tile v-if="gridPronto" >
-                <v-list three-line>
-                    <v-subheader class="justify-center px-0">
-                        <v-col class="px-1" cols="9"><b>{{tituloLista}}</b></v-col>                    
-                        <v-col cols="3" ><v-row justify="end"><v-btn icon color="primary" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn></v-row></v-col> 
-                    </v-subheader>
-                    <v-divider></v-divider>
-                    <v-list-item-group color="primary" >
-                        <v-flex v-for="(item) in resultadoTela" :key="item.id">
-                            <v-list-item class="px-1">
-                                <v-row>
-                                    <v-col cols="10">
-                                        <v-list-item-content>
-                                            <v-list-item-title v-html="item.nome"></v-list-item-title>
-                                            <v-list-item-subtitle v-html="enderecoCidadaoConcatena(item.nomeLogradouro, item.numeroEndereco, item.complementoEndereco)"></v-list-item-subtitle>
-                                            <v-list-item-subtitle v-html="item.nomeMicroArea"></v-list-item-subtitle>
-                                            <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
-                                        </v-list-item-content>
-                                    </v-col>
-                                    <v-col cols="2">
-                                        <v-container class="fill-height" fluid>
-                                            <v-row justify="center" align="center">
-                                                <v-btn icon color="primary" @click="incluiVisita(item.id)"><v-icon>mdi-thermometer-plus</v-icon></v-btn>
-                                            </v-row>
-                                            <v-row justify="center" align="center">
-                                                <v-btn icon color="primary" @click="editaCidadao(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
-                                            </v-row>
-                                        </v-container>
-                                    </v-col>
-                                </v-row>
-                            </v-list-item>
-                            <v-divider></v-divider>
-                        </v-flex>
-                    </v-list-item-group>
-                </v-list>
-                <div class="text-center" v-show="numeroPaginas > 0"><v-pagination v-model="paginaAtual" :length="numeroPaginas" total-visible="6"></v-pagination></div>
+                <v-data-table
+                    hide-default-footer
+
+                    :headers="headers"
+                    :items="infoPesquisa.lista"
+                    item-key="nome"
+                    class="elevation-0"
+                    :search="search"
+                    
+                    :page.sync="paginaAtual"
+                    :items-per-page="itensPorPagina"
+                    @page-count="totalPaginas = $event"
+                >
+                    <template v-slot:top> 
+                        <v-row class="ma-1 my-3">
+                            <v-col class="px-1" cols="9">{{tituloLista}}</v-col>                    
+                                    <v-col cols="3" >
+                                        <v-row justify="end">
+                                            <v-btn :disabled="somenteConsulta" icon color="primary" @click="novo()"><v-icon>mdi-account-plus-outline</v-icon></v-btn>
+                                            <v-btn icon color="primary" @click="refresh()"><v-icon>mdi-refresh</v-icon></v-btn>
+                                        </v-row>
+                                    </v-col> 
+                            </v-row>
+                        <v-divider></v-divider>
+                        <v-text-field
+                            append-icon="mdi-magnify"
+                            v-model="search"
+                            label="Pesquisa por Nome"
+                            class="mx-4"
+                        ></v-text-field>
+                        <v-divider></v-divider>
+                    </template>
+                    <template v-slot:body="{ items }">
+                        <v-list-item-group>
+                            <v-flex v-for="(item) in items" :key="item.id">
+                                <v-list-item class="px-1 py-0 my-0">
+                                    <v-list-item-content>
+                                        <v-row>
+                                            <v-col cols="10" >
+                                                <v-list-item-content class="py-0">
+                                                    <v-list-item-title v-html="item.nome"></v-list-item-title>
+                                                    <v-list-item-subtitle v-html="enderecoCidadaoConcatena(item.nomeLogradouro, item.numeroEndereco, item.complementoEndereco)"></v-list-item-subtitle>
+                                                    <v-list-item-subtitle v-html="item.nomeMicroArea"></v-list-item-subtitle>
+                                                    <v-list-item-subtitle v-html="item.nomeEstadoSaude"></v-list-item-subtitle>
+                                                </v-list-item-content>
+                                            </v-col>
+                                            <v-col cols="2">
+                                                <v-container class="fill-height" fluid>
+                                                    <v-row justify="center" align="center">
+                                                        <v-btn icon color="primary" @click="incluiVisita(item.id)"><v-icon>mdi-thermometer-plus</v-icon></v-btn>
+                                                    </v-row>
+                                                    <v-row justify="center" align="center">
+                                                        <v-btn icon color="primary" @click="editaCidadao(item.id)"><v-icon>mdi-account-arrow-right-outline</v-icon></v-btn>
+                                                    </v-row>
+                                                </v-container>
+                                            </v-col>
+                                        </v-row>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                <v-divider></v-divider>
+                            </v-flex>
+                        </v-list-item-group>
+                    </template>
+                </v-data-table> 
+                <v-pagination class="mt-5" v-model="paginaAtual" :length="totalPaginas" total-visible="6"></v-pagination>
             </v-card>
         </v-flex>
     </v-container>
@@ -58,19 +88,28 @@
     import TituloPagina from '../components/TituloPagina'
     import PesquisaPorLocalidadeSintomas from '../components/PesquisaCidadaoPorLocalidadeSintomas'
 
-    
-    const tamanhoPagina = 50;
     export default {
         components: {
             PesquisaPorNome, PesquisaPorLocalidadeSintomas, TituloPagina
         },
         data() {
           return {
+              
+                search: '',
+                headers: [
+                    {
+                        text: 'Nome',
+                        align: 'start',
+                        sortable: false,
+                        value: 'nome',
+                    }
+                ],
+                somenteConsulta: true,
             statusPainel: 1, //0-fechados; 
 
-            numeroPaginas: 0,
-            paginaAtual: 0,
-
+            paginaAtual: 1,
+            totalPaginas: 0,
+            itensPorPagina: 20,
 
             enumTipoPesquisa: {
               porNome: 0,
@@ -85,8 +124,6 @@
 
             cidadePadrao: null,
 
-            retornoTela: [],
-            
             infoPesquisa: {
                 tipo: -1,
                 pacienteId: 0,
@@ -132,14 +169,6 @@
             mensagemSuccesso (val) {
                 this.$emit('cbMensagemSucesso', val)
             },
-            paginaAtual: function (value) {
-                
-                if (value <= 0)
-                    this.resultadoTela = []
-                else {
-                    this.resultadoTela = this.infoPesquisa.lista.slice((value-1) * tamanhoPagina, (value) * tamanhoPagina)
-                }
-            }
         },
         computed: {
             tituloLista: function() {
@@ -253,13 +282,6 @@
                         this.infoPesquisa.lista = _resposta.data
 
                         console.log(this.infoPesquisa.lista.length);
-
-                        if (this.infoPesquisa.lista.length == 0)
-                            this.numeroPaginas = this.paginaAtual = 0
-                        else {
-                            this.numeroPaginas = Math.ceil(this.infoPesquisa.lista.length / tamanhoPagina);
-                            this.paginaAtual = 1
-                        }
 
                         this.gridPronto = true
                         this.fechaPainel()

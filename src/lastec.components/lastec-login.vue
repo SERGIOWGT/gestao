@@ -52,6 +52,7 @@
             required
             clearable
             prepend-icon="mdi-account-circle"
+            :id="dynamicID()"
           ></v-text-field>
           <v-text-field 
             :disabled="isLoading"
@@ -65,6 +66,7 @@
             :append-icon="senhaVisivel ? 'mdi-eye' : 'mdi-eye-off'"
             :append-icon-cb="() => (senhaVisivel = !senhaVisivel)"
             @click:append="senhaVisivel = !senhaVisivel"
+            :id="dynamicID()"
           />
           <v-row class="justify-center pt-5 mt-5">
               <v-btn :disabled="isLoading || !formValido" class="white--text teal lighten-2 botao-arredondado" v-on:click="autentica()">Acessar</v-btn>
@@ -122,10 +124,7 @@ export default {
         formatoChave:  '',
         formatoSenha:  '',
         mensagemErroFormatoSenha: '',
-        permiteRegistroUsuario: false,
-
-        tipoMensagem: 0,
-        mensagemDialog: '',
+        permiteRegistroUsuario: false, 
         mensagem: '',
         mensagemAguarde: '',
       }
@@ -156,6 +155,7 @@ export default {
         },
     },
     methods: {
+        dynamicID() { return 'dynamicID-' + Math.floor(Math.random() * Date.now().toString()); },
         cbMensagem(tipo, msg) {
           switch (tipo) {
             case 'E':
@@ -278,6 +278,7 @@ export default {
         mostraformEsqueciSenha() {
             this.showFormEsqueciSenha =true
         },
+        
     }
 }
 
